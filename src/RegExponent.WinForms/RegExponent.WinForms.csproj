@@ -6,6 +6,14 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 	</PropertyGroup>
 
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net6.0-windows|AnyCPU'">
+	  <CodeAnalysisRuleSet />
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net6.0-windows|AnyCPU'">
+	  <CodeAnalysisRuleSet />
+	</PropertyGroup>
+
 	<ItemGroup>
 		<PackageReference Include="Menees.Windows.Forms" Version="5.0.6" />
 	</ItemGroup>
