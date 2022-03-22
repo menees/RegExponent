@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.1.32228.430
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RegExponent", "src\RegExponent\RegExponent.csproj", "{2F5C122F-FEBD-4019-A01E-C4A00E575F29}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RegExponent.WinForms", "src\RegExponent.WinForms\RegExponent.WinForms.csproj", "{D4520457-0D42-461C-A224-286A23DF4BA5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,10 +11,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{2F5C122F-FEBD-4019-A01E-C4A00E575F29}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2F5C122F-FEBD-4019-A01E-C4A00E575F29}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2F5C122F-FEBD-4019-A01E-C4A00E575F29}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2F5C122F-FEBD-4019-A01E-C4A00E575F29}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D4520457-0D42-461C-A224-286A23DF4BA5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D4520457-0D42-461C-A224-286A23DF4BA5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D4520457-0D42-461C-A224-286A23DF4BA5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D4520457-0D42-461C-A224-286A23DF4BA5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
