@@ -206,6 +206,7 @@
 			this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
 			this.exitToolStripMenuItem.Size = new System.Drawing.Size(129, 22);
 			this.exitToolStripMenuItem.Text = "E&xit";
+			this.exitToolStripMenuItem.Click += new System.EventHandler(this.Exit_Click);
 			// 
 			// modeToolStripMenuItem
 			// 
@@ -267,6 +268,7 @@
 			this.fontToolStripMenuItem.Name = "fontToolStripMenuItem";
 			this.fontToolStripMenuItem.Size = new System.Drawing.Size(196, 22);
 			this.fontToolStripMenuItem.Text = "Font...";
+			this.fontToolStripMenuItem.Click += new System.EventHandler(this.Font_Click);
 			// 
 			// optionsToolStripMenuItem
 			// 

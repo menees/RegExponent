@@ -5,6 +5,26 @@ VisualStudioVersion = 17.1.32228.430
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RegExponent.WinForms", "src\RegExponent.WinForms\RegExponent.WinForms.csproj", "{D4520457-0D42-461C-A224-286A23DF4BA5}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RegExponent", "src\RegExponent\RegExponent.csproj", "{4F43DF2A-A68C-4A50-B333-1748074AEEEA}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Src", "Src", "{028A3783-643F-4F12-9A2B-559A7C2F2018}"
+	ProjectSection(SolutionItems) = preProject
+		src\Directory.Build.props = src\Directory.Build.props
+		src\Directory.Build.targets = src\Directory.Build.targets
+		src\RegExponent.ruleset = src\RegExponent.ruleset
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A2EE826C-29D4-4588-9FE9-0CF2D70BC9B7}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		.gitattributes = .gitattributes
+		.gitignore = .gitignore
+		Build.cmd = Build.cmd
+		global.json = global.json
+		LICENSE = LICENSE
+		README.md = README.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +35,10 @@ Global
 		{D4520457-0D42-461C-A224-286A23DF4BA5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D4520457-0D42-461C-A224-286A23DF4BA5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D4520457-0D42-461C-A224-286A23DF4BA5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4F43DF2A-A68C-4A50-B333-1748074AEEEA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4F43DF2A-A68C-4A50-B333-1748074AEEEA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4F43DF2A-A68C-4A50-B333-1748074AEEEA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4F43DF2A-A68C-4A50-B333-1748074AEEEA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,9 +1,9 @@
 namespace RegExponent
 {
-	using Menees.Windows.Forms;
 	#region Using Directives
 
 	using System;
+	using Menees.Windows.Forms;
 
 	#endregion
 
@@ -13,20 +13,9 @@ namespace RegExponent
 
 		public MainForm()
 		{
-			InitializeComponent();
+			this.InitializeComponent();
 			this.pattern.SelectionIndent = 1;
 			this.replacement.SelectionIndent = 1;
-		}
-
-		#endregion
-
-		#region Protected Methods
-
-		protected override void OnHandleCreated(EventArgs e)
-		{
-			base.OnHandleCreated(e);
-
-			// TODO: Add paint method from https://stackoverflow.com/a/36534068/1882616. [Bill, 3/20/2022]
 		}
 
 		#endregion
@@ -43,6 +32,23 @@ namespace RegExponent
 			if (sender is ToolStripMenuItem item && item.Tag is string text && Uri.TryCreate(text, UriKind.Absolute, out Uri? uri))
 			{
 				WindowsUtility.ShellExecute(this, uri.ToString());
+			}
+		}
+
+		private void Exit_Click(object sender, EventArgs e)
+		{
+			this.Close();
+		}
+
+		private void Font_Click(object sender, EventArgs e)
+		{
+			this.fontDialog.Font = this.pattern.Font;
+			if (this.fontDialog.ShowDialog(this) == DialogResult.OK)
+			{
+				Font font = this.fontDialog.Font;
+				this.pattern.Font = font;
+				this.replacement.Font = font;
+				this.extendedRichTextBox3.Font = font;
 			}
 		}
 
