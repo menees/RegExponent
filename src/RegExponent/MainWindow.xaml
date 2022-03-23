@@ -1,12 +1,125 @@
-﻿<Window x:Class="RegExponent.MainWindow"
+﻿<m:ExtendedWindow x:Class="RegExponent.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+		xmlns:m="http://menees.com/xaml"
         xmlns:local="clr-namespace:RegExponent"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+        Title="MainWindow" Height="450" Width="800"
+				   ResizeMode="CanResizeWithGrip">
 
-    </Grid>
-</Window>
+	<Window.CommandBindings>
+		<CommandBinding Command="local:Commands.Exit" Executed="ExitExecuted" />
+		<CommandBinding Command="Help" Executed="HelpExecuted" />
+		<CommandBinding Command="local:Commands.About" Executed="AboutExecuted" />
+	</Window.CommandBindings>
+
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="1*" MinHeight="25"/>
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="1*" MinHeight="25"/>
+			<RowDefinition Height="Auto"/>
+		</Grid.RowDefinitions>
+
+		<Menu Grid.Row="0" Padding="2">
+			<!-- Initially this menu was showing with the right edge aligned to the menu item.
+			I had to change a Windows setting: Win+R -> shell:::{80F3F1D5-FECA-45F3-BC32-752C152E456E}
+			-> Tablet PC Settings -> Other -> Handedness -> Left Handed
+			https://stackoverflow.com/a/25109673/1882616 -->
+			<MenuItem Header="_File">
+				<MenuItem Header="_New" />
+				<MenuItem Header="_Open..." />
+				<Separator/>
+				<MenuItem Header="_Save" />
+				<MenuItem Header="Save _As..." />
+				<MenuItem Header="A_uto-Save" />
+				<Separator/>
+				<MenuItem Header="_Recent">
+					<MenuItem Header="&lt;None>" IsEnabled="False" />
+				</MenuItem>
+				<Separator/>
+				<MenuItem Header="E_xit" Command="local:Commands.Exit"/>
+			</MenuItem>
+			<MenuItem Header="_Mode">
+				<MenuItem Header="_Match" />
+				<MenuItem Header="_Replace" />
+				<MenuItem Header="_Split" />
+				<Separator/>
+				<MenuItem Header="_Windows Newline: \r\n"/>
+				<MenuItem Header="_Unix Newline: \n"/>
+				<Separator/>
+				<MenuItem Header="_Font..."/>
+			</MenuItem>
+			<MenuItem Header="_Options">
+				<MenuItem Header="Ignore _Case (?i-i)" ToolTip="Use case-insensitive matching."/>
+				<MenuItem Header="Multiline (?m-m)" ToolTip="Use multiline mode, where ^ and $ match the beginning and end of each line (instead of the beginning and end of the input string)."/>
+				<MenuItem Header="Singleline (?s-s)" ToolTip="Use single-line mode, where the period (.) matches every character (instead of every character except \n)."/>
+				<MenuItem Header="Explicit Capture (?n-n)" ToolTip="Do not capture unnamed groups. The only valid captures are explicitly named or numbered groups of the form (?&lt;name> subexpression)."/>
+				<MenuItem Header="Ignore Pattern Whitespace (?x-x)" ToolTip="Exclude unescaped white space from the pattern, and enable comments after a number sign (#)."/>
+				<Separator/>
+				<MenuItem Header="Right To Left" ToolTip="Change the search direction. Search moves from right to left instead of from left to right. For more information,"/>
+				<MenuItem Header="ECMAScript" ToolTip="Enable ECMAScript-compliant behavior for the expression."/>
+				<MenuItem Header="Culture Invariant" ToolTip="Ignore cultural differences in language."/>
+				<Separator/>
+				<MenuItem Header="Insert Inline Options"/>
+			</MenuItem>
+			<MenuItem Header="_Help">
+				<MenuItem Header=".NET Regex _Quick Reference..." Command="Help" CommandParameter="https://docs.microsoft.com/en-us/dotnet/standard/base-types/regular-expression-language-quick-reference"/>
+				<MenuItem Header=".NET Regex _Options..." Command="Help" CommandParameter="https://docs.microsoft.com/en-us/dotnet/standard/base-types/regular-expression-options"/>
+				<Separator/>
+				<MenuItem Header="_About..." Command="local:Commands.About"/>
+			</MenuItem>
+		</Menu>
+
+		<ToolBarPanel Grid.Row="1" ClipToBounds="True">
+			<ToolBar ToolBarTray.IsLocked="True" Margin="0,0,-13,0">
+				<!-- TODO: ToolBar [Bill, 3/22/2022] -->
+				<ToggleButton Content="Match" ToolBar.OverflowMode="Never"/>
+				<ToggleButton Content="Replace" ToolBar.OverflowMode="Never"/>
+				<ToggleButton Content="Split" ToolBar.OverflowMode="Never"/>
+			</ToolBar>
+		</ToolBarPanel>
+
+		<StackPanel Grid.Row="2" Margin="3">
+			<!-- TODO: Pattern panel [Bill, 3/22/2022] -->
+			<RichTextBox AcceptsReturn="False"/>
+		</StackPanel>
+
+		<StackPanel Grid.Row="3" Margin="3">
+			<!-- TODO: Replacement panel [Bill, 3/22/2022] -->
+			<RichTextBox AcceptsReturn="False"/>
+		</StackPanel>
+
+		<DockPanel Grid.Row="4">
+			<!-- TODO: Input panel [Bill, 3/22/2022] -->
+			<Label Content="_Input:" DockPanel.Dock="Top" Padding="5,0,5,0"/>
+			<RichTextBox Margin="3,3,3,0" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"/>
+		</DockPanel>
+
+		<GridSplitter x:Name="splitter" Grid.Row="5" HorizontalAlignment="Stretch" VerticalAlignment="Center" ShowsPreview="True" Height="4" />
+
+		<TabControl Grid.Row="6">
+			<TabItem Header="Matches">
+				<!-- TODO: Matches tab [Bill, 3/22/2022] -->
+				<DataGrid/>
+			</TabItem>
+			<TabItem Header="Output">
+				<!-- TODO: Output tab [Bill, 3/22/2022] -->
+			</TabItem>
+			<TabItem Header="Split">
+				<!-- TODO: Split tab [Bill, 3/22/2022] -->
+			</TabItem>
+		</TabControl>
+
+		<StatusBar Grid.Row="7">
+			<!-- TODO: StatusBar [Bill, 3/22/2022] -->
+			<StatusBarItem Content="(Untitled)"/>
+		</StatusBar>
+	</Grid>
+</m:ExtendedWindow>
