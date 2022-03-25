@@ -1,12 +1,13 @@
-﻿<m:ExtendedWindow x:Class="RegExponent.MainWindow"
+﻿<mah:MetroWindow x:Class="RegExponent.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+		xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 		xmlns:m="http://menees.com/xaml"
         xmlns:local="clr-namespace:RegExponent"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800"
+        Title="RegExponent" Height="450" Width="800"
 				   ResizeMode="CanResizeWithGrip">
 
 	<Window.CommandBindings>
@@ -88,12 +89,12 @@
 
 		<StackPanel Grid.Row="2" Margin="3">
 			<!-- TODO: Pattern panel [Bill, 3/22/2022] -->
-			<RichTextBox AcceptsReturn="False"/>
+			<RichTextBox AcceptsReturn="False" mah:TextBoxHelper.Watermark="Pattern"/>
 		</StackPanel>
 
 		<StackPanel Grid.Row="3" Margin="3">
 			<!-- TODO: Replacement panel [Bill, 3/22/2022] -->
-			<RichTextBox AcceptsReturn="False"/>
+			<RichTextBox AcceptsReturn="False" mah:TextBoxHelper.Watermark="Replacement"/>
 		</StackPanel>
 
 		<DockPanel Grid.Row="4">
@@ -104,7 +105,7 @@
 
 		<GridSplitter x:Name="splitter" Grid.Row="5" HorizontalAlignment="Stretch" VerticalAlignment="Center" ShowsPreview="True" Height="4" />
 
-		<TabControl Grid.Row="6">
+		<TabControl Grid.Row="6" mah:HeaderedControlHelper.HeaderFontSize="16">
 			<TabItem Header="Matches">
 				<!-- TODO: Matches tab [Bill, 3/22/2022] -->
 				<DataGrid/>
@@ -126,4 +127,4 @@
 			<StatusBarItem Content="(Untitled)"/>
 		</StatusBar>
 	</Grid>
-</m:ExtendedWindow>
+</mah:MetroWindow>
