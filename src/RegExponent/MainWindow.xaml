@@ -110,10 +110,14 @@
 				<DataGrid/>
 			</TabItem>
 			<TabItem Header="Output">
+				<RichTextBox IsReadOnly="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+					<RichTextBox.Document>
+						<FlowDocument>
+							<Paragraph>Show replacement text or splits</Paragraph>
+						</FlowDocument>
+					</RichTextBox.Document>
+				</RichTextBox>
 				<!-- TODO: Output tab [Bill, 3/22/2022] -->
-			</TabItem>
-			<TabItem Header="Split">
-				<!-- TODO: Split tab [Bill, 3/22/2022] -->
 			</TabItem>
 		</TabControl>
 
