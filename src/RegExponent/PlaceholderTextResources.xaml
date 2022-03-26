@@ -1,5 +1,5 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+					xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 					xmlns:local="clr-namespace:RegExponent">
 
 	<!--Based on https://prabu-guru.blogspot.com/2010/06/how-to-add-watermark-text-to-textbox.html -->
@@ -25,15 +25,15 @@
 						</Storyboard>
 					</ControlTemplate.Resources>
 					<Border Name="Bd"
-                            Background="{TemplateBinding Background}"
-                            BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}">
+							Background="{TemplateBinding Background}"
+							BorderBrush="{TemplateBinding BorderBrush}"
+							BorderThickness="{TemplateBinding BorderThickness}">
 						<Grid>
 							<ScrollViewer x:Name="PART_ContentHost" VerticalAlignment="Center" Margin="1" />
 							<TextBlock x:Name="Message" FontStyle="Italic"
-                                       Text="{TemplateBinding local:PlaceholderTextHelper.PlaceholderText}"
-                                       Foreground="Gray" IsHitTestVisible="False" FontFamily="Calibri"
-                                       Opacity="0.8" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="6,0,0,0"/>
+									   Text="{TemplateBinding local:PlaceholderTextHelper.PlaceholderText}"
+									   Foreground="Gray" IsHitTestVisible="False" FontFamily="Calibri"
+									   Opacity="0.8" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="6,0,0,0"/>
 						</Grid>
 					</Border>
 					<ControlTemplate.Triggers>
@@ -94,14 +94,14 @@
 						</Storyboard>
 					</ControlTemplate.Resources>
 					<Border Name="Bd"
-                            Background="{TemplateBinding Background}"
-                            BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}">
+							Background="{TemplateBinding Background}"
+							BorderBrush="{TemplateBinding BorderBrush}"
+							BorderThickness="{TemplateBinding BorderThickness}">
 						<Grid>
 							<ScrollViewer x:Name="PART_ContentHost" VerticalAlignment="Center" Margin="1" />
 							<TextBlock x:Name="Message" Text="{TemplateBinding local:PlaceholderTextHelper.PlaceholderText}" FontStyle="Italic"
-                                       Foreground="Gray" IsHitTestVisible="False" FontFamily="Calibri" Opacity="0.8" HorizontalAlignment="Left" VerticalAlignment="Center"
-                                       Margin="6,0,0,0"/>
+									   Foreground="Gray" IsHitTestVisible="False" FontFamily="Calibri" Opacity="0.8" HorizontalAlignment="Left" VerticalAlignment="Center"
+									   Margin="6,0,0,0"/>
 						</Grid>
 					</Border>
 					<ControlTemplate.Triggers>

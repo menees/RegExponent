@@ -35,13 +35,6 @@
 				typeof(PlaceholderTextHelper),
 				new UIPropertyMetadata(string.Empty));
 
-		public static readonly DependencyProperty TextLengthProperty =
-			DependencyProperty.RegisterAttached(
-				"TextLength",
-				typeof(int),
-				typeof(PlaceholderTextHelper),
-				new UIPropertyMetadata(0));
-
 		public static readonly DependencyProperty HasTextProperty =
 			DependencyProperty.RegisterAttached(
 				"HasText",
@@ -83,17 +76,6 @@
 		public static void SetPlaceholderText(DependencyObject obj, string value)
 		{
 			obj.SetValue(PlaceholderTextProperty, value);
-		}
-
-		public static int GetTextLength(DependencyObject obj)
-		{
-			return (int)obj.GetValue(TextLengthProperty);
-		}
-
-		public static void SetTextLength(DependencyObject obj, int value)
-		{
-			obj.SetValue(TextLengthProperty, value);
-			obj.SetValue(HasTextProperty, value >= 1);
 		}
 
 		/// <summary>
@@ -147,11 +129,11 @@
 		{
 			if (sender is TextBox txtBox)
 			{
-				SetTextLength(txtBox, txtBox.Text.Length);
+				SetHasText(txtBox, txtBox.Text.Length > 0);
 			}
 			else if (sender is RichTextBox richTextBox)
 			{
-				// This gets the text length of the first line.
+				// This gets the text length of the first line. RichTextBox always adds a final NewLine.
 				// From https://github.com/MahApps/MahApps.Metro/blob/develop/src/MahApps.Metro/Controls/Helper/TextBoxHelper.cs
 				var textRange = new TextRange(richTextBox.Document.ContentStart, richTextBox.Document.ContentEnd);
 				var text = textRange.Text;
@@ -161,7 +143,7 @@
 					text = text.Remove(lastIndexOfNewLine);
 				}
 
-				SetTextLength(richTextBox, text.Length);
+				SetHasText(richTextBox, text.Length > 0);
 			}
 		}
 
@@ -169,7 +151,7 @@
 		{
 			if (sender is PasswordBox passBox)
 			{
-				SetTextLength(passBox, passBox.Password.Length);
+				SetHasText(passBox, passBox.Password.Length > 0);
 			}
 		}
 
