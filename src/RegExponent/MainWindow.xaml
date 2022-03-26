@@ -7,7 +7,7 @@
         xmlns:local="clr-namespace:RegExponent"
         mc:Ignorable="d"
         Title="RegExponent" Height="450" Width="800"
-				   ResizeMode="CanResizeWithGrip">
+				   ResizeMode="CanResizeWithGrip" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
 
 	<Window.CommandBindings>
 		<CommandBinding Command="local:Commands.Exit" Executed="ExitExecuted" />
@@ -20,6 +20,12 @@
 			<ResourceDictionary.MergedDictionaries>
 				<ResourceDictionary Source="PlaceholderTextResources.xaml" />
 			</ResourceDictionary.MergedDictionaries>
+
+			<Style x:Key="ToolbarToggleButton" TargetType="ToggleButton">
+				<Setter Property="ToolBar.OverflowMode" Value="Never"/>
+				<Setter Property="Margin" Value="1,1,1,0"/>
+				<Setter Property="MinWidth" Value="20"/>
+			</Style>
 		</ResourceDictionary>
 	</Window.Resources>
 
@@ -35,64 +41,73 @@
 			<RowDefinition Height="Auto"/>
 		</Grid.RowDefinitions>
 
-		<Menu Grid.Row="0" Padding="2">
-			<!-- Initially this menu was showing with the right edge aligned to the menu item.
-			I had to change a Windows setting: Win+R -> shell:::{80F3F1D5-FECA-45F3-BC32-752C152E456E}
-			-> Tablet PC Settings -> Other -> Handedness -> Left Handed
-			https://stackoverflow.com/a/25109673/1882616 -->
-			<MenuItem Header="_File">
-				<MenuItem Header="_New" />
-				<MenuItem Header="_Open..." />
-				<Separator/>
-				<MenuItem Header="_Save" />
-				<MenuItem Header="Save _As..." />
-				<MenuItem Header="A_uto-Save" />
-				<Separator/>
-				<MenuItem Header="_Recent">
-					<MenuItem Header="&lt;None>" IsEnabled="False" />
+		<DockPanel Grid.Row="0">
+			<Menu DockPanel.Dock="Left" VerticalAlignment="Center" Padding="4">
+				<!-- Initially this menu was showing with the right edge aligned to the menu item.
+				I had to change a Windows setting: Win+R -> shell:::{80F3F1D5-FECA-45F3-BC32-752C152E456E}
+				-> Tablet PC Settings -> Other -> Handedness -> Left Handed
+				https://stackoverflow.com/a/25109673/1882616 -->
+				<MenuItem Header="_File">
+					<MenuItem Header="_New" />
+					<MenuItem Header="_Open..." />
+					<Separator/>
+					<MenuItem Header="_Save" />
+					<MenuItem Header="Save _As..." />
+					<MenuItem Header="A_uto-Save" />
+					<Separator/>
+					<MenuItem Header="_Recent">
+						<MenuItem Header="&lt;None>" IsEnabled="False" />
+					</MenuItem>
+					<Separator/>
+					<MenuItem Header="E_xit" Command="local:Commands.Exit"/>
 				</MenuItem>
-				<Separator/>
-				<MenuItem Header="E_xit" Command="local:Commands.Exit"/>
-			</MenuItem>
-			<MenuItem Header="_Mode">
-				<MenuItem Header="_Match" />
-				<MenuItem Header="_Replace" />
-				<MenuItem Header="_Split" />
-				<Separator/>
-				<MenuItem Header="_Windows Newline: \r\n"/>
-				<MenuItem Header="_Unix Newline: \n"/>
-				<Separator/>
-				<MenuItem Header="_Font..."/>
-			</MenuItem>
-			<MenuItem Header="_Options">
-				<MenuItem Header="Ignore _Case (?i-i)" ToolTip="Use case-insensitive matching."/>
-				<MenuItem Header="Multiline (?m-m)" ToolTip="Use multiline mode, where ^ and $ match the beginning and end of each line (instead of the beginning and end of the input string)."/>
-				<MenuItem Header="Singleline (?s-s)" ToolTip="Use single-line mode, where the period (.) matches every character (instead of every character except \n)."/>
-				<MenuItem Header="Explicit Capture (?n-n)" ToolTip="Do not capture unnamed groups. The only valid captures are explicitly named or numbered groups of the form (?&lt;name> subexpression)."/>
-				<MenuItem Header="Ignore Pattern Whitespace (?x-x)" ToolTip="Exclude unescaped white space from the pattern, and enable comments after a number sign (#)."/>
-				<Separator/>
-				<MenuItem Header="Right To Left" ToolTip="Change the search direction. Search moves from right to left instead of from left to right. For more information,"/>
-				<MenuItem Header="ECMAScript" ToolTip="Enable ECMAScript-compliant behavior for the expression."/>
-				<MenuItem Header="Culture Invariant" ToolTip="Ignore cultural differences in language."/>
-				<Separator/>
-				<MenuItem Header="Insert Inline Options"/>
-			</MenuItem>
-			<MenuItem Header="_Help">
-				<MenuItem Header=".NET Regex _Quick Reference..." Command="Help" CommandParameter="https://docs.microsoft.com/en-us/dotnet/standard/base-types/regular-expression-language-quick-reference"/>
-				<MenuItem Header=".NET Regex _Options..." Command="Help" CommandParameter="https://docs.microsoft.com/en-us/dotnet/standard/base-types/regular-expression-options"/>
-				<Separator/>
-				<MenuItem Header="_About..." Command="local:Commands.About"/>
-			</MenuItem>
-		</Menu>
+				<MenuItem Header="_Mode">
+					<MenuItem Header="_Match" />
+					<MenuItem Header="_Replace" />
+					<MenuItem Header="_Split" />
+					<Separator/>
+					<MenuItem Header="_Windows Newline: \r\n"/>
+					<MenuItem Header="_Unix Newline: \n"/>
+					<Separator/>
+					<MenuItem Header="_Font..."/>
+				</MenuItem>
+				<MenuItem Header="_Options">
+					<MenuItem Header="Ignore _Case (?i-i)" ToolTip="Use case-insensitive matching."/>
+					<MenuItem Header="Multiline (?m-m)" ToolTip="Use multiline mode, where ^ and $ match the beginning and end of each line (instead of the beginning and end of the input string)."/>
+					<MenuItem Header="Singleline (?s-s)" ToolTip="Use single-line mode, where the period (.) matches every character (instead of every character except \n)."/>
+					<MenuItem Header="Explicit Capture (?n-n)" ToolTip="Do not capture unnamed groups. The only valid captures are explicitly named or numbered groups of the form (?&lt;name> subexpression)."/>
+					<MenuItem Header="Ignore Pattern Whitespace (?x-x)" ToolTip="Exclude unescaped white space from the pattern, and enable comments after a number sign (#)."/>
+					<Separator/>
+					<MenuItem Header="Right To Left" ToolTip="Change the search direction. Search moves from right to left instead of from left to right. For more information,"/>
+					<MenuItem Header="ECMAScript" ToolTip="Enable ECMAScript-compliant behavior for the expression."/>
+					<MenuItem Header="Culture Invariant" ToolTip="Ignore cultural differences in language."/>
+					<Separator/>
+					<MenuItem Header="Insert Inline Options"/>
+				</MenuItem>
+				<MenuItem Header="_Help">
+					<MenuItem Header=".NET Regex _Quick Reference..." Command="Help" CommandParameter="https://docs.microsoft.com/en-us/dotnet/standard/base-types/regular-expression-language-quick-reference"/>
+					<MenuItem Header=".NET Regex _Options..." Command="Help" CommandParameter="https://docs.microsoft.com/en-us/dotnet/standard/base-types/regular-expression-options"/>
+					<Separator/>
+					<MenuItem Header="_About..." Command="local:Commands.About"/>
+				</MenuItem>
+			</Menu>
 
-		<ToolBarPanel Grid.Row="1" ClipToBounds="True">
-			<ToolBar ToolBarTray.IsLocked="True" Margin="0,0,-13,0">
-				<!-- TODO: ToolBar [Bill, 3/22/2022] -->
-				<ToggleButton Content="Match" ToolBar.OverflowMode="Never"/>
-				<ToggleButton Content="Replace" ToolBar.OverflowMode="Never"/>
-				<ToggleButton Content="Split" ToolBar.OverflowMode="Never"/>
-			</ToolBar>
-		</ToolBarPanel>
+			<ToolBarPanel ClipToBounds="True">
+				<ToolBar ToolBarTray.IsLocked="True" Margin="0,0,-13,0" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
+					<!-- TODO: ToolBar [Bill, 3/22/2022] -->
+					<Separator/>
+					<ToggleButton Content="Match" Style="{StaticResource ToolbarToggleButton}"/>
+					<ToggleButton Content="Replace" Style="{StaticResource ToolbarToggleButton}"/>
+					<ToggleButton Content="Split" Style="{StaticResource ToolbarToggleButton}"/>
+					<Separator/>
+					<ToggleButton Content="i" Style="{StaticResource ToolbarToggleButton}" ToolTip="Ignore Case"/>
+					<ToggleButton Content="m" Style="{StaticResource ToolbarToggleButton}" ToolTip="Multiline"/>
+					<ToggleButton Content="s" Style="{StaticResource ToolbarToggleButton}" ToolTip="Singleline"/>
+					<ToggleButton Content="n" Style="{StaticResource ToolbarToggleButton}" ToolTip="Explicit Capture"/>
+					<ToggleButton Content="x" Style="{StaticResource ToolbarToggleButton}" ToolTip="Ignore Pattern Whitespace"/>
+				</ToolBar>
+			</ToolBarPanel>
+		</DockPanel>
 
 		<StackPanel Grid.Row="2" Margin="3">
 			<!-- TODO: Pattern panel [Bill, 3/22/2022] -->

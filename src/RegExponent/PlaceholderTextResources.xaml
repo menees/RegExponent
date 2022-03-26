@@ -3,7 +3,7 @@
 					xmlns:local="clr-namespace:RegExponent">
 
 	<!--Based on https://prabu-guru.blogspot.com/2010/06/how-to-add-watermark-text-to-textbox.html -->
-	<Style TargetType="{x:Type PasswordBox}">
+	<Style x:Key="PlaceholderPasswordBox" TargetType="{x:Type PasswordBox}">
 		<Setter Property="local:PlaceholderTextHelper.IsMonitoring" Value="True"/>
 		<Setter Property="local:PlaceholderTextHelper.PlaceholderText" Value="Password" />
 		<Setter Property="Template">
