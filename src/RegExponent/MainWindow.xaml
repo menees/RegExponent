@@ -1,8 +1,7 @@
-﻿<mah:MetroWindow x:Class="RegExponent.MainWindow"
+﻿<m:ExtendedWindow x:Class="RegExponent.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-		xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 		xmlns:m="http://menees.com/xaml"
         xmlns:local="clr-namespace:RegExponent"
@@ -15,6 +14,14 @@
 		<CommandBinding Command="Help" Executed="HelpExecuted" />
 		<CommandBinding Command="local:Commands.About" Executed="AboutExecuted" />
 	</Window.CommandBindings>
+
+	<Window.Resources>
+		<ResourceDictionary>
+			<ResourceDictionary.MergedDictionaries>
+				<ResourceDictionary Source="PlaceholderTextResources.xaml" />
+			</ResourceDictionary.MergedDictionaries>
+		</ResourceDictionary>
+	</Window.Resources>
 
 	<Grid>
 		<Grid.RowDefinitions>
@@ -89,12 +96,14 @@
 
 		<StackPanel Grid.Row="2" Margin="3">
 			<!-- TODO: Pattern panel [Bill, 3/22/2022] -->
-			<RichTextBox AcceptsReturn="False" mah:TextBoxHelper.Watermark="Pattern"/>
+			<RichTextBox AcceptsReturn="False" Style="{StaticResource PlaceholderTextBox}"
+						 local:PlaceholderTextHelper.PlaceholderText="Pattern"/>
 		</StackPanel>
 
 		<StackPanel Grid.Row="3" Margin="3">
 			<!-- TODO: Replacement panel [Bill, 3/22/2022] -->
-			<RichTextBox AcceptsReturn="False" mah:TextBoxHelper.Watermark="Replacement"/>
+			<RichTextBox AcceptsReturn="False" Style="{StaticResource PlaceholderTextBox}"
+						 local:PlaceholderTextHelper.PlaceholderText="Replacement"/>
 		</StackPanel>
 
 		<DockPanel Grid.Row="4">
@@ -105,7 +114,7 @@
 
 		<GridSplitter x:Name="splitter" Grid.Row="5" HorizontalAlignment="Stretch" VerticalAlignment="Center" ShowsPreview="True" Height="4" />
 
-		<TabControl Grid.Row="6" mah:HeaderedControlHelper.HeaderFontSize="16">
+		<TabControl Grid.Row="6">
 			<TabItem Header="Matches">
 				<!-- TODO: Matches tab [Bill, 3/22/2022] -->
 				<DataGrid/>
@@ -127,4 +136,4 @@
 			<StatusBarItem Content="(Untitled)"/>
 		</StatusBar>
 	</Grid>
-</mah:MetroWindow>
+</m:ExtendedWindow>

@@ -14,7 +14,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MahApps.Metro" Version="2.4.9" />
     <PackageReference Include="Menees.Windows.Presentation" Version="5.0.6" />
   </ItemGroup>
 
