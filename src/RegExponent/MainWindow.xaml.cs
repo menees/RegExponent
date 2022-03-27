@@ -37,14 +37,40 @@
 		public MainWindow()
 		{
 			this.InitializeComponent();
+
 			this.saver = new WindowSaver(this);
 			this.saver.LoadSettings += this.FormSaverLoadSettings;
 			this.saver.SaveSettings += this.FormSaverSaveSettings;
+
+			// Only paste plain text and not rich text.
+			DataObject.AddPastingHandler(this.pattern, OnPaste);
+			DataObject.AddPastingHandler(this.replacement, OnPaste);
+			DataObject.AddPastingHandler(this.input, OnPaste);
 		}
 
 		#endregion
 
 		#region Private Event Handlers
+
+		private static void OnPaste(object sender, DataObjectPastingEventArgs e)
+		{
+			// If rich, formatted text is on the clipboard, we only want to paste it as plain text.
+			// https://stackoverflow.com/a/3061506/1882616
+			bool hasText = e.SourceDataObject.GetDataPresent(DataFormats.UnicodeText, true);
+			if (!hasText)
+			{
+				e.CancelCommand();
+			}
+			else
+			{
+				// Convert any rich text to plain text.
+				// https://stackoverflow.com/a/11306145/1882616
+				string text = e.SourceDataObject.GetData(DataFormats.UnicodeText, true) as string ?? string.Empty;
+				DataObject d = new();
+				d.SetData(DataFormats.UnicodeText, text);
+				e.DataObject = d;
+			}
+		}
 
 		private void ExitExecuted(object? sender, ExecutedRoutedEventArgs e)
 		{
