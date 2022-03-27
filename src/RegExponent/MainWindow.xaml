@@ -22,13 +22,20 @@
 				<ResourceDictionary Source="PlaceholderTextResources.xaml" />
 			</ResourceDictionary.MergedDictionaries>
 
+			<local:Project x:Key="Project"/>
+			<BooleanToVisibilityConverter x:Key="BoolToVisibility"/>
+
 			<Style x:Key="ToolbarToggleButton" TargetType="ToggleButton">
+				<!-- This style needs an explicit key. Toolbar overrides the styles for ToggleButton, so we have to explicitly pick this style. -->
 				<Setter Property="ToolBar.OverflowMode" Value="Never"/>
 				<Setter Property="Margin" Value="1,1,1,0"/>
 				<Setter Property="MinWidth" Value="20"/>
 			</Style>
 
-			<local:Project x:Key="Project"/>
+			<Style TargetType="Paragraph">
+				<!-- https://stackoverflow.com/a/445897/1882616 -->
+				<Setter Property="Margin" Value="0"/>
+			</Style>
 		</ResourceDictionary>
 	</Window.Resources>
 
@@ -85,7 +92,6 @@
 							  ToolTip="Do not capture unnamed groups. The only valid captures are explicitly named or numbered groups of the form (?&lt;name> subexpression)."/>
 					<MenuItem Header="Ignore Pattern Whitespace (?x-x)" IsCheckable="True" IsChecked="{Binding UseIgnorePatternWhitespace, Source={StaticResource Project}}"
 							  ToolTip="Exclude unescaped white space from the pattern, and enable comments after a number sign (#)."/>
-					<Separator/>
 					<MenuItem Header="Right To Left" IsCheckable="True" IsChecked="{Binding UseRightToLeft, Source={StaticResource Project}}"
 							  ToolTip="Change the search direction. Search moves from right to left instead of from left to right." />
 					<MenuItem Header="ECMAScript" IsCheckable="True" IsChecked="{Binding UseECMAScript, Source={StaticResource Project}}"
@@ -115,7 +121,6 @@
 					<ToggleButton Content="s" Style="{StaticResource ToolbarToggleButton}" ToolTip="Singleline (?s-s)" IsChecked="{Binding UseSingleline, Source={StaticResource Project}}"/>
 					<ToggleButton Content="n" Style="{StaticResource ToolbarToggleButton}" ToolTip="Explicit Capture (?n-n)" IsChecked="{Binding UseExplicitCapture, Source={StaticResource Project}}"/>
 					<ToggleButton Content="x" Style="{StaticResource ToolbarToggleButton}" ToolTip="Ignore Pattern Whitespace (?x-x)" IsChecked="{Binding UseIgnorePatternWhitespace, Source={StaticResource Project}}"/>
-					<Separator/>
 					<ToggleButton Content="r" Style="{StaticResource ToolbarToggleButton}" ToolTip="Right To Left" IsChecked="{Binding UseRightToLeft, Source={StaticResource Project}}"/>
 					<ToggleButton Content="e" Style="{StaticResource ToolbarToggleButton}" ToolTip="ECMAScript" IsChecked="{Binding UseECMAScript, Source={StaticResource Project}}"/>
 					<ToggleButton Content="c" Style="{StaticResource ToolbarToggleButton}" ToolTip="Culture Invariant" IsChecked="{Binding UseCultureInvariant, Source={StaticResource Project}}"/>
@@ -125,14 +130,16 @@
 
 		<StackPanel Grid.Row="2" Margin="3">
 			<!-- TODO: Pattern panel [Bill, 3/22/2022] -->
-			<RichTextBox x:Name="pattern" AcceptsReturn="False" Style="{StaticResource PlaceholderTextBox}"
-						 local:PlaceholderTextHelper.PlaceholderText="Pattern"/>
+			<RichTextBox x:Name="pattern" AcceptsReturn="{Binding UseIgnorePatternWhitespace, Source={StaticResource Project}}" Style="{StaticResource PlaceholderTextBox}"
+						 local:PlaceholderTextHelper.PlaceholderText="Pattern" MaxHeight="100" VerticalScrollBarVisibility="Auto"/>
 		</StackPanel>
 
-		<StackPanel Grid.Row="3" Margin="3">
+		<StackPanel Grid.Row="3" Margin="3"
+					Visibility="{Binding InReplaceMode, Source={StaticResource Project}, Converter={StaticResource BoolToVisibility}}">
 			<!-- TODO: Replacement panel [Bill, 3/22/2022] -->
-			<RichTextBox AcceptsReturn="False" Style="{StaticResource PlaceholderTextBox}"
-						 local:PlaceholderTextHelper.PlaceholderText="Replacement"/>
+			<RichTextBox Style="{StaticResource PlaceholderTextBox}"
+						 local:PlaceholderTextHelper.PlaceholderText="Replacement" MaxHeight="100"
+						 VerticalScrollBarVisibility="Auto"/>
 		</StackPanel>
 
 		<DockPanel Grid.Row="4">
@@ -143,19 +150,29 @@
 
 		<GridSplitter x:Name="splitter" Grid.Row="5" HorizontalAlignment="Stretch" VerticalAlignment="Center" ShowsPreview="True" Height="4" />
 
-		<TabControl Grid.Row="6">
+		<TabControl x:Name="bottomTabs" Grid.Row="6">
 			<TabItem Header="Matches">
 				<!-- TODO: Matches tab [Bill, 3/22/2022] -->
 				<DataGrid/>
 			</TabItem>
-			<TabItem Header="Output">
-				<RichTextBox IsReadOnly="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+			<TabItem Header="Output"
+					 Visibility="{Binding InReplaceMode, Converter={StaticResource BoolToVisibility}, Source={StaticResource Project}}"
+					 IsVisibleChanged="OutputTabIsVisibleChanged">
+				<RichTextBox IsReadOnly="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
+								Visibility="{Binding InReplaceMode, Converter={StaticResource BoolToVisibility}, Source={StaticResource Project}}">
 					<RichTextBox.Document>
 						<FlowDocument>
-							<Paragraph>Show replacement text or splits</Paragraph>
+							<Paragraph>Show replacement text</Paragraph>
 						</FlowDocument>
 					</RichTextBox.Document>
 				</RichTextBox>
+				<!-- TODO: Output tab [Bill, 3/22/2022] -->
+			</TabItem>
+			<TabItem Header="Output"
+					 Visibility="{Binding InSplitMode, Converter={StaticResource BoolToVisibility}, Source={StaticResource Project}}"
+					 IsVisibleChanged="OutputTabIsVisibleChanged">
+					<DataGrid
+							  Visibility="{Binding InSplitMode, Converter={StaticResource BoolToVisibility}, Source={StaticResource Project}}"/>
 				<!-- TODO: Output tab [Bill, 3/22/2022] -->
 			</TabItem>
 		</TabControl>

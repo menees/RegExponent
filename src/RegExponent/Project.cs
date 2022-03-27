@@ -9,6 +9,7 @@
 	using System.Text;
 	using System.Text.RegularExpressions;
 	using System.Threading.Tasks;
+	using System.Windows;
 	using Menees.Windows.Presentation;
 
 	#endregion
@@ -17,12 +18,22 @@
 	{
 		#region Private Data Members
 
+		private readonly bool inDesignMode;
 		private bool isModified;
 		private string pattern = string.Empty;
 		private string replacement = string.Empty;
 		private string input = string.Empty;
 		private RegexOptions regexOptions;
 		private Mode mode;
+
+		#endregion
+
+		#region Constructors
+
+		public Project()
+		{
+			this.inDesignMode = WindowsUtility.IsInDesignMode(new DependencyObject());
+		}
 
 		#endregion
 
@@ -69,7 +80,7 @@
 
 		public bool InMatchMode
 		{
-			get => this.mode == Mode.Match;
+			get => this.mode == Mode.Match && !this.inDesignMode;
 			set
 			{
 				if (value && this.Update(ref this.mode, Mode.Match))
@@ -82,7 +93,7 @@
 
 		public bool InReplaceMode
 		{
-			get => this.mode == Mode.Replace;
+			get => this.mode == Mode.Replace || this.inDesignMode;
 			set
 			{
 				if (value && this.Update(ref this.mode, Mode.Replace))
@@ -95,7 +106,7 @@
 
 		public bool InSplitMode
 		{
-			get => this.mode == Mode.Split;
+			get => this.mode == Mode.Split || this.inDesignMode;
 			set
 			{
 				if (value && this.Update(ref this.mode, Mode.Split))

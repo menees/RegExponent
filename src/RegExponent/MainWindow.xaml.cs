@@ -38,8 +38,8 @@
 		{
 			this.InitializeComponent();
 			this.saver = new WindowSaver(this);
-			this.saver.LoadSettings += this.Saver_LoadSettings;
-			this.saver.SaveSettings += this.Saver_SaveSettings;
+			this.saver.LoadSettings += this.FormSaverLoadSettings;
+			this.saver.SaveSettings += this.FormSaverSaveSettings;
 		}
 
 		#endregion
@@ -64,16 +64,27 @@
 			WindowsUtility.ShowAboutBox(this, this.GetType().Assembly, nameof(RegExponent));
 		}
 
-		private void Saver_LoadSettings(object? sender, SettingsEventArgs e)
+		private void FormSaverLoadSettings(object? sender, SettingsEventArgs e)
 		{
-			// TODO: Finish Saver_LoadSettings. [Bill, 3/22/2022]
+			// TODO: Finish FormSaverLoadSettings. [Bill, 3/22/2022]
 			Conditions.RequireReference(this, nameof(MainWindow));
 		}
 
-		private void Saver_SaveSettings(object? sender, SettingsEventArgs e)
+		private void FormSaverSaveSettings(object? sender, SettingsEventArgs e)
 		{
-			// TODO: Finish Saver_SaveSettings. [Bill, 3/22/2022]
+			// TODO: Finish FormSaverSaveSettings. [Bill, 3/22/2022]
 			Conditions.RequireReference(this, nameof(MainWindow));
+		}
+
+		private void OutputTabIsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+		{
+			// When a visible tab becomes collapsed, its content is still visible until we select another tab.
+			// See first comment under https://stackoverflow.com/a/12951255/1882616.
+			if (sender is TabItem tab && !tab.IsVisible && this.bottomTabs.SelectedIndex > 0)
+			{
+				TabItem? lastItem = this.bottomTabs.Items.OfType<TabItem>().LastOrDefault(tab => tab.IsVisible);
+				this.bottomTabs.SelectedIndex = lastItem != null ? this.bottomTabs.Items.IndexOf(lastItem) : 0;
+			}
 		}
 
 		#endregion
