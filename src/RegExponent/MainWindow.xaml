@@ -37,13 +37,17 @@
 				<Setter Property="Margin" Value="0"/>
 			</Style>
 
-			<Style x:Key="RegexMenuPattern" TargetType="TextBlock">
-				<Setter Property="Width" Value="75"/>
-				<Setter Property="Text" Value="{Binding CommandParameter, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type MenuItem}}}"/>
-			</Style>
-
-			<Style x:Key="RegexMenuDescription" TargetType="TextBlock">
-				<Setter Property="Text" Value="{Binding Tag, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type MenuItem}}}"/>
+			<Style x:Key="RegexMenuItem" TargetType="MenuItem">
+				<Setter Property="HeaderTemplate">
+					<Setter.Value>
+						<DataTemplate>
+							<StackPanel Orientation="Horizontal">
+								<TextBlock Width="150" Text="{Binding CommandParameter, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type MenuItem}}}"/>
+								<TextBlock Text="{Binding Tag, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type MenuItem}}}"/>
+							</StackPanel>
+						</DataTemplate>
+					</Setter.Value>
+				</Setter>
 			</Style>
 		</ResourceDictionary>
 	</Window.Resources>
@@ -109,31 +113,23 @@
 							  ToolTip="Ignore cultural differences in language."/>
 					<Separator/>
 					<MenuItem Header="Insert Inline Options"/>
-					<MenuItem Header="Generate C# Code To Clipboard"/>
+					<MenuItem Header="Generate C# To Clipboard"/>
 				</MenuItem>
 				<MenuItem Header="_Help">
 					<MenuItem Header=".NET Regex _Quick Reference..." Command="Help" CommandParameter="https://docs.microsoft.com/en-us/dotnet/standard/base-types/regular-expression-language-quick-reference"/>
 					<MenuItem Header=".NET Regex _Options..." Command="Help" CommandParameter="https://docs.microsoft.com/en-us/dotnet/standard/base-types/regular-expression-options"/>
 					<Separator/>
-					<MenuItem Tag="Word" CommandParameter="\w+">
-						<MenuItem.Header>
-							<!-- TODO: Make this into a MenuItem template. [Bill, 3/28/2022] -->
-							<StackPanel Orientation="Horizontal">
-								<TextBlock Style="{StaticResource RegexMenuPattern}"/>
-								<TextBlock Style="{StaticResource RegexMenuDescription}"/>
-							</StackPanel>
-						</MenuItem.Header>
-					</MenuItem>
-					<MenuItem Header="\d+  =  Unsigned Integer"/>
-					<MenuItem Header="^[a-zA-Z_][a-zA-Z0-9_]*$  =  Simple Identifier"/>
-					<MenuItem Header="(?&lt;name>pattern)  =  Named Capture"/>
+					<MenuItem CommandParameter="\w+" Tag="Word" Style="{StaticResource RegexMenuItem}"/>
+					<MenuItem CommandParameter="\d+" Tag="Unsigned Integer" Style="{StaticResource RegexMenuItem}"/>
+					<MenuItem CommandParameter="^[a-zA-Z_][a-zA-Z0-9_]*$" Tag="Simple Identifier" Style="{StaticResource RegexMenuItem}"/>
+					<MenuItem CommandParameter="(?&lt;name>pattern)" Tag="Named Capture" Style="{StaticResource RegexMenuItem}"/>
 					<Separator/>
-					<MenuItem Header="(?&lt;=pattern)  =  Positive Lookbehind"/>
-					<MenuItem Header="(?&lt;!pattern)  =  Negative Lookbehind"/>
-					<MenuItem Header="(?=pattern)  =  Positive Lookahead"/>
-					<MenuItem Header="(?!pattern)  =  Negative Lookahead"/>
-					<MenuItem Header="\1  =  Backreference First Capture"/>
-					<MenuItem Header="\k&lt;name>  =  Backreference 'name' Capture"/>
+					<MenuItem CommandParameter="(?&lt;=pattern)" Tag="Positive Lookbehind" Style="{StaticResource RegexMenuItem}"/>
+					<MenuItem CommandParameter="(?&lt;!pattern)" Tag="Negative Lookbehind" Style="{StaticResource RegexMenuItem}"/>
+					<MenuItem CommandParameter="(?=pattern)" Tag="Positive Lookahead" Style="{StaticResource RegexMenuItem}"/>
+					<MenuItem CommandParameter="(?!pattern)" Tag="Negative Lookahead" Style="{StaticResource RegexMenuItem}"/>
+					<MenuItem CommandParameter="\1" Tag="Backreference First Capture" Style="{StaticResource RegexMenuItem}"/>
+					<MenuItem CommandParameter="\k&lt;name>" Tag="Backreference Named Capture" Style="{StaticResource RegexMenuItem}"/>
 					<Separator/>
 					<MenuItem Header="_About..." Command="local:Commands.About"/>
 				</MenuItem>
