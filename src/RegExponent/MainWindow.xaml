@@ -11,8 +11,16 @@
 				  FocusManager.FocusedElement="{Binding ElementName=pattern}">
 
 	<Window.CommandBindings>
+		<CommandBinding Command="New" Executed="NewExecuted"/>
+		<CommandBinding Command="Open" Executed="OpenExecuted"/>
+		<CommandBinding Command="Save" Executed="SaveExecuted"/>
+		<CommandBinding Command="SaveAs" Executed="SaveAsExecuted"/>
 		<CommandBinding Command="local:Commands.Exit" Executed="ExitExecuted" />
-		<CommandBinding Command="Help" Executed="HelpExecuted" />
+		<CommandBinding Command="local:Commands.Font" Executed="FontExecuted" />
+		<CommandBinding Command="local:Commands.InsertInlineOptions" Executed="InsertInlineOptionsExecuted" />
+		<CommandBinding Command="local:Commands.GenerateCodeToClipboard" Executed="GenerateCodeToClipboardExecuted" />
+		<CommandBinding Command="local:Commands.ShellExecute" Executed="ShellExecuteExecuted" />
+		<CommandBinding Command="local:Commands.InsertPattern" Executed="InsertPatternExecuted" />
 		<CommandBinding Command="local:Commands.About" Executed="AboutExecuted" />
 	</Window.CommandBindings>
 
@@ -24,6 +32,7 @@
 
 			<local:Project x:Key="Project"/>
 			<BooleanToVisibilityConverter x:Key="BoolToVisibility"/>
+			<m:InverseBooleanConverter x:Key="InvertBool"/>
 
 			<Style x:Key="ToolbarToggleButton" TargetType="ToggleButton">
 				<!-- This style needs an explicit key. Toolbar overrides the styles for ToggleButton, so we have to explicitly pick this style. -->
@@ -71,12 +80,12 @@
 				-> Tablet PC Settings -> Other -> Handedness -> Left Handed
 				https://stackoverflow.com/a/25109673/1882616 -->
 				<MenuItem Header="_File">
-					<MenuItem Header="_New" />
-					<MenuItem Header="_Open..." />
+					<MenuItem Header="_New" Command="New" />
+					<MenuItem Header="_Open..." Command="Open" />
 					<Separator/>
-					<MenuItem Header="_Save" />
-					<MenuItem Header="Save _As..." />
-					<MenuItem Header="A_uto-Save" />
+					<MenuItem Header="_Save" Command="Save" />
+					<MenuItem Header="Save _As..." Command="SaveAs" />
+					<MenuItem Header="A_uto-Save" IsCheckable="True" IsChecked="{Binding AutoSave, Source={StaticResource Project}}" />
 					<Separator/>
 					<MenuItem Header="_Recent">
 						<MenuItem Header="&lt;None>" IsEnabled="False" />
@@ -89,10 +98,10 @@
 					<MenuItem Header="_Replace" IsCheckable="True" IsChecked="{Binding InReplaceMode, Source={StaticResource Project}}"/>
 					<MenuItem Header="_Split" IsCheckable="True" IsChecked="{Binding InSplitMode, Source={StaticResource Project}}"/>
 					<Separator/>
-					<MenuItem Header="_Windows Newline: \r\n"/>
-					<MenuItem Header="_Unix Newline: \n"/>
+					<MenuItem Header="_Windows Newline: \r\n" IsCheckable="True" IsChecked="{Binding UnixNewline, Converter={StaticResource InvertBool}, Source={StaticResource Project}}"/>
+					<MenuItem Header="_Unix Newline: \n" IsCheckable="True" IsChecked="{Binding UnixNewline, Source={StaticResource Project}}"/>
 					<Separator/>
-					<MenuItem Header="_Font..."/>
+					<MenuItem Header="_Font..." Command="local:Commands.Font"/>
 				</MenuItem>
 				<MenuItem Header="_Options">
 					<MenuItem Header="Ignore _Case (?i-i)" IsCheckable="True" IsChecked="{Binding UseIgnoreCase, Source={StaticResource Project}}"
@@ -112,24 +121,24 @@
 					<MenuItem Header="Culture Invariant" IsCheckable="True" IsChecked="{Binding UseCultureInvariant, Source={StaticResource Project}}"
 							  ToolTip="Ignore cultural differences in language."/>
 					<Separator/>
-					<MenuItem Header="Insert Inline Options"/>
-					<MenuItem Header="Generate C# To Clipboard"/>
+					<MenuItem Header="Insert Inline Options" Command="local:Commands.InsertInlineOptions"/>
+					<MenuItem Header="Generate C# To Clipboard" Command="local:Commands.GenerateCodeToClipboard"/>
 				</MenuItem>
 				<MenuItem Header="_Help">
-					<MenuItem Header=".NET Regex _Quick Reference..." Command="Help" CommandParameter="https://docs.microsoft.com/en-us/dotnet/standard/base-types/regular-expression-language-quick-reference"/>
-					<MenuItem Header=".NET Regex _Options..." Command="Help" CommandParameter="https://docs.microsoft.com/en-us/dotnet/standard/base-types/regular-expression-options"/>
+					<MenuItem Header=".NET Regex _Quick Reference..." Command="local:Commands.ShellExecute" CommandParameter="https://docs.microsoft.com/en-us/dotnet/standard/base-types/regular-expression-language-quick-reference"/>
+					<MenuItem Header=".NET Regex _Options..." Command="local:Commands.ShellExecute" CommandParameter="https://docs.microsoft.com/en-us/dotnet/standard/base-types/regular-expression-options"/>
 					<Separator/>
-					<MenuItem CommandParameter="\w+" Tag="Word" Style="{StaticResource RegexMenuItem}"/>
-					<MenuItem CommandParameter="\d+" Tag="Unsigned Integer" Style="{StaticResource RegexMenuItem}"/>
-					<MenuItem CommandParameter="^[a-zA-Z_][a-zA-Z0-9_]*$" Tag="Simple Identifier" Style="{StaticResource RegexMenuItem}"/>
-					<MenuItem CommandParameter="(?&lt;name>pattern)" Tag="Named Capture" Style="{StaticResource RegexMenuItem}"/>
+					<MenuItem CommandParameter="\w+" Tag="Word" Style="{StaticResource RegexMenuItem}" Command="local:Commands.InsertPattern"/>
+					<MenuItem CommandParameter="\d+" Tag="Unsigned Integer" Style="{StaticResource RegexMenuItem}" Command="local:Commands.InsertPattern"/>
+					<MenuItem CommandParameter="^[a-zA-Z_][a-zA-Z0-9_]*$" Tag="Simple Identifier" Style="{StaticResource RegexMenuItem}" Command="local:Commands.InsertPattern"/>
+					<MenuItem CommandParameter="(?&lt;name>pattern)" Tag="Named Capture" Style="{StaticResource RegexMenuItem}" Command="local:Commands.InsertPattern"/>
 					<Separator/>
-					<MenuItem CommandParameter="(?&lt;=pattern)" Tag="Positive Lookbehind" Style="{StaticResource RegexMenuItem}"/>
-					<MenuItem CommandParameter="(?&lt;!pattern)" Tag="Negative Lookbehind" Style="{StaticResource RegexMenuItem}"/>
-					<MenuItem CommandParameter="(?=pattern)" Tag="Positive Lookahead" Style="{StaticResource RegexMenuItem}"/>
-					<MenuItem CommandParameter="(?!pattern)" Tag="Negative Lookahead" Style="{StaticResource RegexMenuItem}"/>
-					<MenuItem CommandParameter="\1" Tag="Backreference First Capture" Style="{StaticResource RegexMenuItem}"/>
-					<MenuItem CommandParameter="\k&lt;name>" Tag="Backreference Named Capture" Style="{StaticResource RegexMenuItem}"/>
+					<MenuItem CommandParameter="(?&lt;=pattern)" Tag="Positive Lookbehind" Style="{StaticResource RegexMenuItem}" Command="local:Commands.InsertPattern"/>
+					<MenuItem CommandParameter="(?&lt;!pattern)" Tag="Negative Lookbehind" Style="{StaticResource RegexMenuItem}" Command="local:Commands.InsertPattern"/>
+					<MenuItem CommandParameter="(?=pattern)" Tag="Positive Lookahead" Style="{StaticResource RegexMenuItem}" Command="local:Commands.InsertPattern"/>
+					<MenuItem CommandParameter="(?!pattern)" Tag="Negative Lookahead" Style="{StaticResource RegexMenuItem}" Command="local:Commands.InsertPattern"/>
+					<MenuItem CommandParameter="\1" Tag="Backreference First Capture" Style="{StaticResource RegexMenuItem}" Command="local:Commands.InsertPattern"/>
+					<MenuItem CommandParameter="\k&lt;name>" Tag="Backreference Named Capture" Style="{StaticResource RegexMenuItem}" Command="local:Commands.InsertPattern"/>
 					<Separator/>
 					<MenuItem Header="_About..." Command="local:Commands.About"/>
 				</MenuItem>

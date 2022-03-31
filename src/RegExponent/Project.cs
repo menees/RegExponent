@@ -25,6 +25,8 @@
 		private string input = string.Empty;
 		private RegexOptions regexOptions;
 		private Mode mode;
+		private bool unixNewline;
+		private bool autoSave;
 
 		#endregion
 
@@ -116,6 +118,10 @@
 				}
 			}
 		}
+
+		public bool UnixNewline { get => this.unixNewline; set => this.Update(ref this.unixNewline, value); }
+
+		public bool AutoSave { get => this.autoSave; set => this.Update(ref this.autoSave, value); }
 
 		#endregion
 

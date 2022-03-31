@@ -77,7 +77,7 @@
 			this.Close();
 		}
 
-		private void HelpExecuted(object? sender, ExecutedRoutedEventArgs e)
+		private void ShellExecuteExecuted(object? sender, ExecutedRoutedEventArgs e)
 		{
 			if (e.Parameter is string text && Uri.TryCreate(text, UriKind.Absolute, out Uri? uri))
 			{
@@ -85,7 +85,7 @@
 			}
 		}
 
-		private void AboutExecuted(object sender, RoutedEventArgs e)
+		private void AboutExecuted(object? sender, ExecutedRoutedEventArgs e)
 		{
 			WindowsUtility.ShowAboutBox(this, this.GetType().Assembly, nameof(RegExponent));
 		}
@@ -102,7 +102,7 @@
 			Conditions.RequireReference(this, nameof(MainWindow));
 		}
 
-		private void OutputTabIsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+		private void OutputTabIsVisibleChanged(object? sender, DependencyPropertyChangedEventArgs e)
 		{
 			// When a visible tab becomes collapsed, its content is still visible until we select another tab.
 			// See first comment under https://stackoverflow.com/a/12951255/1882616.
@@ -111,6 +111,54 @@
 				TabItem? lastItem = this.bottomTabs.Items.OfType<TabItem>().LastOrDefault(tab => tab.IsVisible);
 				this.bottomTabs.SelectedIndex = lastItem != null ? this.bottomTabs.Items.IndexOf(lastItem) : 0;
 			}
+		}
+
+		private void NewExecuted(object? sender, ExecutedRoutedEventArgs e)
+		{
+			// TODO: Finish NewExecuted. [Bill, 3/31/2022]
+			GC.KeepAlive(this);
+		}
+
+		private void OpenExecuted(object? sender, ExecutedRoutedEventArgs e)
+		{
+			// TODO: Finish OpenExecuted. [Bill, 3/31/2022]
+			GC.KeepAlive(this);
+		}
+
+		private void SaveExecuted(object? sender, ExecutedRoutedEventArgs e)
+		{
+			// TODO: Finish SaveExecuted. [Bill, 3/31/2022]
+			GC.KeepAlive(this);
+		}
+
+		private void SaveAsExecuted(object? sender, ExecutedRoutedEventArgs e)
+		{
+			// TODO: Finish SaveAsExecuted. [Bill, 3/31/2022]
+			GC.KeepAlive(this);
+		}
+
+		private void FontExecuted(object? sender, ExecutedRoutedEventArgs e)
+		{
+			// TODO: Finish FontExecuted. [Bill, 3/31/2022]
+			GC.KeepAlive(this);
+		}
+
+		private void InsertInlineOptionsExecuted(object? sender, ExecutedRoutedEventArgs e)
+		{
+			// TODO: Finish InsertInlineOptionsExecuted. [Bill, 3/31/2022]
+			GC.KeepAlive(this);
+		}
+
+		private void GenerateCodeToClipboardExecuted(object? sender, ExecutedRoutedEventArgs e)
+		{
+			// TODO: Finish GenerateCodeToClipboardExecuted. [Bill, 3/31/2022]
+			GC.KeepAlive(this);
+		}
+
+		private void InsertPatternExecuted(object? sender, ExecutedRoutedEventArgs e)
+		{
+			// TODO: Finish InsertPatternExecuted. [Bill, 3/31/2022]
+			GC.KeepAlive(this);
 		}
 
 		#endregion
