@@ -147,7 +147,6 @@
 
 			<ToolBarPanel ClipToBounds="True">
 				<ToolBar ToolBarTray.IsLocked="True" Margin="0,0,-13,0" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
-					<!-- TODO: ToolBar [Bill, 3/22/2022] -->
 					<ToggleButton Content="Match" Style="{StaticResource ToolbarToggleButton}" IsChecked="{Binding InMatchMode, Source={StaticResource Project}}"/>
 					<ToggleButton Content="Replace" Style="{StaticResource ToolbarToggleButton}" IsChecked="{Binding InReplaceMode, Source={StaticResource Project}}"/>
 					<ToggleButton Content="Split" Style="{StaticResource ToolbarToggleButton}" IsChecked="{Binding InSplitMode, Source={StaticResource Project}}"/>
@@ -165,21 +164,18 @@
 		</DockPanel>
 
 		<StackPanel Grid.Row="2" Margin="3">
-			<!-- TODO: Pattern panel [Bill, 3/22/2022] -->
 			<RichTextBox x:Name="pattern" AcceptsReturn="{Binding UseIgnorePatternWhitespace, Source={StaticResource Project}}" Style="{StaticResource PlaceholderTextBox}"
 						 local:PlaceholderTextHelper.PlaceholderText="Pattern" MaxHeight="100" VerticalScrollBarVisibility="Auto"/>
 		</StackPanel>
 
 		<StackPanel Grid.Row="3" Margin="3"
 					Visibility="{Binding InReplaceMode, Source={StaticResource Project}, Converter={StaticResource BoolToVisibility}}">
-			<!-- TODO: Replacement panel [Bill, 3/22/2022] -->
 			<RichTextBox x:Name="replacement" Style="{StaticResource PlaceholderTextBox}"
 						 local:PlaceholderTextHelper.PlaceholderText="Replacement" MaxHeight="100"
 						 VerticalScrollBarVisibility="Auto"/>
 		</StackPanel>
 
 		<DockPanel Grid.Row="4">
-			<!-- TODO: Input panel [Bill, 3/22/2022] -->
 			<Label Content="_Input:" DockPanel.Dock="Top" Padding="5,0,5,0"/>
 			<RichTextBox x:Name="input" Margin="3,3,3,0" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"/>
 		</DockPanel>
@@ -194,7 +190,7 @@
 			<TabItem Header="Output"
 					 Visibility="{Binding InReplaceMode, Converter={StaticResource BoolToVisibility}, Source={StaticResource Project}}"
 					 IsVisibleChanged="OutputTabIsVisibleChanged">
-				<RichTextBox IsReadOnly="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
+				<RichTextBox x:Name="replacedOutput" IsReadOnly="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
 								Visibility="{Binding InReplaceMode, Converter={StaticResource BoolToVisibility}, Source={StaticResource Project}}">
 					<RichTextBox.Document>
 						<FlowDocument>
@@ -202,19 +198,21 @@
 						</FlowDocument>
 					</RichTextBox.Document>
 				</RichTextBox>
-				<!-- TODO: Output tab [Bill, 3/22/2022] -->
+				<!-- TODO: Output (Replace) tab [Bill, 3/22/2022] -->
 			</TabItem>
 			<TabItem Header="Output"
 					 Visibility="{Binding InSplitMode, Converter={StaticResource BoolToVisibility}, Source={StaticResource Project}}"
 					 IsVisibleChanged="OutputTabIsVisibleChanged">
 					<DataGrid
 							  Visibility="{Binding InSplitMode, Converter={StaticResource BoolToVisibility}, Source={StaticResource Project}}"/>
-				<!-- TODO: Output tab [Bill, 3/22/2022] -->
+				<!-- TODO: Output (Split) tab [Bill, 3/22/2022] -->
 			</TabItem>
 		</TabControl>
 
 		<StatusBar Grid.Row="7">
 			<!-- TODO: StatusBar [Bill, 3/22/2022] -->
+			<StatusBarItem Content="0:00:00.000"/>
+			<Separator/>
 			<StatusBarItem Content="(Untitled)"/>
 		</StatusBar>
 	</Grid>

@@ -18,6 +18,9 @@
 	using System.Windows.Shapes;
 	using Menees;
 	using Menees.Windows.Presentation;
+	using Microsoft.Win32;
+	using Drawing = System.Drawing;
+	using WinForms = System.Windows.Forms;
 
 	#endregion
 
@@ -46,6 +49,33 @@
 			DataObject.AddPastingHandler(this.pattern, OnPaste);
 			DataObject.AddPastingHandler(this.replacement, OnPaste);
 			DataObject.AddPastingHandler(this.input, OnPaste);
+
+			// TODO: Handle SystemEvents.SessionEnding. If IsModified, then auto-save and close. [Bill, 3/31/2022]
+		}
+
+		#endregion
+
+		#region Private Methods
+
+		private static void ApplyFont(Control control, Drawing.Font font)
+		{
+			// From https://stackoverflow.com/a/37578593/1882616
+			control.FontFamily = new FontFamily(font.Name);
+			switch (font.Unit)
+			{
+				case Drawing.GraphicsUnit.Point:
+					const double XamlPixelsPerInch = 96.0;
+					const double DrawingPointsPerInch = 72.0;
+					control.FontSize = font.Size * XamlPixelsPerInch / DrawingPointsPerInch;
+					break;
+
+				case Drawing.GraphicsUnit.Pixel:
+					control.FontSize = font.Size;
+					break;
+			}
+
+			control.FontWeight = font.Bold ? FontWeights.Bold : FontWeights.Regular;
+			control.FontStyle = font.Italic ? FontStyles.Italic : FontStyles.Normal;
 		}
 
 		#endregion
@@ -82,6 +112,7 @@
 			if (e.Parameter is string text && Uri.TryCreate(text, UriKind.Absolute, out Uri? uri))
 			{
 				WindowsUtility.ShellExecute(this, uri.ToString());
+				e.Handled = true;
 			}
 		}
 
@@ -121,6 +152,9 @@
 
 		private void OpenExecuted(object? sender, ExecutedRoutedEventArgs e)
 		{
+			OpenFileDialog dialog = new();
+			dialog.ShowDialog();
+
 			// TODO: Finish OpenExecuted. [Bill, 3/31/2022]
 			GC.KeepAlive(this);
 		}
@@ -133,14 +167,42 @@
 
 		private void SaveAsExecuted(object? sender, ExecutedRoutedEventArgs e)
 		{
+			SaveFileDialog dialog = new();
+			dialog.ShowDialog();
+
 			// TODO: Finish SaveAsExecuted. [Bill, 3/31/2022]
 			GC.KeepAlive(this);
 		}
 
 		private void FontExecuted(object? sender, ExecutedRoutedEventArgs e)
 		{
-			// TODO: Finish FontExecuted. [Bill, 3/31/2022]
-			GC.KeepAlive(this);
+			// WPF doesn't provide a common font dialog. The WinForms dialog is ugly but available.
+			// https://stackoverflow.com/a/37578593/1882616
+			using WinForms.FontDialog dialog = new()
+			{
+				AllowScriptChange = false,
+				AllowSimulations = false,
+				AllowVectorFonts = false,
+				AllowVerticalFonts = false,
+				FontMustExist = true,
+#pragma warning disable MEN010 // Avoid magic numbers. Font point sizes are clear in context.
+				MinSize = 8,
+				MaxSize = 20,
+#pragma warning restore MEN010 // Avoid magic numbers
+				ScriptsOnly = true,
+				ShowApply = false,
+				ShowColor = false,
+				ShowEffects = false,
+				ShowHelp = false,
+			};
+
+			if (dialog.ShowDialog() == WinForms.DialogResult.OK)
+			{
+				ApplyFont(this.pattern, dialog.Font);
+				ApplyFont(this.replacement, dialog.Font);
+				ApplyFont(this.input, dialog.Font);
+				ApplyFont(this.replacedOutput, dialog.Font);
+			}
 		}
 
 		private void InsertInlineOptionsExecuted(object? sender, ExecutedRoutedEventArgs e)
@@ -157,8 +219,16 @@
 
 		private void InsertPatternExecuted(object? sender, ExecutedRoutedEventArgs e)
 		{
-			// TODO: Finish InsertPatternExecuted. [Bill, 3/31/2022]
-			GC.KeepAlive(this);
+			if (e.Parameter is string text)
+			{
+				// TODO: If text is selected, it should be replaced. [Bill, 4/2/2022]
+				// Make sure the caret moves to the end of the text after insertion by ensuring LogicalDirection is Forward.
+				// We can't directly set TextPointer.LogicalDirection, so we have to replace the TextPointer with a new instance.
+				// https://stackoverflow.com/a/2916699/1882616
+				this.pattern.CaretPosition = this.pattern.CaretPosition.GetPositionAtOffset(0, LogicalDirection.Forward);
+				this.pattern.CaretPosition.InsertTextInRun(text);
+				e.Handled = true;
+			}
 		}
 
 		#endregion
