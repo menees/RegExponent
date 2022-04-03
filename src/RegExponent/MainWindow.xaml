@@ -25,40 +25,34 @@
 	</Window.CommandBindings>
 
 	<Window.Resources>
-		<ResourceDictionary>
-			<ResourceDictionary.MergedDictionaries>
-				<ResourceDictionary Source="PlaceholderTextResources.xaml" />
-			</ResourceDictionary.MergedDictionaries>
+		<local:Project x:Key="Project"/>
+		<BooleanToVisibilityConverter x:Key="BoolToVisibility"/>
+		<m:InverseBooleanConverter x:Key="InvertBool"/>
 
-			<local:Project x:Key="Project"/>
-			<BooleanToVisibilityConverter x:Key="BoolToVisibility"/>
-			<m:InverseBooleanConverter x:Key="InvertBool"/>
+		<Style x:Key="ToolbarToggleButton" TargetType="ToggleButton">
+			<!-- This style needs an explicit key. Toolbar overrides the styles for ToggleButton, so we have to explicitly pick this style. -->
+			<Setter Property="ToolBar.OverflowMode" Value="Never"/>
+			<Setter Property="Margin" Value="1,1,1,0"/>
+			<Setter Property="MinWidth" Value="20"/>
+		</Style>
 
-			<Style x:Key="ToolbarToggleButton" TargetType="ToggleButton">
-				<!-- This style needs an explicit key. Toolbar overrides the styles for ToggleButton, so we have to explicitly pick this style. -->
-				<Setter Property="ToolBar.OverflowMode" Value="Never"/>
-				<Setter Property="Margin" Value="1,1,1,0"/>
-				<Setter Property="MinWidth" Value="20"/>
-			</Style>
+		<Style TargetType="Paragraph">
+			<!-- https://stackoverflow.com/a/445897/1882616 -->
+			<Setter Property="Margin" Value="0"/>
+		</Style>
 
-			<Style TargetType="Paragraph">
-				<!-- https://stackoverflow.com/a/445897/1882616 -->
-				<Setter Property="Margin" Value="0"/>
-			</Style>
-
-			<Style x:Key="RegexMenuItem" TargetType="MenuItem">
-				<Setter Property="HeaderTemplate">
-					<Setter.Value>
-						<DataTemplate>
-							<StackPanel Orientation="Horizontal">
-								<TextBlock Width="150" Text="{Binding CommandParameter, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type MenuItem}}}"/>
-								<TextBlock Text="{Binding Tag, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type MenuItem}}}"/>
-							</StackPanel>
-						</DataTemplate>
-					</Setter.Value>
-				</Setter>
-			</Style>
-		</ResourceDictionary>
+		<Style x:Key="RegexMenuItem" TargetType="MenuItem">
+			<Setter Property="HeaderTemplate">
+				<Setter.Value>
+					<DataTemplate>
+						<StackPanel Orientation="Horizontal">
+							<TextBlock Width="150" Text="{Binding CommandParameter, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type MenuItem}}}"/>
+							<TextBlock Text="{Binding Tag, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type MenuItem}}}"/>
+						</StackPanel>
+					</DataTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
 	</Window.Resources>
 
 	<Grid>
@@ -164,22 +158,24 @@
 		</DockPanel>
 
 		<StackPanel Grid.Row="2" Margin="3">
-			<RichTextBox x:Name="pattern" AcceptsReturn="{Binding UseIgnorePatternWhitespace, Source={StaticResource Project}}" Style="{StaticResource PlaceholderTextBox}"
-						 local:PlaceholderTextHelper.PlaceholderText="Pattern" MaxHeight="100"
+			<RichTextBox x:Name="pattern" AcceptsReturn="{Binding UseIgnorePatternWhitespace, Source={StaticResource Project}}" Style="{StaticResource Menees.Windows.Presentation.PlaceholderTextBox}"
+						 m:PlaceholderTextHelper.PlaceholderText="Pattern" MaxHeight="100"
 						 VerticalScrollBarVisibility="Auto" IsInactiveSelectionHighlightEnabled="True"/>
 		</StackPanel>
 
 		<StackPanel Grid.Row="3" Margin="3"
 					Visibility="{Binding InReplaceMode, Source={StaticResource Project}, Converter={StaticResource BoolToVisibility}}">
-			<RichTextBox x:Name="replacement" Style="{StaticResource PlaceholderTextBox}"
-						 local:PlaceholderTextHelper.PlaceholderText="Replacement" MaxHeight="100"
+			<RichTextBox x:Name="replacement" Style="{StaticResource Menees.Windows.Presentation.PlaceholderTextBox}"
+						 m:PlaceholderTextHelper.PlaceholderText="Replacement" MaxHeight="100"
 						 VerticalScrollBarVisibility="Auto" IsInactiveSelectionHighlightEnabled="True"/>
 		</StackPanel>
 
 		<DockPanel Grid.Row="4">
 			<Label Content="_Input:" DockPanel.Dock="Top" Padding="5,0,5,0"/>
 			<RichTextBox x:Name="input" Margin="3,3,3,0" HorizontalScrollBarVisibility="Auto"
-						 VerticalScrollBarVisibility="Auto" IsInactiveSelectionHighlightEnabled="True"/>
+						 VerticalScrollBarVisibility="Auto" IsInactiveSelectionHighlightEnabled="True"
+						 Style="{StaticResource Menees.Windows.Presentation.PlaceholderTextBox}"
+						 m:PlaceholderTextHelper.PlaceholderText="Text to search for matches"/>
 		</DockPanel>
 
 		<GridSplitter x:Name="splitter" Grid.Row="5" HorizontalAlignment="Stretch" VerticalAlignment="Center" ShowsPreview="True" Height="4" />
