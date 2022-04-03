@@ -165,19 +165,21 @@
 
 		<StackPanel Grid.Row="2" Margin="3">
 			<RichTextBox x:Name="pattern" AcceptsReturn="{Binding UseIgnorePatternWhitespace, Source={StaticResource Project}}" Style="{StaticResource PlaceholderTextBox}"
-						 local:PlaceholderTextHelper.PlaceholderText="Pattern" MaxHeight="100" VerticalScrollBarVisibility="Auto"/>
+						 local:PlaceholderTextHelper.PlaceholderText="Pattern" MaxHeight="100"
+						 VerticalScrollBarVisibility="Auto" IsInactiveSelectionHighlightEnabled="True"/>
 		</StackPanel>
 
 		<StackPanel Grid.Row="3" Margin="3"
 					Visibility="{Binding InReplaceMode, Source={StaticResource Project}, Converter={StaticResource BoolToVisibility}}">
 			<RichTextBox x:Name="replacement" Style="{StaticResource PlaceholderTextBox}"
 						 local:PlaceholderTextHelper.PlaceholderText="Replacement" MaxHeight="100"
-						 VerticalScrollBarVisibility="Auto"/>
+						 VerticalScrollBarVisibility="Auto" IsInactiveSelectionHighlightEnabled="True"/>
 		</StackPanel>
 
 		<DockPanel Grid.Row="4">
 			<Label Content="_Input:" DockPanel.Dock="Top" Padding="5,0,5,0"/>
-			<RichTextBox x:Name="input" Margin="3,3,3,0" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"/>
+			<RichTextBox x:Name="input" Margin="3,3,3,0" HorizontalScrollBarVisibility="Auto"
+						 VerticalScrollBarVisibility="Auto" IsInactiveSelectionHighlightEnabled="True"/>
 		</DockPanel>
 
 		<GridSplitter x:Name="splitter" Grid.Row="5" HorizontalAlignment="Stretch" VerticalAlignment="Center" ShowsPreview="True" Height="4" />
@@ -191,7 +193,8 @@
 					 Visibility="{Binding InReplaceMode, Converter={StaticResource BoolToVisibility}, Source={StaticResource Project}}"
 					 IsVisibleChanged="OutputTabIsVisibleChanged">
 				<RichTextBox x:Name="replacedOutput" IsReadOnly="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
-								Visibility="{Binding InReplaceMode, Converter={StaticResource BoolToVisibility}, Source={StaticResource Project}}">
+							Visibility="{Binding InReplaceMode, Converter={StaticResource BoolToVisibility}, Source={StaticResource Project}}"
+							IsInactiveSelectionHighlightEnabled="True">
 					<RichTextBox.Document>
 						<FlowDocument>
 							<Paragraph>Show replacement text</Paragraph>

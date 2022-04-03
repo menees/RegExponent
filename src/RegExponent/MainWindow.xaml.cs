@@ -6,6 +6,7 @@
 	using System.Collections.Generic;
 	using System.Linq;
 	using System.Text;
+	using System.Text.RegularExpressions;
 	using System.Threading.Tasks;
 	using System.Windows;
 	using System.Windows.Controls;
@@ -31,6 +32,7 @@
 	{
 		#region Private Data Members
 
+		private readonly Project project;
 		private readonly WindowSaver saver;
 
 		#endregion
@@ -40,6 +42,8 @@
 		public MainWindow()
 		{
 			this.InitializeComponent();
+
+			this.project = (Project)this.FindResource(nameof(Project));
 
 			this.saver = new WindowSaver(this);
 			this.saver.LoadSettings += this.FormSaverLoadSettings;
@@ -76,6 +80,22 @@
 
 			control.FontWeight = font.Bold ? FontWeights.Bold : FontWeights.Regular;
 			control.FontStyle = font.Italic ? FontStyles.Italic : FontStyles.Normal;
+		}
+
+		private static void InsertText(RichTextBox richTextBox, string text)
+		{
+			if (!richTextBox.Selection.IsEmpty)
+			{
+				richTextBox.Selection.Text = text;
+			}
+			else
+			{
+				// Make sure the caret moves to the end of the text after insertion by ensuring LogicalDirection is Forward.
+				// We can't directly set TextPointer.LogicalDirection, so we have to replace the TextPointer with a new instance.
+				// https://stackoverflow.com/a/2916699/1882616
+				richTextBox.CaretPosition = richTextBox.CaretPosition.GetPositionAtOffset(0, LogicalDirection.Forward);
+				richTextBox.CaretPosition.InsertTextInRun(text);
+			}
 		}
 
 		#endregion
@@ -207,8 +227,28 @@
 
 		private void InsertInlineOptionsExecuted(object? sender, ExecutedRoutedEventArgs e)
 		{
-			// TODO: Finish InsertInlineOptionsExecuted. [Bill, 3/31/2022]
-			GC.KeepAlive(this);
+			string positive = string.Empty;
+			string negative = string.Empty;
+			void AddOption(bool isEnabled, char inline)
+			{
+				if (isEnabled)
+				{
+					positive += inline;
+				}
+				else
+				{
+					negative += inline;
+				}
+			}
+
+			AddOption(this.project.UseIgnoreCase, 'i');
+			AddOption(this.project.UseMultiline, 'm');
+			AddOption(this.project.UseSingleline, 's');
+			AddOption(this.project.UseExplicitCapture, 'n');
+			AddOption(this.project.UseIgnorePatternWhitespace, 'x');
+
+			string inlineOptions = negative.IsBlank() ? $"(?{positive})" : $"(?{positive}-{negative})";
+			InsertText(this.pattern, inlineOptions);
 		}
 
 		private void GenerateCodeToClipboardExecuted(object? sender, ExecutedRoutedEventArgs e)
@@ -221,12 +261,7 @@
 		{
 			if (e.Parameter is string text)
 			{
-				// TODO: If text is selected, it should be replaced. [Bill, 4/2/2022]
-				// Make sure the caret moves to the end of the text after insertion by ensuring LogicalDirection is Forward.
-				// We can't directly set TextPointer.LogicalDirection, so we have to replace the TextPointer with a new instance.
-				// https://stackoverflow.com/a/2916699/1882616
-				this.pattern.CaretPosition = this.pattern.CaretPosition.GetPositionAtOffset(0, LogicalDirection.Forward);
-				this.pattern.CaretPosition.InsertTextInRun(text);
+				InsertText(this.pattern, text);
 				e.Handled = true;
 			}
 		}

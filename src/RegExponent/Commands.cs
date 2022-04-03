@@ -25,9 +25,11 @@
 
 		public static readonly RoutedUICommand Font = new(nameof(Font), nameof(Font), typeof(Commands));
 
-		public static readonly RoutedUICommand InsertInlineOptions = new("Insert Inline Options", nameof(InsertInlineOptions), typeof(Commands));
+		public static readonly RoutedUICommand InsertInlineOptions
+			= new(nameof(InsertInlineOptions), nameof(InsertInlineOptions), typeof(Commands));
 
-		public static readonly RoutedUICommand GenerateCodeToClipboard = new("Generate C# To Clipboard", nameof(GenerateCodeToClipboard), typeof(Commands));
+		public static readonly RoutedUICommand GenerateCodeToClipboard
+			= new(nameof(GenerateCodeToClipboard), nameof(GenerateCodeToClipboard), typeof(Commands));
 
 		public static readonly RoutedUICommand ShellExecute = new(nameof(ShellExecute), nameof(ShellExecute), typeof(Commands));
 
