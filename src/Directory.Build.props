@@ -17,7 +17,6 @@
 		<TargetFrameworks>net6.0-windows</TargetFrameworks>
 
 		<RepoSrcFolder>$(MSBuildThisFileDirectory)</RepoSrcFolder>
-		<CodeAnalysisRuleSet>$(RepoSrcFolder)RegExponent.ruleset</CodeAnalysisRuleSet>
 		<UseCustomCodeAnalyzers>true</UseCustomCodeAnalyzers>
 		<Nullable>enable</Nullable>
 		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
