@@ -247,7 +247,7 @@
 			AddOption(this.project.UseExplicitCapture, 'n');
 			AddOption(this.project.UseIgnorePatternWhitespace, 'x');
 
-			string inlineOptions = negative.IsBlank() ? $"(?{positive})" : $"(?{positive}-{negative})";
+			string inlineOptions = negative.IsEmpty() ? $"(?{positive})" : $"(?{positive}-{negative})";
 			InsertText(this.pattern, inlineOptions);
 		}
 
