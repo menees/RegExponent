@@ -122,6 +122,47 @@
 
 		#endregion
 
+		#region Public Methods
+
+		public void Clear()
+		{
+			// Set the public properties rather than the backing members to ensure change notifications are sent.
+			this.Pattern = string.Empty;
+			this.Replacement = string.Empty;
+			this.Input = string.Empty;
+
+			this.UseIgnoreCase = default;
+			this.UseMultiline = default;
+			this.UseSingleline = default;
+			this.UseExplicitCapture = default;
+			this.UseIgnorePatternWhitespace = default;
+			this.UseRightToLeft = default;
+			this.UseECMAScript = default;
+			this.UseCultureInvariant = default;
+
+			this.InMatchMode = true;
+			this.InReplaceMode = default;
+			this.InSplitMode = default;
+
+			this.UnixNewline = default;
+
+			this.IsModified = false;
+		}
+
+		public void Load(string fileName)
+		{
+			// TODO: Finish Load. [Bill, 4/9/2022]
+			GC.KeepAlive(this);
+		}
+
+		public void Save(string fileName)
+		{
+			// TODO: Finish Save. [Bill, 4/9/2022]
+			GC.KeepAlive(this);
+		}
+
+		#endregion
+
 		#region Protected Methods
 
 		protected override bool Update<T>(ref T member, T value, [CallerMemberName] string? callerMemberName = null)

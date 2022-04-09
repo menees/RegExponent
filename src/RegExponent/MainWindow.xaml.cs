@@ -4,6 +4,8 @@
 
 	using System;
 	using System.Collections.Generic;
+	using System.ComponentModel;
+	using System.IO;
 	using System.Linq;
 	using System.Text;
 	using System.Text.RegularExpressions;
@@ -32,8 +34,12 @@
 	{
 		#region Private Data Members
 
+		private const string FileDialogDefaultExt = ".rgxp";
+		private const string FileDialogFilter = nameof(RegExponent) + " Files (*" + FileDialogDefaultExt + ")|*" + FileDialogDefaultExt;
+
 		private readonly Model model;
 		private readonly WindowSaver saver;
+		private string? currentFileName;
 
 		#endregion
 
@@ -44,6 +50,8 @@
 			this.InitializeComponent();
 
 			this.model = (Model)this.FindResource(nameof(Model));
+			this.model.PropertyChanged += this.ModelPropertyChanged;
+			this.CurrentFileName = string.Empty;
 
 			this.saver = new WindowSaver(this);
 			this.saver.LoadSettings += this.FormSaverLoadSettings;
@@ -57,6 +65,30 @@
 			// TODO: Handle SystemEvents.SessionEnding. If IsModified, then auto-save and close. [Bill, 3/31/2022]
 			// TODO: Support reading a file name from the command line. [Bill, 4/9/2022]
 		}
+
+		#endregion
+
+		#region Private Properties
+
+		private string CurrentFileName
+		{
+			get => this.currentFileName ?? string.Empty;
+			set
+			{
+				if (this.currentFileName != value)
+				{
+					this.currentFileName = value;
+					this.UpdateTitle();
+
+					// TODO: Update recent files. [Bill, 4/9/2022]
+				}
+			}
+		}
+
+		private string ModelDisplayName =>
+			this.CurrentFileName.IsNotEmpty()
+			? System.IO.Path.GetFileNameWithoutExtension(this.CurrentFileName)
+			: "<Untitled>";
 
 		#endregion
 
@@ -99,10 +131,6 @@
 			}
 		}
 
-		#endregion
-
-		#region Private Event Handlers
-
 		private static void OnPaste(object sender, DataObjectPastingEventArgs e)
 		{
 			// If rich, formatted text is on the clipboard, we only want to paste it as plain text.
@@ -122,6 +150,93 @@
 				e.DataObject = d;
 			}
 		}
+
+		private bool ConfirmClear()
+		{
+			bool allowClear = !this.model.IsModified;
+
+			if (!allowClear)
+			{
+				MessageBoxResult wantToSave = MessageBox.Show(
+					this,
+					$"Do you want to save the changes to {this.ModelDisplayName}?",
+					"Save Changes",
+					MessageBoxButton.YesNoCancel,
+					MessageBoxImage.Question);
+
+				switch (wantToSave)
+				{
+					case MessageBoxResult.Yes:
+						allowClear = this.Save();
+						break;
+
+					case MessageBoxResult.No:
+						allowClear = true;
+						break;
+				}
+			}
+
+			return allowClear;
+		}
+
+		private bool Load(string fileName)
+		{
+			bool result = false;
+
+			if (File.Exists(fileName) && this.ConfirmClear())
+			{
+				this.CurrentFileName = FileUtility.ExpandFileName(fileName);
+				this.model.Load(fileName);
+				result = true;
+			}
+
+			return result;
+		}
+
+		private bool Save(bool forceSaveDialog = false)
+		{
+			bool trySave = true;
+
+			if (forceSaveDialog || this.CurrentFileName.IsEmpty())
+			{
+				SaveFileDialog dialog = new();
+				dialog.FileName = this.CurrentFileName;
+				dialog.DefaultExt = FileDialogDefaultExt;
+				dialog.Filter = FileDialogFilter;
+				trySave = dialog.ShowDialog(this) ?? false;
+				if (trySave)
+				{
+					this.CurrentFileName = dialog.FileName;
+				}
+			}
+
+			bool saved = false;
+			if (trySave && this.CurrentFileName.IsNotEmpty())
+			{
+				this.model.Save(this.CurrentFileName);
+				saved = true;
+			}
+
+			return saved;
+		}
+
+		private void UpdateTitle()
+		{
+			StringBuilder sb = new(nameof(RegExponent));
+			sb.Append(" - ");
+			sb.Append(this.ModelDisplayName);
+			if (this.model.IsModified)
+			{
+				sb.Append(" - ");
+				sb.Append("Modified");
+			}
+
+			this.Title = sb.ToString();
+		}
+
+		#endregion
+
+		#region Private Event Handlers
 
 		private void ExitExecuted(object? sender, ExecutedRoutedEventArgs e)
 		{
@@ -167,12 +282,15 @@
 
 		private void NewExecuted(object? sender, ExecutedRoutedEventArgs e)
 		{
-			// TODO: Finish NewExecuted. [Bill, 3/31/2022]
-			GC.KeepAlive(this);
+			if (this.ConfirmClear())
+			{
+				this.model.Clear();
+			}
 		}
 
 		private void OpenExecuted(object? sender, ExecutedRoutedEventArgs e)
 		{
+			// TODO: Use .rgxp extension [Bill, 4/9/2022]
 			OpenFileDialog dialog = new();
 			dialog.ShowDialog();
 
@@ -182,17 +300,12 @@
 
 		private void SaveExecuted(object? sender, ExecutedRoutedEventArgs e)
 		{
-			// TODO: Finish SaveExecuted. [Bill, 3/31/2022]
-			GC.KeepAlive(this);
+			this.Save();
 		}
 
 		private void SaveAsExecuted(object? sender, ExecutedRoutedEventArgs e)
 		{
-			SaveFileDialog dialog = new();
-			dialog.ShowDialog();
-
-			// TODO: Finish SaveAsExecuted. [Bill, 3/31/2022]
-			GC.KeepAlive(this);
+			this.Save(true);
 		}
 
 		private void FontExecuted(object? sender, ExecutedRoutedEventArgs e)
@@ -264,6 +377,28 @@
 			{
 				InsertText(this.pattern, text);
 				e.Handled = true;
+			}
+		}
+
+		private void ModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
+		{
+			switch (e.PropertyName)
+			{
+				case nameof(Model.IsModified):
+					this.UpdateTitle();
+					break;
+
+				case nameof(Model.Pattern):
+					// TODO: Update this.pattern content and syntax highlight. [Bill, 4/9/2022]
+					break;
+
+				case nameof(Model.Replacement):
+					// TODO: Update this.replacement content and syntax highlight. [Bill, 4/9/2022]
+					break;
+
+				case nameof(Model.Input):
+					// TODO: Update this.input content and syntax highlight.  [Bill, 4/9/2022]
+					break;
 			}
 		}
 
