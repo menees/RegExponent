@@ -32,7 +32,7 @@
 	{
 		#region Private Data Members
 
-		private readonly Project project;
+		private readonly Model model;
 		private readonly WindowSaver saver;
 
 		#endregion
@@ -43,7 +43,7 @@
 		{
 			this.InitializeComponent();
 
-			this.project = (Project)this.FindResource(nameof(Project));
+			this.model = (Model)this.FindResource(nameof(Model));
 
 			this.saver = new WindowSaver(this);
 			this.saver.LoadSettings += this.FormSaverLoadSettings;
@@ -55,6 +55,7 @@
 			DataObject.AddPastingHandler(this.input, OnPaste);
 
 			// TODO: Handle SystemEvents.SessionEnding. If IsModified, then auto-save and close. [Bill, 3/31/2022]
+			// TODO: Support reading a file name from the command line. [Bill, 4/9/2022]
 		}
 
 		#endregion
@@ -241,11 +242,11 @@
 				}
 			}
 
-			AddOption(this.project.UseIgnoreCase, 'i');
-			AddOption(this.project.UseMultiline, 'm');
-			AddOption(this.project.UseSingleline, 's');
-			AddOption(this.project.UseExplicitCapture, 'n');
-			AddOption(this.project.UseIgnorePatternWhitespace, 'x');
+			AddOption(this.model.UseIgnoreCase, 'i');
+			AddOption(this.model.UseMultiline, 'm');
+			AddOption(this.model.UseSingleline, 's');
+			AddOption(this.model.UseExplicitCapture, 'n');
+			AddOption(this.model.UseIgnorePatternWhitespace, 'x');
 
 			string inlineOptions = negative.IsEmpty() ? $"(?{positive})" : $"(?{positive}-{negative})";
 			InsertText(this.pattern, inlineOptions);

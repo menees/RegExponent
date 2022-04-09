@@ -14,7 +14,7 @@
 
 	#endregion
 
-	internal class Project : PropertyChangeNotifier
+	internal sealed class Model : PropertyChangeNotifier
 	{
 		#region Private Data Members
 
@@ -26,13 +26,12 @@
 		private RegexOptions regexOptions;
 		private Mode mode;
 		private bool unixNewline;
-		private bool autoSave;
 
 		#endregion
 
 		#region Constructors
 
-		public Project()
+		public Model()
 		{
 			this.inDesignMode = WindowsUtility.IsInDesignMode(new DependencyObject());
 		}
@@ -120,8 +119,6 @@
 		}
 
 		public bool UnixNewline { get => this.unixNewline; set => this.Update(ref this.unixNewline, value); }
-
-		public bool AutoSave { get => this.autoSave; set => this.Update(ref this.autoSave, value); }
 
 		#endregion
 

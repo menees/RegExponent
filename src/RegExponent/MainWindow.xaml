@@ -25,7 +25,7 @@
 	</Window.CommandBindings>
 
 	<Window.Resources>
-		<local:Project x:Key="Project"/>
+		<local:Model x:Key="Model"/>
 		<BooleanToVisibilityConverter x:Key="BoolToVisibility"/>
 		<m:InverseBooleanConverter x:Key="InvertBool"/>
 
@@ -79,7 +79,6 @@
 					<Separator/>
 					<MenuItem Header="_Save" Command="Save" />
 					<MenuItem Header="Save _As..." Command="SaveAs" />
-					<MenuItem Header="A_uto-Save" IsCheckable="True" IsChecked="{Binding AutoSave, Source={StaticResource Project}}" />
 					<Separator/>
 					<MenuItem Header="_Recent">
 						<MenuItem Header="&lt;None>" IsEnabled="False" />
@@ -88,31 +87,31 @@
 					<MenuItem Header="E_xit" Command="local:Commands.Exit"/>
 				</MenuItem>
 				<MenuItem Header="_Mode">
-					<MenuItem Header="_Match" IsCheckable="True" IsChecked="{Binding InMatchMode, Source={StaticResource Project}}"/>
-					<MenuItem Header="_Replace" IsCheckable="True" IsChecked="{Binding InReplaceMode, Source={StaticResource Project}}"/>
-					<MenuItem Header="_Split" IsCheckable="True" IsChecked="{Binding InSplitMode, Source={StaticResource Project}}"/>
+					<MenuItem Header="_Match" IsCheckable="True" IsChecked="{Binding InMatchMode, Source={StaticResource Model}}"/>
+					<MenuItem Header="_Replace" IsCheckable="True" IsChecked="{Binding InReplaceMode, Source={StaticResource Model}}"/>
+					<MenuItem Header="_Split" IsCheckable="True" IsChecked="{Binding InSplitMode, Source={StaticResource Model}}"/>
 					<Separator/>
-					<MenuItem Header="_Windows Newline: \r\n" IsCheckable="True" IsChecked="{Binding UnixNewline, Converter={StaticResource InvertBool}, Source={StaticResource Project}}"/>
-					<MenuItem Header="_Unix Newline: \n" IsCheckable="True" IsChecked="{Binding UnixNewline, Source={StaticResource Project}}"/>
+					<MenuItem Header="_Windows Newline: \r\n" IsCheckable="True" IsChecked="{Binding UnixNewline, Converter={StaticResource InvertBool}, Source={StaticResource Model}}"/>
+					<MenuItem Header="_Unix Newline: \n" IsCheckable="True" IsChecked="{Binding UnixNewline, Source={StaticResource Model}}"/>
 					<Separator/>
 					<MenuItem Header="_Font..." Command="local:Commands.Font"/>
 				</MenuItem>
 				<MenuItem Header="_Options">
-					<MenuItem Header="Ignore _Case (?i-i)" IsCheckable="True" IsChecked="{Binding UseIgnoreCase, Source={StaticResource Project}}"
+					<MenuItem Header="Ignore _Case (?i-i)" IsCheckable="True" IsChecked="{Binding UseIgnoreCase, Source={StaticResource Model}}"
 							  ToolTip="Use case-insensitive matching."/>
-					<MenuItem Header="Multiline (?m-m)" IsCheckable="True" IsChecked="{Binding UseMultiline, Source={StaticResource Project}}"
+					<MenuItem Header="Multiline (?m-m)" IsCheckable="True" IsChecked="{Binding UseMultiline, Source={StaticResource Model}}"
 							  ToolTip="Use multiline mode, where ^ and $ match the beginning and end of each line (instead of the beginning and end of the input string)."/>
-					<MenuItem Header="Singleline (?s-s)" IsCheckable="True" IsChecked="{Binding UseSingleline, Source={StaticResource Project}}"
+					<MenuItem Header="Singleline (?s-s)" IsCheckable="True" IsChecked="{Binding UseSingleline, Source={StaticResource Model}}"
 							  ToolTip="Use single-line mode, where the period (.) matches every character (instead of every character except \n)."/>
-					<MenuItem Header="Explicit Capture (?n-n)" IsCheckable="True" IsChecked="{Binding UseExplicitCapture, Source={StaticResource Project}}"
+					<MenuItem Header="Explicit Capture (?n-n)" IsCheckable="True" IsChecked="{Binding UseExplicitCapture, Source={StaticResource Model}}"
 							  ToolTip="Do not capture unnamed groups. The only valid captures are explicitly named or numbered groups of the form (?&lt;name> subexpression)."/>
-					<MenuItem Header="Ignore Pattern Whitespace (?x-x)" IsCheckable="True" IsChecked="{Binding UseIgnorePatternWhitespace, Source={StaticResource Project}}"
+					<MenuItem Header="Ignore Pattern Whitespace (?x-x)" IsCheckable="True" IsChecked="{Binding UseIgnorePatternWhitespace, Source={StaticResource Model}}"
 							  ToolTip="Exclude unescaped white space from the pattern, and enable comments after a number sign (#)."/>
-					<MenuItem Header="Right To Left" IsCheckable="True" IsChecked="{Binding UseRightToLeft, Source={StaticResource Project}}"
+					<MenuItem Header="Right To Left" IsCheckable="True" IsChecked="{Binding UseRightToLeft, Source={StaticResource Model}}"
 							  ToolTip="Change the search direction. Search moves from right to left instead of from left to right." />
-					<MenuItem Header="ECMAScript" IsCheckable="True" IsChecked="{Binding UseECMAScript, Source={StaticResource Project}}"
+					<MenuItem Header="ECMAScript" IsCheckable="True" IsChecked="{Binding UseECMAScript, Source={StaticResource Model}}"
 							  ToolTip="Enable ECMAScript-compliant behavior for the expression."/>
-					<MenuItem Header="Culture Invariant" IsCheckable="True" IsChecked="{Binding UseCultureInvariant, Source={StaticResource Project}}"
+					<MenuItem Header="Culture Invariant" IsCheckable="True" IsChecked="{Binding UseCultureInvariant, Source={StaticResource Model}}"
 							  ToolTip="Ignore cultural differences in language."/>
 					<Separator/>
 					<MenuItem Header="Insert Inline Options" Command="local:Commands.InsertInlineOptions"/>
@@ -141,30 +140,30 @@
 
 			<ToolBarPanel ClipToBounds="True">
 				<ToolBar ToolBarTray.IsLocked="True" Margin="0,0,-13,0" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
-					<ToggleButton Content="Match" Style="{StaticResource ToolbarToggleButton}" IsChecked="{Binding InMatchMode, Source={StaticResource Project}}"/>
-					<ToggleButton Content="Replace" Style="{StaticResource ToolbarToggleButton}" IsChecked="{Binding InReplaceMode, Source={StaticResource Project}}"/>
-					<ToggleButton Content="Split" Style="{StaticResource ToolbarToggleButton}" IsChecked="{Binding InSplitMode, Source={StaticResource Project}}"/>
+					<ToggleButton Content="Match" Style="{StaticResource ToolbarToggleButton}" IsChecked="{Binding InMatchMode, Source={StaticResource Model}}"/>
+					<ToggleButton Content="Replace" Style="{StaticResource ToolbarToggleButton}" IsChecked="{Binding InReplaceMode, Source={StaticResource Model}}"/>
+					<ToggleButton Content="Split" Style="{StaticResource ToolbarToggleButton}" IsChecked="{Binding InSplitMode, Source={StaticResource Model}}"/>
 					<Separator/>
-					<ToggleButton Content="i" Style="{StaticResource ToolbarToggleButton}" ToolTip="Ignore Case (?i-i)" IsChecked="{Binding UseIgnoreCase, Source={StaticResource Project}}"/>
-					<ToggleButton Content="m" Style="{StaticResource ToolbarToggleButton}" ToolTip="Multiline (?m-m)" IsChecked="{Binding UseMultiline, Source={StaticResource Project}}"/>
-					<ToggleButton Content="s" Style="{StaticResource ToolbarToggleButton}" ToolTip="Singleline (?s-s)" IsChecked="{Binding UseSingleline, Source={StaticResource Project}}"/>
-					<ToggleButton Content="n" Style="{StaticResource ToolbarToggleButton}" ToolTip="Explicit Capture (?n-n)" IsChecked="{Binding UseExplicitCapture, Source={StaticResource Project}}"/>
-					<ToggleButton Content="x" Style="{StaticResource ToolbarToggleButton}" ToolTip="Ignore Pattern Whitespace (?x-x)" IsChecked="{Binding UseIgnorePatternWhitespace, Source={StaticResource Project}}"/>
-					<ToggleButton Content="r" Style="{StaticResource ToolbarToggleButton}" ToolTip="Right To Left" IsChecked="{Binding UseRightToLeft, Source={StaticResource Project}}"/>
-					<ToggleButton Content="e" Style="{StaticResource ToolbarToggleButton}" ToolTip="ECMAScript" IsChecked="{Binding UseECMAScript, Source={StaticResource Project}}"/>
-					<ToggleButton Content="c" Style="{StaticResource ToolbarToggleButton}" ToolTip="Culture Invariant" IsChecked="{Binding UseCultureInvariant, Source={StaticResource Project}}"/>
+					<ToggleButton Content="i" Style="{StaticResource ToolbarToggleButton}" ToolTip="Ignore Case (?i-i)" IsChecked="{Binding UseIgnoreCase, Source={StaticResource Model}}"/>
+					<ToggleButton Content="m" Style="{StaticResource ToolbarToggleButton}" ToolTip="Multiline (?m-m)" IsChecked="{Binding UseMultiline, Source={StaticResource Model}}"/>
+					<ToggleButton Content="s" Style="{StaticResource ToolbarToggleButton}" ToolTip="Singleline (?s-s)" IsChecked="{Binding UseSingleline, Source={StaticResource Model}}"/>
+					<ToggleButton Content="n" Style="{StaticResource ToolbarToggleButton}" ToolTip="Explicit Capture (?n-n)" IsChecked="{Binding UseExplicitCapture, Source={StaticResource Model}}"/>
+					<ToggleButton Content="x" Style="{StaticResource ToolbarToggleButton}" ToolTip="Ignore Pattern Whitespace (?x-x)" IsChecked="{Binding UseIgnorePatternWhitespace, Source={StaticResource Model}}"/>
+					<ToggleButton Content="r" Style="{StaticResource ToolbarToggleButton}" ToolTip="Right To Left" IsChecked="{Binding UseRightToLeft, Source={StaticResource Model}}"/>
+					<ToggleButton Content="e" Style="{StaticResource ToolbarToggleButton}" ToolTip="ECMAScript" IsChecked="{Binding UseECMAScript, Source={StaticResource Model}}"/>
+					<ToggleButton Content="c" Style="{StaticResource ToolbarToggleButton}" ToolTip="Culture Invariant" IsChecked="{Binding UseCultureInvariant, Source={StaticResource Model}}"/>
 				</ToolBar>
 			</ToolBarPanel>
 		</DockPanel>
 
 		<StackPanel Grid.Row="2" Margin="3">
-			<RichTextBox x:Name="pattern" AcceptsReturn="{Binding UseIgnorePatternWhitespace, Source={StaticResource Project}}" Style="{StaticResource Menees.Windows.Presentation.PlaceholderTextBox}"
+			<RichTextBox x:Name="pattern" AcceptsReturn="{Binding UseIgnorePatternWhitespace, Source={StaticResource Model}}" Style="{StaticResource Menees.Windows.Presentation.PlaceholderTextBox}"
 						 m:PlaceholderTextHelper.PlaceholderText="Pattern" MaxHeight="100"
 						 VerticalScrollBarVisibility="Auto" IsInactiveSelectionHighlightEnabled="True"/>
 		</StackPanel>
 
 		<StackPanel Grid.Row="3" Margin="3"
-					Visibility="{Binding InReplaceMode, Source={StaticResource Project}, Converter={StaticResource BoolToVisibility}}">
+					Visibility="{Binding InReplaceMode, Source={StaticResource Model}, Converter={StaticResource BoolToVisibility}}">
 			<RichTextBox x:Name="replacement" Style="{StaticResource Menees.Windows.Presentation.PlaceholderTextBox}"
 						 m:PlaceholderTextHelper.PlaceholderText="Replacement" MaxHeight="100"
 						 VerticalScrollBarVisibility="Auto" IsInactiveSelectionHighlightEnabled="True"/>
@@ -186,10 +185,10 @@
 				<DataGrid/>
 			</TabItem>
 			<TabItem Header="Output"
-					 Visibility="{Binding InReplaceMode, Converter={StaticResource BoolToVisibility}, Source={StaticResource Project}}"
+					 Visibility="{Binding InReplaceMode, Converter={StaticResource BoolToVisibility}, Source={StaticResource Model}}"
 					 IsVisibleChanged="OutputTabIsVisibleChanged">
 				<RichTextBox x:Name="replacedOutput" IsReadOnly="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
-							Visibility="{Binding InReplaceMode, Converter={StaticResource BoolToVisibility}, Source={StaticResource Project}}"
+							Visibility="{Binding InReplaceMode, Converter={StaticResource BoolToVisibility}, Source={StaticResource Model}}"
 							IsInactiveSelectionHighlightEnabled="True">
 					<RichTextBox.Document>
 						<FlowDocument>
@@ -200,10 +199,11 @@
 				<!-- TODO: Output (Replace) tab [Bill, 3/22/2022] -->
 			</TabItem>
 			<TabItem Header="Output"
-					 Visibility="{Binding InSplitMode, Converter={StaticResource BoolToVisibility}, Source={StaticResource Project}}"
+					 Visibility="{Binding InSplitMode, Converter={StaticResource BoolToVisibility}, Source={StaticResource Model}}"
 					 IsVisibleChanged="OutputTabIsVisibleChanged">
 					<DataGrid
-							  Visibility="{Binding InSplitMode, Converter={StaticResource BoolToVisibility}, Source={StaticResource Project}}"/>
+						Visibility="{Binding InSplitMode, Converter={StaticResource BoolToVisibility}, Source={StaticResource Model}}"
+						HeadersVisibility="Row"/>
 				<!-- TODO: Output (Split) tab [Bill, 3/22/2022] -->
 			</TabItem>
 		</TabControl>
