@@ -39,7 +39,7 @@
 
 		private readonly Model model;
 		private readonly WindowSaver saver;
-		private string? currentFileName;
+		private string currentFileName;
 
 		#endregion
 
@@ -47,10 +47,14 @@
 
 		public MainWindow()
 		{
+			// TODO: Add good icon. [Bill, 4/9/2022]
 			this.InitializeComponent();
 
 			this.model = (Model)this.FindResource(nameof(Model));
 			this.model.PropertyChanged += this.ModelPropertyChanged;
+
+			// Make sure this.Title and other fileName-related properties initialize properly.
+			this.currentFileName = null!;
 			this.CurrentFileName = string.Empty;
 
 			this.saver = new WindowSaver(this);
@@ -72,15 +76,17 @@
 
 		private string CurrentFileName
 		{
-			get => this.currentFileName ?? string.Empty;
+			get => this.currentFileName;
 			set
 			{
 				if (this.currentFileName != value)
 				{
 					this.currentFileName = value;
 					this.UpdateTitle();
-
-					// TODO: Update recent files. [Bill, 4/9/2022]
+					if (this.currentFileName.IsNotEmpty())
+					{
+						// TODO: Update recent files. [Bill, 4/9/2022]
+					}
 				}
 			}
 		}
@@ -151,7 +157,7 @@
 			}
 		}
 
-		private bool ConfirmClear()
+		private bool CanClear()
 		{
 			bool allowClear = !this.model.IsModified;
 
@@ -183,7 +189,7 @@
 		{
 			bool result = false;
 
-			if (File.Exists(fileName) && this.ConfirmClear())
+			if (File.Exists(fileName) && this.CanClear())
 			{
 				this.CurrentFileName = FileUtility.ExpandFileName(fileName);
 				this.model.Load(fileName);
@@ -282,20 +288,26 @@
 
 		private void NewExecuted(object? sender, ExecutedRoutedEventArgs e)
 		{
-			if (this.ConfirmClear())
+			if (this.CanClear())
 			{
+				this.CurrentFileName = string.Empty;
 				this.model.Clear();
 			}
 		}
 
 		private void OpenExecuted(object? sender, ExecutedRoutedEventArgs e)
 		{
-			// TODO: Use .rgxp extension [Bill, 4/9/2022]
-			OpenFileDialog dialog = new();
-			dialog.ShowDialog();
-
-			// TODO: Finish OpenExecuted. [Bill, 3/31/2022]
-			GC.KeepAlive(this);
+			if (this.CanClear())
+			{
+				OpenFileDialog dialog = new();
+				dialog.FileName = this.CurrentFileName;
+				dialog.DefaultExt = FileDialogDefaultExt;
+				dialog.Filter = FileDialogFilter;
+				if (dialog.ShowDialog(this) ?? false)
+				{
+					this.Load(dialog.FileName);
+				}
+			}
 		}
 
 		private void SaveExecuted(object? sender, ExecutedRoutedEventArgs e)

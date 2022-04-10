@@ -4,9 +4,11 @@
 
 	using System;
 	using System.Collections.Generic;
+	using System.IO;
 	using System.Linq;
 	using System.Runtime.CompilerServices;
 	using System.Text;
+	using System.Text.Json;
 	using System.Text.RegularExpressions;
 	using System.Threading.Tasks;
 	using System.Windows;
@@ -127,9 +129,9 @@
 		public void Clear()
 		{
 			// Set the public properties rather than the backing members to ensure change notifications are sent.
-			this.Pattern = string.Empty;
-			this.Replacement = string.Empty;
 			this.Input = string.Empty;
+			this.Replacement = string.Empty;
+			this.Pattern = string.Empty;
 
 			this.UseIgnoreCase = default;
 			this.UseMultiline = default;
@@ -151,14 +153,62 @@
 
 		public void Load(string fileName)
 		{
-			// TODO: Finish Load. [Bill, 4/9/2022]
-			GC.KeepAlive(this);
+			// Reset everything first to minimize UI change processing.
+			this.Clear();
+
+			using Stream file = File.OpenRead(fileName);
+			using JsonDocument document = JsonDocument.Parse(file);
+			JsonElement root = document.RootElement;
+
+			// Set the public properties rather than the backing members to ensure change notifications are sent.
+			this.UnixNewline = root.GetProperty(nameof(this.UnixNewline)).GetBoolean();
+			if (Enum.TryParse(root.GetProperty(nameof(Mode)).GetString(), out Mode mode))
+			{
+				this.InMatchMode = mode == Mode.Match;
+				this.InReplaceMode = mode == Mode.Replace;
+				this.InSplitMode = mode == Mode.Split;
+			}
+
+			if (Enum.TryParse(root.GetProperty(nameof(RegexOptions)).GetString(), out RegexOptions regexOptions))
+			{
+				this.UseIgnoreCase = regexOptions.HasFlag(RegexOptions.IgnoreCase);
+				this.UseMultiline = regexOptions.HasFlag(RegexOptions.Multiline);
+				this.UseSingleline = regexOptions.HasFlag(RegexOptions.Singleline);
+				this.UseExplicitCapture = regexOptions.HasFlag(RegexOptions.ExplicitCapture);
+				this.UseIgnorePatternWhitespace = regexOptions.HasFlag(RegexOptions.IgnorePatternWhitespace);
+				this.UseRightToLeft = regexOptions.HasFlag(RegexOptions.RightToLeft);
+				this.UseECMAScript = regexOptions.HasFlag(RegexOptions.ECMAScript);
+				this.UseCultureInvariant = regexOptions.HasFlag(RegexOptions.CultureInvariant);
+			}
+
+			// Load the text properties last so all the desired settings are configured first.
+			// This should minimize churn in the UI as change notifications are processed.
+			this.Pattern = root.GetProperty(nameof(this.Pattern)).GetString() ?? string.Empty;
+			this.Replacement = root.GetProperty(nameof(this.Replacement)).GetString() ?? string.Empty;
+			this.Input = root.GetProperty(nameof(this.Input)).GetString() ?? string.Empty;
+
+			this.IsModified = false;
 		}
 
 		public void Save(string fileName)
 		{
-			// TODO: Finish Save. [Bill, 4/9/2022]
-			GC.KeepAlive(this);
+			using MemoryStream memory = new();
+
+			JsonWriterOptions options = new() { Indented = true };
+			using Utf8JsonWriter writer = new(memory, options);
+			writer.WriteStartObject();
+			writer.WriteNumber(nameof(Version), 1);
+			writer.WriteString(nameof(this.Pattern), this.Pattern);
+			writer.WriteString(nameof(this.Replacement), this.Replacement);
+			writer.WriteString(nameof(this.Input), this.Input);
+			writer.WriteString(nameof(RegexOptions), this.regexOptions.ToString());
+			writer.WriteString(nameof(Mode), this.mode.ToString());
+			writer.WriteBoolean(nameof(this.UnixNewline), this.UnixNewline);
+			writer.WriteEndObject();
+			writer.Flush();
+
+			File.WriteAllBytes(fileName, memory.ToArray());
+			this.IsModified = false;
 		}
 
 		#endregion
