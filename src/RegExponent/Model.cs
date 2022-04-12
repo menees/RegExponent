@@ -12,6 +12,7 @@
 	using System.Text.RegularExpressions;
 	using System.Threading.Tasks;
 	using System.Windows;
+	using Menees;
 	using Menees.Windows.Presentation;
 
 	#endregion
@@ -19,6 +20,8 @@
 	internal sealed class Model : PropertyChangeNotifier
 	{
 		#region Private Data Members
+
+		private const short CurrentVersion = 1;
 
 		private readonly bool inDesignMode;
 		private bool isModified;
@@ -153,23 +156,36 @@
 
 		public void Load(string fileName)
 		{
-			// Reset everything first to minimize UI change processing.
+			// Reset everything first to minimize UI change processing (or at least make it deterministic).
 			this.Clear();
 
+			// Be permissive when reading in a file in case a human has manually edited it.
+			JsonDocumentOptions options = new() { AllowTrailingCommas = true, CommentHandling = JsonCommentHandling.Skip };
 			using Stream file = File.OpenRead(fileName);
-			using JsonDocument document = JsonDocument.Parse(file);
+			using JsonDocument document = JsonDocument.Parse(file, options);
 			JsonElement root = document.RootElement;
 
+			if (!root.TryGetProperty(nameof(Version), out JsonElement version) || version.GetInt16() != CurrentVersion)
+			{
+				throw Exceptions.NewArgumentException($"Unsupported file version: {version.GetInt16()}");
+			}
+
 			// Set the public properties rather than the backing members to ensure change notifications are sent.
-			this.UnixNewline = root.GetProperty(nameof(this.UnixNewline)).GetBoolean();
-			if (Enum.TryParse(root.GetProperty(nameof(Mode)).GetString(), out Mode mode))
+			if (root.TryGetProperty(nameof(this.UnixNewline), out JsonElement newline))
+			{
+				this.UnixNewline = newline.GetBoolean();
+			}
+
+			if (root.TryGetProperty(nameof(Mode), out JsonElement modeElement)
+				&& Enum.TryParse(modeElement.GetString(), out Mode mode))
 			{
 				this.InMatchMode = mode == Mode.Match;
 				this.InReplaceMode = mode == Mode.Replace;
 				this.InSplitMode = mode == Mode.Split;
 			}
 
-			if (Enum.TryParse(root.GetProperty(nameof(RegexOptions)).GetString(), out RegexOptions regexOptions))
+			if (root.TryGetProperty(nameof(RegexOptions), out JsonElement optionsElement)
+				&& Enum.TryParse(optionsElement.GetString(), out RegexOptions regexOptions))
 			{
 				this.UseIgnoreCase = regexOptions.HasFlag(RegexOptions.IgnoreCase);
 				this.UseMultiline = regexOptions.HasFlag(RegexOptions.Multiline);
@@ -183,9 +199,20 @@
 
 			// Load the text properties last so all the desired settings are configured first.
 			// This should minimize churn in the UI as change notifications are processed.
-			this.Pattern = root.GetProperty(nameof(this.Pattern)).GetString() ?? string.Empty;
-			this.Replacement = root.GetProperty(nameof(this.Replacement)).GetString() ?? string.Empty;
-			this.Input = root.GetProperty(nameof(this.Input)).GetString() ?? string.Empty;
+			if (root.TryGetProperty(nameof(this.Pattern), out JsonElement pattern))
+			{
+				this.Pattern = pattern.GetString() ?? string.Empty;
+			}
+
+			if (root.TryGetProperty(nameof(this.Replacement), out JsonElement replacement))
+			{
+				this.Replacement = replacement.GetString() ?? string.Empty;
+			}
+
+			if (root.TryGetProperty(nameof(this.Input), out JsonElement input))
+			{
+				this.Input = input.GetString() ?? string.Empty;
+			}
 
 			this.IsModified = false;
 		}
@@ -198,12 +225,37 @@
 			using Utf8JsonWriter writer = new(memory, options);
 			writer.WriteStartObject();
 			writer.WriteNumber(nameof(Version), 1);
-			writer.WriteString(nameof(this.Pattern), this.Pattern);
-			writer.WriteString(nameof(this.Replacement), this.Replacement);
-			writer.WriteString(nameof(this.Input), this.Input);
-			writer.WriteString(nameof(RegexOptions), this.regexOptions.ToString());
-			writer.WriteString(nameof(Mode), this.mode.ToString());
-			writer.WriteBoolean(nameof(this.UnixNewline), this.UnixNewline);
+
+			if (this.UnixNewline)
+			{
+				writer.WriteBoolean(nameof(this.UnixNewline), this.UnixNewline);
+			}
+
+			if (this.mode != default)
+			{
+				writer.WriteString(nameof(Mode), this.mode.ToString());
+			}
+
+			if (this.regexOptions != default)
+			{
+				writer.WriteString(nameof(RegexOptions), this.regexOptions.ToString());
+			}
+
+			if (this.Pattern.IsNotEmpty())
+			{
+				writer.WriteString(nameof(this.Pattern), this.Pattern);
+			}
+
+			if (this.Replacement.IsNotEmpty())
+			{
+				writer.WriteString(nameof(this.Replacement), this.Replacement);
+			}
+
+			if (this.Input.IsNotEmpty())
+			{
+				writer.WriteString(nameof(this.Input), this.Input);
+			}
+
 			writer.WriteEndObject();
 			writer.Flush();
 
