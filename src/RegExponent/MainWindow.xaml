@@ -182,7 +182,7 @@
 
 		<TabControl x:Name="bottomTabs" Grid.Row="6">
 			<TabItem Header="Matches">
-				<DataGrid x:Name="matchGrid"/>
+				<DataGrid x:Name="matchGrid" AutoGenerateColumns="True"/>
 			</TabItem>
 			<TabItem Header="Output"
 					 Visibility="{Binding InReplaceMode, Converter={StaticResource BoolToVisibility}, Source={StaticResource Model}}"
@@ -200,17 +200,30 @@
 			<TabItem Header="Output"
 					 Visibility="{Binding InSplitMode, Converter={StaticResource BoolToVisibility}, Source={StaticResource Model}}"
 					 IsVisibleChanged="OutputTabIsVisibleChanged">
-					<DataGrid x:Name="splitGrid"
+				<DataGrid x:Name="splitGrid"
 						Visibility="{Binding InSplitMode, Converter={StaticResource BoolToVisibility}, Source={StaticResource Model}}"
-						HeadersVisibility="Row"/>
+						HeadersVisibility="Row">
+					<DataGrid.Columns>
+						<DataGridTextColumn/>
+					</DataGrid.Columns>
+				</DataGrid>
 			</TabItem>
 		</TabControl>
 
 		<StatusBar Grid.Row="7">
-			<!-- TODO: StatusBar [Bill, 3/22/2022] -->
-			<StatusBarItem Content="0:00:00.000"/>
+			<StatusBarItem x:Name="timing" Content="0.0 ms"/>
 			<Separator/>
-			<StatusBarItem Content="(Untitled)"/>
+			<StatusBarItem x:Name="message">
+				<StatusBarItem.Style>
+					<Style TargetType="StatusBarItem">
+						<Style.Triggers>
+							<Trigger Property="HasContent" Value="true">
+								<Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.InfoBrushKey}}"/>
+							</Trigger>
+						</Style.Triggers>
+					</Style>
+				</StatusBarItem.Style>
+			</StatusBarItem>
 		</StatusBar>
 	</Grid>
 </m:ExtendedWindow>

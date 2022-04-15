@@ -187,11 +187,11 @@
 			return allowClear;
 		}
 
-		private bool Load(string fileName)
+		private bool Load(string fileName, bool checkCanClear = true)
 		{
 			bool result = false;
 
-			if (File.Exists(fileName) && this.CanClear())
+			if (File.Exists(fileName) && (!checkCanClear || this.CanClear()))
 			{
 				this.CurrentFileName = FileUtility.ExpandFileName(fileName);
 				this.model.Load(fileName);
@@ -278,8 +278,12 @@
 			const int TimeoutSeconds = 5;
 			Evaluation evaluation = this.model.Evaluate(TimeSpan.FromSeconds(TimeoutSeconds));
 
-			this.matchGrid.DataContext = evaluation.Matches;
+			this.timing.Content = $"{evaluation.Elapsed.TotalMilliseconds} ms";
+			this.message.Content = evaluation.Exception?.Message;
+
+			this.matchGrid.ItemsSource = evaluation.Matches;
 			this.replaced.Document = new FlowDocument(new Paragraph(new Run(evaluation.Replaced)));
+			this.splitGrid.ItemsSource = evaluation.Splits;
 
 			// TODO: Update this.pattern content and syntax highlight. [Bill, 4/9/2022]
 			// TODO: Update this.replacement content and syntax highlight. [Bill, 4/9/2022]
@@ -360,7 +364,7 @@
 				dialog.Filter = FileDialogFilter;
 				if (dialog.ShowDialog(this) ?? false)
 				{
-					this.Load(dialog.FileName);
+					this.Load(dialog.FileName, checkCanClear: false);
 				}
 			}
 		}

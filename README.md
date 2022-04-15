@@ -1,4 +1,4 @@
-# RegExponent = x<sup>Reg</sup>
+# RegExponent = Reg<sup>X</sup>
 > *[Regex](https://docs.microsoft.com/en-us/dotnet/api/system.text.regularexpressions.regex?view=net-6.0): .NET class for processing [regular expressions](https://docs.microsoft.com/en-us/dotnet/standard/base-types/regular-expressions).*
 >
 >*[Exponent](https://www.wordnik.com/words/exponent): noun. One that expounds or interprets. One that speaks for, represents, or advocates.*
