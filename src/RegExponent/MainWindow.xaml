@@ -19,6 +19,7 @@
 		<CommandBinding Command="local:Commands.Font" Executed="FontExecuted" />
 		<CommandBinding Command="local:Commands.InsertInlineOptions" Executed="InsertInlineOptionsExecuted" />
 		<CommandBinding Command="local:Commands.GenerateCodeToClipboard" Executed="GenerateCodeToClipboardExecuted" />
+		<CommandBinding Command="Help" Executed="HelpExecuted" />
 		<CommandBinding Command="local:Commands.ShellExecute" Executed="ShellExecuteExecuted" />
 		<CommandBinding Command="local:Commands.InsertPattern" Executed="InsertPatternExecuted" />
 		<CommandBinding Command="local:Commands.About" Executed="AboutExecuted" />
@@ -118,7 +119,7 @@
 					<MenuItem Header="Generate C# To Clipboard" Command="local:Commands.GenerateCodeToClipboard"/>
 				</MenuItem>
 				<MenuItem Header="_Help">
-					<MenuItem Header=".NET Regex _Quick Reference..." Command="local:Commands.ShellExecute" CommandParameter="https://docs.microsoft.com/en-us/dotnet/standard/base-types/regular-expression-language-quick-reference"/>
+					<MenuItem Header=".NET Regex _Quick Reference..." Command="Help"/>
 					<MenuItem Header=".NET Regex _Options..." Command="local:Commands.ShellExecute" CommandParameter="https://docs.microsoft.com/en-us/dotnet/standard/base-types/regular-expression-options"/>
 					<Separator/>
 					<MenuItem CommandParameter="\w+" Tag="Word" Style="{StaticResource RegexMenuItem}" Command="local:Commands.InsertPattern"/>
@@ -159,14 +160,14 @@
 		<StackPanel Grid.Row="2" Margin="3">
 			<RichTextBox x:Name="pattern" AcceptsReturn="{Binding UseIgnorePatternWhitespace, Source={StaticResource Model}}" Style="{StaticResource Menees.Windows.Presentation.PlaceholderTextBox}"
 						 m:PlaceholderTextHelper.PlaceholderText="Pattern" MaxHeight="100"
-						 VerticalScrollBarVisibility="Auto" IsInactiveSelectionHighlightEnabled="True"/>
+						 VerticalScrollBarVisibility="Auto" IsInactiveSelectionHighlightEnabled="True" TextChanged="PatternTextChanged"/>
 		</StackPanel>
 
 		<StackPanel Grid.Row="3" Margin="3"
 					Visibility="{Binding InReplaceMode, Source={StaticResource Model}, Converter={StaticResource BoolToVisibility}}">
 			<RichTextBox x:Name="replacement" Style="{StaticResource Menees.Windows.Presentation.PlaceholderTextBox}"
 						 m:PlaceholderTextHelper.PlaceholderText="Replacement" MaxHeight="100"
-						 VerticalScrollBarVisibility="Auto" IsInactiveSelectionHighlightEnabled="True"/>
+						 VerticalScrollBarVisibility="Auto" IsInactiveSelectionHighlightEnabled="True" TextChanged="ReplacementTextChanged"/>
 		</StackPanel>
 
 		<DockPanel Grid.Row="4">
@@ -174,20 +175,19 @@
 			<RichTextBox x:Name="input" Margin="3,3,3,0" HorizontalScrollBarVisibility="Auto"
 						 VerticalScrollBarVisibility="Auto" IsInactiveSelectionHighlightEnabled="True"
 						 Style="{StaticResource Menees.Windows.Presentation.PlaceholderTextBox}"
-						 m:PlaceholderTextHelper.PlaceholderText="Text to search for matches"/>
+						 m:PlaceholderTextHelper.PlaceholderText="Text to search for matches" TextChanged="InputTextChanged"/>
 		</DockPanel>
 
 		<GridSplitter x:Name="splitter" Grid.Row="5" HorizontalAlignment="Stretch" VerticalAlignment="Center" ShowsPreview="True" Height="4" />
 
 		<TabControl x:Name="bottomTabs" Grid.Row="6">
 			<TabItem Header="Matches">
-				<!-- TODO: Matches tab [Bill, 3/22/2022] -->
-				<DataGrid/>
+				<DataGrid x:Name="matchGrid"/>
 			</TabItem>
 			<TabItem Header="Output"
 					 Visibility="{Binding InReplaceMode, Converter={StaticResource BoolToVisibility}, Source={StaticResource Model}}"
 					 IsVisibleChanged="OutputTabIsVisibleChanged">
-				<RichTextBox x:Name="replacedOutput" IsReadOnly="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
+				<RichTextBox x:Name="replaced" IsReadOnly="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
 							Visibility="{Binding InReplaceMode, Converter={StaticResource BoolToVisibility}, Source={StaticResource Model}}"
 							IsInactiveSelectionHighlightEnabled="True">
 					<RichTextBox.Document>
@@ -196,15 +196,13 @@
 						</FlowDocument>
 					</RichTextBox.Document>
 				</RichTextBox>
-				<!-- TODO: Output (Replace) tab [Bill, 3/22/2022] -->
 			</TabItem>
 			<TabItem Header="Output"
 					 Visibility="{Binding InSplitMode, Converter={StaticResource BoolToVisibility}, Source={StaticResource Model}}"
 					 IsVisibleChanged="OutputTabIsVisibleChanged">
-					<DataGrid
+					<DataGrid x:Name="splitGrid"
 						Visibility="{Binding InSplitMode, Converter={StaticResource BoolToVisibility}, Source={StaticResource Model}}"
 						HeadersVisibility="Row"/>
-				<!-- TODO: Output (Split) tab [Bill, 3/22/2022] -->
 			</TabItem>
 		</TabControl>
 

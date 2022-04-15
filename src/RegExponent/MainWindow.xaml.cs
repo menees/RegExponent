@@ -9,6 +9,7 @@
 	using System.Linq;
 	using System.Text;
 	using System.Text.RegularExpressions;
+	using System.Threading;
 	using System.Threading.Tasks;
 	using System.Windows;
 	using System.Windows.Controls;
@@ -40,6 +41,7 @@
 		private readonly Model model;
 		private readonly WindowSaver saver;
 		private string currentFileName;
+		private int updateLevel;
 
 		#endregion
 
@@ -240,6 +242,52 @@
 			this.Title = sb.ToString();
 		}
 
+		private string GetText(RichTextBox richTextBox)
+		{
+			StringBuilder sb = new();
+			foreach (Block block in richTextBox.Document.Blocks)
+			{
+				if (sb.Length > 0)
+				{
+					sb.Append(this.model.UnixNewline ? "\n" : "\r\n");
+				}
+
+				TextRange range = new(block.ContentStart, block.ContentEnd);
+				string text = range.Text;
+				sb.Append(text);
+			}
+
+			string result = sb.ToString();
+			return result;
+		}
+
+		private IDisposable BeginUpdate()
+		{
+			Interlocked.Increment(ref this.updateLevel);
+			return new Disposer(() =>
+			{
+				if (Interlocked.Increment(ref this.updateLevel) == 0)
+				{
+					this.EvalutateModel();
+				}
+			});
+		}
+
+		private void EvalutateModel()
+		{
+			const int TimeoutSeconds = 5;
+			Evaluation evaluation = this.model.Evaluate(TimeSpan.FromSeconds(TimeoutSeconds));
+
+			this.matchGrid.DataContext = evaluation.Matches;
+			this.replaced.Document = new FlowDocument(new Paragraph(new Run(evaluation.Replaced)));
+
+			// TODO: Update this.pattern content and syntax highlight. [Bill, 4/9/2022]
+			// TODO: Update this.replacement content and syntax highlight. [Bill, 4/9/2022]
+			// TODO: Update this.input content and syntax highlight.  [Bill, 4/9/2022]
+			// TODO: Populate matchGrid. [Bill, 4/15/2022]
+			// TODO: Populate splitGrid. [Bill, 4/15/2022]
+		}
+
 		#endregion
 
 		#region Private Event Handlers
@@ -258,6 +306,13 @@
 			}
 		}
 
+		private void HelpExecuted(object? sender, ExecutedRoutedEventArgs e)
+		{
+			const string Help = "https://docs.microsoft.com/en-us/dotnet/standard/base-types/regular-expression-language-quick-reference";
+			WindowsUtility.ShellExecute(this, Help);
+			e.Handled = true;
+		}
+
 		private void AboutExecuted(object? sender, ExecutedRoutedEventArgs e)
 		{
 			WindowsUtility.ShowAboutBox(this, this.GetType().Assembly, nameof(RegExponent));
@@ -265,13 +320,13 @@
 
 		private void FormSaverLoadSettings(object? sender, SettingsEventArgs e)
 		{
-			// TODO: Finish FormSaverLoadSettings. [Bill, 3/22/2022]
+			// TODO: Load font info, recent files, last file, control contents. [Bill, 3/22/2022]
 			Conditions.RequireReference(this, nameof(MainWindow));
 		}
 
 		private void FormSaverSaveSettings(object? sender, SettingsEventArgs e)
 		{
-			// TODO: Finish FormSaverSaveSettings. [Bill, 3/22/2022]
+			// TODO: Save font info, recent files, current file, control contents. [Bill, 3/22/2022]
 			Conditions.RequireReference(this, nameof(MainWindow));
 		}
 
@@ -347,7 +402,7 @@
 				ApplyFont(this.pattern, dialog.Font);
 				ApplyFont(this.replacement, dialog.Font);
 				ApplyFont(this.input, dialog.Font);
-				ApplyFont(this.replacedOutput, dialog.Font);
+				ApplyFont(this.replaced, dialog.Font);
 			}
 		}
 
@@ -400,18 +455,36 @@
 					this.UpdateTitle();
 					break;
 
-				case nameof(Model.Pattern):
-					// TODO: Update this.pattern content and syntax highlight. [Bill, 4/9/2022]
+				case nameof(Model.UnixNewline):
+					using (this.BeginUpdate())
+					{
+						this.model.Pattern = this.GetText(this.pattern);
+						this.model.Replacement = this.GetText(this.replacement);
+						this.model.Input = this.GetText(this.input);
+					}
+
 					break;
 
-				case nameof(Model.Replacement):
-					// TODO: Update this.replacement content and syntax highlight. [Bill, 4/9/2022]
-					break;
-
-				case nameof(Model.Input):
-					// TODO: Update this.input content and syntax highlight.  [Bill, 4/9/2022]
+				default:
+					// Pattern, Replacement, Input, an option, or a mode changed.
+					this.EvalutateModel();
 					break;
 			}
+		}
+
+		private void PatternTextChanged(object sender, TextChangedEventArgs e)
+		{
+			this.model.Pattern = this.GetText(this.pattern);
+		}
+
+		private void ReplacementTextChanged(object sender, TextChangedEventArgs e)
+		{
+			this.model.Replacement = this.GetText(this.replacement);
+		}
+
+		private void InputTextChanged(object sender, TextChangedEventArgs e)
+		{
+			this.model.Input = this.GetText(this.input);
 		}
 
 		#endregion

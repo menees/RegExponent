@@ -263,6 +263,9 @@
 			this.IsModified = false;
 		}
 
+		public Evaluation Evaluate(TimeSpan timeout)
+			=> new(this, this.regexOptions, timeout);
+
 		#endregion
 
 		#region Protected Methods
