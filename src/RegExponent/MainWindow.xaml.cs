@@ -20,6 +20,7 @@
 	using System.Windows.Media.Imaging;
 	using System.Windows.Navigation;
 	using System.Windows.Shapes;
+	using System.Windows.Threading;
 	using Menees;
 	using Menees.Windows.Presentation;
 	using Microsoft.Win32;
@@ -41,7 +42,7 @@
 		private readonly Model model;
 		private readonly WindowSaver saver;
 		private string currentFileName;
-		private int updateLevel;
+		private Pending pending;
 
 		#endregion
 
@@ -70,6 +71,24 @@
 
 			// TODO: Handle SystemEvents.SessionEnding. If IsModified, then auto-save and close. [Bill, 3/31/2022]
 			// TODO: Support reading a file name from the command line. [Bill, 4/9/2022]
+		}
+
+		#endregion
+
+		#region Private Enums
+
+		[Flags]
+		private enum Pending
+		{
+			None = 0,
+			ReadPatternControl = 1,
+			ReadReplacementControl = 2,
+			ReadInputControl = 4,
+			WriteEvaluation = 8,
+			WritePatternControl = 16,
+			WriteReplacementControl = 32,
+			WriteInputControl = 64,
+			ProcessingPendings = 128,
 		}
 
 		#endregion
@@ -159,6 +178,13 @@
 			}
 		}
 
+		private static void SetText(RichTextBox richTextBox, string text)
+		{
+			// TODO: Preserve selection, caret position, and logical direction. [Bill, 4/17/2022]
+			// TODO: Take a lamdba to highlight runs based on syntax or matches. [Bill, 4/15/2022]
+			richTextBox.Document = new FlowDocument(new Paragraph(new Run(text)));
+		}
+
 		private bool CanClear()
 		{
 			bool allowClear = !this.model.IsModified;
@@ -194,7 +220,9 @@
 			if (File.Exists(fileName) && (!checkCanClear || this.CanClear()))
 			{
 				this.CurrentFileName = FileUtility.ExpandFileName(fileName);
+				this.pending = Pending.WriteEvaluation;
 				this.model.Load(fileName);
+				this.QueueUpdate();
 				result = true;
 			}
 
@@ -261,35 +289,64 @@
 			return result;
 		}
 
-		private IDisposable BeginUpdate()
+		private void QueueUpdate()
 		{
-			Interlocked.Increment(ref this.updateLevel);
-			return new Disposer(() =>
-			{
-				if (Interlocked.Increment(ref this.updateLevel) == 0)
-				{
-					this.EvalutateModel();
-				}
-			});
+			this.Dispatcher.BeginInvoke(new Action(this.ProcessPending), DispatcherPriority.ApplicationIdle);
 		}
 
-		private void EvalutateModel()
+		private void ProcessPending()
 		{
-			const int TimeoutSeconds = 5;
-			Evaluation evaluation = this.model.Evaluate(TimeSpan.FromSeconds(TimeoutSeconds));
+			if (!this.pending.HasFlag(Pending.ProcessingPendings))
+			{
+				this.pending |= Pending.ProcessingPendings;
+				try
+				{
+					if (this.pending.HasFlag(Pending.ReadPatternControl))
+					{
+						this.model.Pattern = this.GetText(this.pattern);
+					}
 
-			this.timing.Content = $"{evaluation.Elapsed.TotalMilliseconds} ms";
-			this.message.Content = evaluation.Exception?.Message;
+					if (this.pending.HasFlag(Pending.ReadReplacementControl))
+					{
+						this.model.Replacement = this.GetText(this.replacement);
+					}
 
-			this.matchGrid.ItemsSource = evaluation.Matches;
-			this.replaced.Document = new FlowDocument(new Paragraph(new Run(evaluation.Replaced)));
-			this.splitGrid.ItemsSource = evaluation.Splits;
+					if (this.pending.HasFlag(Pending.ReadInputControl))
+					{
+						this.model.Input = this.GetText(this.input);
+					}
 
-			// TODO: Update this.pattern content and syntax highlight. [Bill, 4/9/2022]
-			// TODO: Update this.replacement content and syntax highlight. [Bill, 4/9/2022]
-			// TODO: Update this.input content and syntax highlight.  [Bill, 4/9/2022]
-			// TODO: Populate matchGrid. [Bill, 4/15/2022]
-			// TODO: Populate splitGrid. [Bill, 4/15/2022]
+					if (this.pending.HasFlag(Pending.WriteEvaluation))
+					{
+						const int TimeoutSeconds = 5;
+						Evaluation evaluation = this.model.Evaluate(TimeSpan.FromSeconds(TimeoutSeconds));
+
+						this.pending |= Pending.WritePatternControl;
+						SetText(this.pattern, this.model.Pattern); // TODO: Highlight regex syntax. [Bill, 4/15/2022]
+
+						this.pending |= Pending.WriteReplacementControl;
+						SetText(this.replacement, this.model.Replacement); // TODO: Highlight ${} replacers. [Bill, 4/15/2022]
+
+						this.pending |= Pending.WriteInputControl;
+						SetText(this.input, this.model.Input); // TODO: Alternate highlight matches and underline groups. [Bill, 4/15/2022]
+
+						this.timing.Content = $"{evaluation.Elapsed.TotalMilliseconds} ms";
+						this.message.Content = evaluation.Exception?.Message;
+
+						// TODO: Populate matchGrid. [Bill, 4/15/2022]
+						this.matchGrid.ItemsSource = evaluation.Matches;
+
+						SetText(this.replaced, evaluation.Replaced);
+
+						// TODO: Populate splitGrid. [Bill, 4/15/2022]
+						this.splitGrid.ItemsSource = evaluation.Splits;
+					}
+				}
+				finally
+				{
+					this.pending = Pending.None;
+				}
+			}
 		}
 
 		#endregion
@@ -460,35 +517,51 @@
 					break;
 
 				case nameof(Model.UnixNewline):
-					using (this.BeginUpdate())
+					// How we split the lines changed, so we need to re-read the text boxes
+					// if we're not already processing an evaluation (e.g., during Load(file)).
+					if (!this.pending.HasFlag(Pending.WriteEvaluation))
 					{
-						this.model.Pattern = this.GetText(this.pattern);
-						this.model.Replacement = this.GetText(this.replacement);
-						this.model.Input = this.GetText(this.input);
+						// If this updates the model for any property, then that change will callback
+						// into here, and we'll add Pending.WriteEvaluation below.
+						this.pending |= Pending.ReadPatternControl | Pending.ReadReplacementControl | Pending.ReadInputControl;
+						this.QueueUpdate();
 					}
 
 					break;
 
 				default:
 					// Pattern, Replacement, Input, an option, or a mode changed.
-					this.EvalutateModel();
+					this.pending |= Pending.WriteEvaluation;
+					this.QueueUpdate();
 					break;
 			}
 		}
 
 		private void PatternTextChanged(object sender, TextChangedEventArgs e)
 		{
-			this.model.Pattern = this.GetText(this.pattern);
+			if (!this.pending.HasFlag(Pending.ReadPatternControl) && !this.pending.HasFlag(Pending.WritePatternControl))
+			{
+				this.pending |= Pending.ReadPatternControl;
+				this.QueueUpdate();
+			}
 		}
 
 		private void ReplacementTextChanged(object sender, TextChangedEventArgs e)
 		{
-			this.model.Replacement = this.GetText(this.replacement);
+			if (!this.pending.HasFlag(Pending.ReadReplacementControl) && !this.pending.HasFlag(Pending.WriteReplacementControl))
+			{
+				this.pending |= Pending.ReadReplacementControl;
+				this.QueueUpdate();
+			}
 		}
 
 		private void InputTextChanged(object sender, TextChangedEventArgs e)
 		{
-			this.model.Input = this.GetText(this.input);
+			if (!this.pending.HasFlag(Pending.ReadInputControl) && !this.pending.HasFlag(Pending.WriteInputControl))
+			{
+				this.pending |= Pending.ReadInputControl;
+				this.QueueUpdate();
+			}
 		}
 
 		#endregion
