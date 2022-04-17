@@ -9,27 +9,75 @@
 
 	#endregion
 
-	internal sealed class Evaluation
+	internal sealed class Evaluator
 	{
+		#region Private Data Members
+
+		private readonly string pattern;
+		private readonly string replacement;
+		private readonly string input;
+		private readonly RegexOptions options;
+		private readonly Mode mode;
+		private readonly TimeSpan timeout;
+
+		#endregion
+
 		#region Constructors
 
-		public Evaluation(Model model, RegexOptions options, TimeSpan timeout)
+		public Evaluator(Model model, TimeSpan timeout, int updateLevel)
+		{
+			// Copy all the model's values so another thread can't change them out from under us.
+			this.pattern = model.Pattern;
+			this.replacement = model.Replacement;
+			this.input = model.Input;
+			this.options = model.Options;
+			this.mode = model.Mode;
+
+			this.timeout = timeout;
+			this.UpdateLevel = updateLevel;
+
+			this.Matches = Array.Empty<Match>();
+			this.Replaced = string.Empty;
+			this.Splits = Array.Empty<string>();
+		}
+
+		#endregion
+
+		#region Public Properties
+
+		public IReadOnlyList<Match> Matches { get; private set; }
+
+		public string Replaced { get; private set; }
+
+		public string[] Splits { get; private set; }
+
+		public Exception? Exception { get; private set; }
+
+		public TimeSpan Elapsed { get; private set; }
+
+		public int UpdateLevel { get; }
+
+		#endregion
+
+		#region Public Methods
+
+		public void Evaluate(Func<int> getLatestUpdateLevel)
 		{
 			Stopwatch stopwatch = Stopwatch.StartNew();
 			try
 			{
-				ValidateOptions(options);
+				ValidateOptions(this.options);
 
-				Regex expression = new(model.Pattern, options, timeout);
-				this.Matches = expression.Matches(model.Input);
+				Regex expression = new(this.pattern, this.options, this.timeout);
+				this.Matches = expression.Matches(this.input);
 
-				if (model.InReplaceMode)
+				if (this.mode == Mode.Replace)
 				{
-					this.Replaced = expression.Replace(model.Input, model.Replacement);
+					this.Replaced = expression.Replace(this.input, this.replacement);
 				}
-				else if (model.InSplitMode)
+				else if (this.mode == Mode.Split)
 				{
-					this.Splits = expression.Split(model.Input);
+					this.Splits = expression.Split(this.input);
 				}
 			}
 			catch (ArgumentException ex)
@@ -42,24 +90,7 @@
 			}
 
 			this.Elapsed = stopwatch.Elapsed;
-			this.Matches ??= Array.Empty<Match>();
-			this.Replaced ??= string.Empty;
-			this.Splits ??= Array.Empty<string>();
 		}
-
-		#endregion
-
-		#region Public Properties
-
-		public IReadOnlyList<Match> Matches { get; }
-
-		public string Replaced { get; }
-
-		public string[] Splits { get; }
-
-		public Exception? Exception { get; }
-
-		public TimeSpan Elapsed { get; }
 
 		#endregion
 

@@ -42,7 +42,10 @@
 		private readonly Model model;
 		private readonly WindowSaver saver;
 		private string currentFileName;
-		private Pending pending;
+
+		private int updateLevel;
+		private UpdateState updateState;
+		private HashSet<RichTextBox> dirtyText = new();
 
 		#endregion
 
@@ -77,18 +80,13 @@
 
 		#region Private Enums
 
-		[Flags]
-		private enum Pending
+		private enum UpdateState
 		{
-			None = 0,
-			ReadPatternControl = 1,
-			ReadReplacementControl = 2,
-			ReadInputControl = 4,
-			WriteEvaluation = 8,
-			WritePatternControl = 16,
-			WriteReplacementControl = 32,
-			WriteInputControl = 64,
-			ProcessingPendings = 128,
+			None,
+
+			// TODO: Can these states be combined? Do we just need bool isUpdating? [Bill, 4/17/2022]
+			ShowingResults,
+			Resetting,
 		}
 
 		#endregion
@@ -183,6 +181,7 @@
 			// TODO: Preserve selection, caret position, and logical direction. [Bill, 4/17/2022]
 			// TODO: Take a lamdba to highlight runs based on syntax or matches. [Bill, 4/15/2022]
 			richTextBox.Document = new FlowDocument(new Paragraph(new Run(text)));
+			richTextBox.Selection.Select(richTextBox.Document.ContentEnd, richTextBox.Document.ContentEnd);
 		}
 
 		private bool CanClear()
@@ -213,6 +212,27 @@
 			return allowClear;
 		}
 
+		private IDisposable SetState(UpdateState state)
+		{
+			UpdateState previous = this.updateState;
+			this.updateState = state;
+			return new Disposer(() => this.updateState = previous);
+		}
+
+		private void Clear()
+		{
+			if (this.CanClear())
+			{
+				this.CurrentFileName = string.Empty;
+				using (this.SetState(UpdateState.Resetting))
+				{
+					this.model.Clear();
+				}
+
+				this.TryQueueUpdate();
+			}
+		}
+
 		private bool Load(string fileName, bool checkCanClear = true)
 		{
 			bool result = false;
@@ -220,9 +240,12 @@
 			if (File.Exists(fileName) && (!checkCanClear || this.CanClear()))
 			{
 				this.CurrentFileName = FileUtility.ExpandFileName(fileName);
-				this.pending = Pending.WriteEvaluation;
-				this.model.Load(fileName);
-				this.QueueUpdate();
+				using (this.SetState(UpdateState.Resetting))
+				{
+					this.model.Load(fileName);
+				}
+
+				this.TryQueueUpdate();
 				result = true;
 			}
 
@@ -289,62 +312,70 @@
 			return result;
 		}
 
-		private void QueueUpdate()
+		private void TryQueueUpdate()
 		{
-			this.Dispatcher.BeginInvoke(new Action(this.ProcessPending), DispatcherPriority.ApplicationIdle);
+			if (this.updateState == UpdateState.None)
+			{
+				this.Dispatcher.BeginInvoke(new Action(this.BeginForegroundUpdate), DispatcherPriority.ApplicationIdle);
+			}
 		}
 
-		private void ProcessPending()
+		private void BeginForegroundUpdate()
 		{
-			if (!this.pending.HasFlag(Pending.ProcessingPendings))
+			// Note: We can't call bool Remove(...) first because we need the control to
+			// remain in the dirty set while the model's PropertyChanged event is handled.
+			if (this.dirtyText.Contains(this.pattern))
 			{
-				this.pending |= Pending.ProcessingPendings;
-				try
+				this.model.Pattern = this.GetText(this.pattern);
+				this.dirtyText.Remove(this.pattern);
+			}
+
+			if (this.dirtyText.Contains(this.replacement))
+			{
+				this.model.Replacement = this.GetText(this.replacement);
+				this.dirtyText.Remove(this.replacement);
+			}
+
+			if (this.dirtyText.Contains(this.input))
+			{
+				this.model.Input = this.GetText(this.input);
+				this.dirtyText.Remove(this.input);
+			}
+
+			int currentUpdateLevel = Interlocked.Increment(ref this.updateLevel);
+			const int TimeoutSeconds = 5;
+			Evaluator evaluator = new(this.model, TimeSpan.FromSeconds(TimeoutSeconds), currentUpdateLevel);
+
+			// In .NET Core, we need to use a Task to run in the background. Otherwise, the async-await
+			// viral nature will muddy up every method in this class.
+			// https://devblogs.microsoft.com/dotnet/migrating-delegate-begininvoke-calls-for-net-core/
+			Task.Run(() =>
+			{
+				evaluator.Evaluate(() => this.updateLevel);
+				this.Dispatcher.BeginInvoke(new Action<Evaluator>(this.EndForegroundUpdate), DispatcherPriority.ApplicationIdle, evaluator);
+			});
+		}
+
+		private void EndForegroundUpdate(Evaluator evaluator)
+		{
+			if (evaluator.UpdateLevel == this.updateLevel)
+			{
+				using (this.SetState(UpdateState.ShowingResults))
 				{
-					if (this.pending.HasFlag(Pending.ReadPatternControl))
-					{
-						this.model.Pattern = this.GetText(this.pattern);
-					}
+					SetText(this.pattern, this.model.Pattern); // TODO: Highlight regex syntax. [Bill, 4/15/2022]
+					SetText(this.replacement, this.model.Replacement); // TODO: Highlight ${} replacers. [Bill, 4/15/2022]
+					SetText(this.input, this.model.Input); // TODO: Alternate highlight matches and underline groups. [Bill, 4/15/2022]
 
-					if (this.pending.HasFlag(Pending.ReadReplacementControl))
-					{
-						this.model.Replacement = this.GetText(this.replacement);
-					}
+					this.timing.Content = $"{evaluator.Elapsed.TotalMilliseconds} ms";
+					this.message.Content = evaluator.Exception?.Message;
 
-					if (this.pending.HasFlag(Pending.ReadInputControl))
-					{
-						this.model.Input = this.GetText(this.input);
-					}
+					// TODO: Populate matchGrid. [Bill, 4/15/2022]
+					this.matchGrid.ItemsSource = evaluator.Matches;
 
-					if (this.pending.HasFlag(Pending.WriteEvaluation))
-					{
-						const int TimeoutSeconds = 5;
-						Evaluation evaluation = this.model.Evaluate(TimeSpan.FromSeconds(TimeoutSeconds));
+					SetText(this.replaced, evaluator.Replaced);
 
-						this.pending |= Pending.WritePatternControl;
-						SetText(this.pattern, this.model.Pattern); // TODO: Highlight regex syntax. [Bill, 4/15/2022]
-
-						this.pending |= Pending.WriteReplacementControl;
-						SetText(this.replacement, this.model.Replacement); // TODO: Highlight ${} replacers. [Bill, 4/15/2022]
-
-						this.pending |= Pending.WriteInputControl;
-						SetText(this.input, this.model.Input); // TODO: Alternate highlight matches and underline groups. [Bill, 4/15/2022]
-
-						this.timing.Content = $"{evaluation.Elapsed.TotalMilliseconds} ms";
-						this.message.Content = evaluation.Exception?.Message;
-
-						// TODO: Populate matchGrid. [Bill, 4/15/2022]
-						this.matchGrid.ItemsSource = evaluation.Matches;
-
-						SetText(this.replaced, evaluation.Replaced);
-
-						// TODO: Populate splitGrid. [Bill, 4/15/2022]
-						this.splitGrid.ItemsSource = evaluation.Splits;
-					}
-				}
-				finally
-				{
-					this.pending = Pending.None;
+					// TODO: Populate splitGrid. [Bill, 4/15/2022]
+					this.splitGrid.ItemsSource = evaluator.Splits;
 				}
 			}
 		}
@@ -404,11 +435,7 @@
 
 		private void NewExecuted(object? sender, ExecutedRoutedEventArgs e)
 		{
-			if (this.CanClear())
-			{
-				this.CurrentFileName = string.Empty;
-				this.model.Clear();
-			}
+			this.Clear();
 		}
 
 		private void OpenExecuted(object? sender, ExecutedRoutedEventArgs e)
@@ -516,51 +543,60 @@
 					this.UpdateTitle();
 					break;
 
-				case nameof(Model.UnixNewline):
-					// How we split the lines changed, so we need to re-read the text boxes
-					// if we're not already processing an evaluation (e.g., during Load(file)).
-					if (!this.pending.HasFlag(Pending.WriteEvaluation))
+				case nameof(Model.Pattern):
+					if (!this.dirtyText.Contains(this.pattern))
 					{
-						// If this updates the model for any property, then that change will callback
-						// into here, and we'll add Pending.WriteEvaluation below.
-						this.pending |= Pending.ReadPatternControl | Pending.ReadReplacementControl | Pending.ReadInputControl;
-						this.QueueUpdate();
+						this.TryQueueUpdate();
+					}
+
+					break;
+
+				case nameof(Model.Replacement):
+					if (!this.dirtyText.Contains(this.replacement))
+					{
+						this.TryQueueUpdate();
+					}
+
+					break;
+
+				case nameof(Model.Input):
+					if (!this.dirtyText.Contains(this.input))
+					{
+						this.TryQueueUpdate();
+					}
+
+					break;
+
+				case nameof(Model.UnixNewline):
+					if (this.updateState == UpdateState.None)
+					{
+						// How we split the lines changed, so we need to re-read the text boxes.
+						this.dirtyText.Add(this.pattern);
+						this.dirtyText.Add(this.replacement);
+						this.dirtyText.Add(this.input);
+						this.TryQueueUpdate();
 					}
 
 					break;
 
 				default:
-					// Pattern, Replacement, Input, an option, or a mode changed.
-					this.pending |= Pending.WriteEvaluation;
-					this.QueueUpdate();
+					// An option or a mode changed.
+					if (this.updateState == UpdateState.None)
+					{
+						this.TryQueueUpdate();
+					}
+
 					break;
 			}
 		}
 
-		private void PatternTextChanged(object sender, TextChangedEventArgs e)
+		private void EditorTextChanged(object sender, TextChangedEventArgs e)
 		{
-			if (!this.pending.HasFlag(Pending.ReadPatternControl) && !this.pending.HasFlag(Pending.WritePatternControl))
+			if (this.updateState == UpdateState.None
+				&& sender is RichTextBox richTextBox
+				&& this.dirtyText.Add(richTextBox))
 			{
-				this.pending |= Pending.ReadPatternControl;
-				this.QueueUpdate();
-			}
-		}
-
-		private void ReplacementTextChanged(object sender, TextChangedEventArgs e)
-		{
-			if (!this.pending.HasFlag(Pending.ReadReplacementControl) && !this.pending.HasFlag(Pending.WriteReplacementControl))
-			{
-				this.pending |= Pending.ReadReplacementControl;
-				this.QueueUpdate();
-			}
-		}
-
-		private void InputTextChanged(object sender, TextChangedEventArgs e)
-		{
-			if (!this.pending.HasFlag(Pending.ReadInputControl) && !this.pending.HasFlag(Pending.WriteInputControl))
-			{
-				this.pending |= Pending.ReadInputControl;
-				this.QueueUpdate();
+				this.TryQueueUpdate();
 			}
 		}
 

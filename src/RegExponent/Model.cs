@@ -43,17 +43,6 @@
 
 		#endregion
 
-		#region Private Enums
-
-		private enum Mode
-		{
-			Match,
-			Replace,
-			Split,
-		}
-
-		#endregion
-
 		#region Public Properties
 
 		public bool IsModified { get => this.isModified; set => this.Update(ref this.isModified, value); }
@@ -127,6 +116,16 @@
 
 		#endregion
 
+		#region Internal Properties
+
+		/* Note: These internal properties don't send IPropertyChanged notifications. */
+
+		internal Mode Mode => this.mode;
+
+		internal RegexOptions Options => this.regexOptions;
+
+		#endregion
+
 		#region Public Methods
 
 		public void Clear()
@@ -176,7 +175,7 @@
 				this.UnixNewline = newline.GetBoolean();
 			}
 
-			if (root.TryGetProperty(nameof(Mode), out JsonElement modeElement)
+			if (root.TryGetProperty(nameof(this.Mode), out JsonElement modeElement)
 				&& Enum.TryParse(modeElement.GetString(), out Mode mode))
 			{
 				this.InMatchMode = mode == Mode.Match;
@@ -233,7 +232,7 @@
 
 			if (this.mode != default)
 			{
-				writer.WriteString(nameof(Mode), this.mode.ToString());
+				writer.WriteString(nameof(this.Mode), this.mode.ToString());
 			}
 
 			if (this.regexOptions != default)
@@ -262,9 +261,6 @@
 			File.WriteAllBytes(fileName, memory.ToArray());
 			this.IsModified = false;
 		}
-
-		public Evaluation Evaluate(TimeSpan timeout)
-			=> new(this, this.regexOptions, timeout);
 
 		#endregion
 
