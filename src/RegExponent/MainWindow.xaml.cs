@@ -178,10 +178,30 @@
 
 		private static void SetText(RichTextBox richTextBox, string text)
 		{
-			// TODO: Preserve selection, caret position, and logical direction. [Bill, 4/17/2022]
+			// TODO: Do intelligent diffs rather than rebuild whole document each time. [Bill, 4/18/2022]
+			using StringReader reader = new(text);
+			string? line;
+			FlowDocument document = new();
+			while ((line = reader.ReadLine()) != null)
+			{
+				document.Blocks.Add(new Paragraph(new Run(line)));
+			}
+
+			TextSelection selection = richTextBox.Selection;
+			int selectionStartOffset = richTextBox.Document.ContentStart.GetOffsetToPosition(selection.Start);
+			int selectionLength = selection.Start.GetOffsetToPosition(selection.End);
+			LogicalDirection direction = selection.End.LogicalDirection;
+
 			// TODO: Take a lamdba to highlight runs based on syntax or matches. [Bill, 4/15/2022]
-			richTextBox.Document = new FlowDocument(new Paragraph(new Run(text)));
-			richTextBox.Selection.Select(richTextBox.Document.ContentEnd, richTextBox.Document.ContentEnd);
+			richTextBox.Document = document;
+
+			// TODO: Preserve selection, caret position, and logical direction. [Bill, 4/17/2022]
+			TextPointer? selectionStart = richTextBox.Document.ContentStart.GetPositionAtOffset(selectionStartOffset, LogicalDirection.Forward);
+			TextPointer? selectionEnd = selectionStart?.GetPositionAtOffset(selectionLength, direction);
+			if (selectionStart != null && selectionEnd != null)
+			{
+				richTextBox.Selection.Select(selectionStart, selectionEnd);
+			}
 		}
 
 		private bool CanClear()
