@@ -1,0 +1,9 @@
+{
+  "Version": 1,
+  "UnixNewline": true,
+  "Mode": "Replace",
+  "RegexOptions": "IgnoreCase, Multiline, ExplicitCapture, Singleline, IgnorePatternWhitespace",
+  "Pattern": "test",
+  "Replacement": "project",
+  "Input": "This test has\nmultiple Test lines\nin its input."
+}

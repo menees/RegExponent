@@ -119,8 +119,9 @@
 					<MenuItem Header="Generate C# To Clipboard" Command="local:Commands.GenerateCodeToClipboard"/>
 				</MenuItem>
 				<MenuItem Header="_Help">
-					<MenuItem Header=".NET Regex _Quick Reference..." Command="Help"/>
-					<MenuItem Header=".NET Regex _Options..." Command="local:Commands.ShellExecute" CommandParameter="https://docs.microsoft.com/en-us/dotnet/standard/base-types/regular-expression-options"/>
+					<MenuItem Header=".NET Regex _Quick Reference" Command="Help"/>
+					<MenuItem Header=".NET Regex _Options" Command="local:Commands.ShellExecute" CommandParameter="https://docs.microsoft.com/en-us/dotnet/standard/base-types/regular-expression-options"/>
+					<MenuItem Header=".NET Regex _Substitutions" Command="local:Commands.ShellExecute" CommandParameter="https://docs.microsoft.com/en-us/dotnet/standard/base-types/substitutions-in-regular-expressions"/>
 					<Separator/>
 					<MenuItem CommandParameter="\w+" Tag="Word" Style="{StaticResource RegexMenuItem}" Command="local:Commands.InsertPattern"/>
 					<MenuItem CommandParameter="\d+" Tag="Unsigned Integer" Style="{StaticResource RegexMenuItem}" Command="local:Commands.InsertPattern"/>
@@ -182,7 +183,15 @@
 
 		<TabControl x:Name="bottomTabs" Grid.Row="6">
 			<TabItem Header="Matches">
-				<DataGrid x:Name="matchGrid" AutoGenerateColumns="True"/>
+				<DataGrid x:Name="matchGrid" IsReadOnly="True" AutoGenerateColumns="False">
+					<DataGrid.Columns>
+						<DataGridTextColumn Header="Match" Binding="{Binding Match, Mode=OneWay}"/>
+						<DataGridTextColumn Header="Group" Binding="{Binding Group, Mode=OneWay}"/>
+						<DataGridTextColumn Header="Value" Binding="{Binding Value, Mode=OneWay}"/>
+						<DataGridTextColumn Header="Index" Binding="{Binding Index, Mode=OneWay}"/>
+						<DataGridTextColumn Header="Length" Binding="{Binding Length, Mode=OneWay}"/>
+					</DataGrid.Columns>
+				</DataGrid>
 			</TabItem>
 			<TabItem Header="Output"
 					 Visibility="{Binding InReplaceMode, Converter={StaticResource BoolToVisibility}, Source={StaticResource Model}}"
@@ -190,21 +199,16 @@
 				<RichTextBox x:Name="replaced" IsReadOnly="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
 							Visibility="{Binding InReplaceMode, Converter={StaticResource BoolToVisibility}, Source={StaticResource Model}}"
 							IsInactiveSelectionHighlightEnabled="True">
-					<RichTextBox.Document>
-						<FlowDocument>
-							<Paragraph>Show replacement text</Paragraph>
-						</FlowDocument>
-					</RichTextBox.Document>
 				</RichTextBox>
 			</TabItem>
 			<TabItem Header="Output"
 					 Visibility="{Binding InSplitMode, Converter={StaticResource BoolToVisibility}, Source={StaticResource Model}}"
 					 IsVisibleChanged="OutputTabIsVisibleChanged">
-				<DataGrid x:Name="splitGrid"
-						Visibility="{Binding InSplitMode, Converter={StaticResource BoolToVisibility}, Source={StaticResource Model}}"
-						HeadersVisibility="Row">
+				<DataGrid x:Name="splitGrid" IsReadOnly="True" AutoGenerateColumns="False"
+						Visibility="{Binding InSplitMode, Converter={StaticResource BoolToVisibility}, Source={StaticResource Model}}">
 					<DataGrid.Columns>
-						<DataGridTextColumn/>
+						<DataGridTextColumn Header="#" Binding="{Binding Index, Mode=OneWay}"/>
+						<DataGridTextColumn Header="Value" Binding="{Binding Value, Mode=OneWay}"/>
 					</DataGrid.Columns>
 				</DataGrid>
 			</TabItem>

@@ -389,13 +389,26 @@
 					this.timing.Content = $"{evaluator.Elapsed.TotalMilliseconds} ms";
 					this.message.Content = evaluator.Exception?.Message;
 
-					// TODO: Populate matchGrid. [Bill, 4/15/2022]
-					this.matchGrid.ItemsSource = evaluator.Matches;
+					// TODO: Hide Group column if no groups. [Bill, 4/15/2022]
+					this.matchGrid.ItemsSource = evaluator.Matches
+						.SelectMany((match, matchNum) => match.Groups.Cast<Group>()
+							.Select((group, groupNum) => (matchNum, groupNum, group))
+							.Where(tuple => tuple.group.Success))
+						.Select(pair => new
+						{
+							Match = pair.groupNum == 0 ? pair.matchNum : (int?)null,
+							Group = pair.groupNum != 0 ? pair.group.Name : null,
+							pair.group.Index,
+							pair.group.Length,
+							pair.group.Value,
+						})
+						.ToList();
 
 					SetText(this.replaced, evaluator.Replaced);
 
-					// TODO: Populate splitGrid. [Bill, 4/15/2022]
-					this.splitGrid.ItemsSource = evaluator.Splits;
+					// TODO: Show null|empty|whitespace if necessary.. [Bill, 4/15/2022]
+					this.splitGrid.ItemsSource = evaluator.Splits
+						.Select((line, index) => new { Index = index, Value = line });
 				}
 			}
 		}
