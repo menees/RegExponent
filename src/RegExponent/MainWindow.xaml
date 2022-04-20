@@ -8,7 +8,7 @@
 		mc:Ignorable="d"
 		Title="RegExponent" Height="450" Width="800"
 				   ResizeMode="CanResizeWithGrip" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"
-				  FocusManager.FocusedElement="{Binding ElementName=pattern}">
+				  FocusManager.FocusedElement="{Binding ElementName=pattern}" Closing="WindowClosing">
 
 	<Window.CommandBindings>
 		<CommandBinding Command="New" Executed="NewExecuted"/>
@@ -186,7 +186,7 @@
 				<DataGrid x:Name="matchGrid" IsReadOnly="True" AutoGenerateColumns="False">
 					<DataGrid.Columns>
 						<DataGridTextColumn Header="Match" Binding="{Binding Match, Mode=OneWay}"/>
-						<DataGridTextColumn Header="Group" Binding="{Binding Group, Mode=OneWay}"/>
+						<DataGridTextColumn x:Name="groupColumn" Header="Group" Binding="{Binding Group, Mode=OneWay}" Visibility="Collapsed"/>
 						<DataGridTextColumn Header="Value" Binding="{Binding Value, Mode=OneWay}"/>
 						<DataGridTextColumn Header="Index" Binding="{Binding Index, Mode=OneWay}"/>
 						<DataGridTextColumn Header="Length" Binding="{Binding Length, Mode=OneWay}"/>
@@ -209,6 +209,8 @@
 					<DataGrid.Columns>
 						<DataGridTextColumn Header="#" Binding="{Binding Index, Mode=OneWay}"/>
 						<DataGridTextColumn Header="Value" Binding="{Binding Value, Mode=OneWay}"/>
+						<DataGridTextColumn Header="Length" Binding="{Binding Length, Mode=OneWay}"/>
+						<DataGridTextColumn x:Name="splitCommentColumn" Header="Comment" Binding="{Binding Comment, Mode=OneWay}" Visibility="Collapsed"/>
 					</DataGrid.Columns>
 				</DataGrid>
 			</TabItem>

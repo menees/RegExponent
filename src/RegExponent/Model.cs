@@ -23,6 +23,14 @@
 
 		private const short CurrentVersion = 1;
 
+		private static readonly HashSet<string> UpdateSkipIsModified = new()
+		{
+			nameof(IsModified),
+			nameof(InMatchMode),
+			nameof(InReplaceMode),
+			nameof(InSplitMode),
+		};
+
 		private readonly bool inDesignMode;
 		private bool isModified;
 		private string pattern = string.Empty;
@@ -269,7 +277,7 @@
 		protected override bool Update<T>(ref T member, T value, [CallerMemberName] string? callerMemberName = null)
 		{
 			bool result = base.Update(ref member, value, callerMemberName);
-			if (result && callerMemberName != nameof(this.IsModified))
+			if (result && callerMemberName != null && !UpdateSkipIsModified.Contains(callerMemberName))
 			{
 				this.IsModified = true;
 			}

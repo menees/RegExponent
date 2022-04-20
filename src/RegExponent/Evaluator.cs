@@ -6,6 +6,7 @@
 	using System.Collections.Generic;
 	using System.Diagnostics;
 	using System.Text.RegularExpressions;
+	using Menees;
 
 	#endregion
 
@@ -68,16 +69,27 @@
 			{
 				ValidateOptions(this.options);
 
-				Regex expression = new(this.pattern, this.options, this.timeout);
-				this.Matches = expression.Matches(this.input);
+				if (this.pattern.IsNotEmpty()
+					&& this.input.IsNotEmpty()
+					&& this.UpdateLevel == getLatestUpdateLevel())
+				{
+					Regex expression = new(this.pattern, this.options, this.timeout);
+					this.Matches = expression.Matches(this.input);
 
-				if (this.mode == Mode.Replace)
-				{
-					this.Replaced = expression.Replace(this.input, this.replacement);
-				}
-				else if (this.mode == Mode.Split)
-				{
-					this.Splits = expression.Split(this.input);
+					if (this.mode == Mode.Replace)
+					{
+						if (this.UpdateLevel == getLatestUpdateLevel())
+						{
+							this.Replaced = expression.Replace(this.input, this.replacement);
+						}
+					}
+					else if (this.mode == Mode.Split)
+					{
+						if (this.UpdateLevel == getLatestUpdateLevel())
+						{
+							this.Splits = expression.Split(this.input);
+						}
+					}
 				}
 			}
 			catch (ArgumentException ex)

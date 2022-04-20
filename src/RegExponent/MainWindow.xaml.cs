@@ -41,11 +41,11 @@
 
 		private readonly Model model;
 		private readonly WindowSaver saver;
+		private readonly HashSet<RichTextBox> dirtyText = new();
 		private string currentFileName;
 
 		private int updateLevel;
 		private UpdateState updateState;
-		private HashSet<RichTextBox> dirtyText = new();
 
 		#endregion
 
@@ -184,6 +184,7 @@
 			FlowDocument document = new();
 			while ((line = reader.ReadLine()) != null)
 			{
+				// TODO: Handle Enter correctly. [Bill, 4/19/2022]
 				document.Blocks.Add(new Paragraph(new Run(line)));
 			}
 
@@ -195,7 +196,6 @@
 			// TODO: Take a lamdba to highlight runs based on syntax or matches. [Bill, 4/15/2022]
 			richTextBox.Document = document;
 
-			// TODO: Preserve selection, caret position, and logical direction. [Bill, 4/17/2022]
 			TextPointer? selectionStart = richTextBox.Document.ContentStart.GetPositionAtOffset(selectionStartOffset, LogicalDirection.Forward);
 			TextPointer? selectionEnd = selectionStart?.GetPositionAtOffset(selectionLength, direction);
 			if (selectionStart != null && selectionEnd != null)
@@ -383,14 +383,12 @@
 				using (this.SetState(UpdateState.ShowingResults))
 				{
 					SetText(this.pattern, this.model.Pattern); // TODO: Highlight regex syntax. [Bill, 4/15/2022]
-					SetText(this.replacement, this.model.Replacement); // TODO: Highlight ${} replacers. [Bill, 4/15/2022]
 					SetText(this.input, this.model.Input); // TODO: Alternate highlight matches and underline groups. [Bill, 4/15/2022]
 
 					this.timing.Content = $"{evaluator.Elapsed.TotalMilliseconds} ms";
 					this.message.Content = evaluator.Exception?.Message;
 
-					// TODO: Hide Group column if no groups. [Bill, 4/15/2022]
-					this.matchGrid.ItemsSource = evaluator.Matches
+					var matches = evaluator.Matches
 						.SelectMany((match, matchNum) => match.Groups.Cast<Group>()
 							.Select((group, groupNum) => (matchNum, groupNum, group))
 							.Where(tuple => tuple.group.Success))
@@ -403,12 +401,31 @@
 							pair.group.Value,
 						})
 						.ToList();
+					this.groupColumn.Visibility = matches.Any(m => m.Group.IsNotEmpty()) ? Visibility.Visible : Visibility.Collapsed;
+					this.matchGrid.ItemsSource = matches;
 
-					SetText(this.replaced, evaluator.Replaced);
-
-					// TODO: Show null|empty|whitespace if necessary.. [Bill, 4/15/2022]
-					this.splitGrid.ItemsSource = evaluator.Splits
-						.Select((line, index) => new { Index = index, Value = line });
+					if (this.model.InReplaceMode)
+					{
+						SetText(this.replacement, this.model.Replacement); // TODO: Highlight ${} replacers. [Bill, 4/15/2022]
+						SetText(this.replaced, evaluator.Replaced);
+					}
+					else if (this.model.InSplitMode)
+					{
+						var splits = evaluator.Splits
+							.Select((line, index) => new
+							{
+								Index = index,
+								Value = line,
+								line?.Length,
+								Comment = line == null ? "null"
+									: line.Length == 0 ? "empty"
+									: line.IsWhiteSpace() ? "whitespace"
+									: double.TryParse(line, out _) || decimal.TryParse(line, out _) ? "numeric"
+									: string.Empty,
+							});
+						this.splitCommentColumn.Visibility = splits.Any(s => s.Comment.IsNotEmpty()) ? Visibility.Visible : Visibility.Collapsed;
+						this.splitGrid.ItemsSource = splits;
+					}
 				}
 			}
 		}
@@ -631,6 +648,11 @@
 			{
 				this.TryQueueUpdate();
 			}
+		}
+
+		private void WindowClosing(object sender, CancelEventArgs e)
+		{
+			e.Cancel = !this.CanClear();
 		}
 
 		#endregion
