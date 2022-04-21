@@ -130,6 +130,8 @@
 
 		internal Mode Mode => this.mode;
 
+		internal string Newline => this.UnixNewline ? "\n" : "\r\n";
+
 		internal RegexOptions Options => this.regexOptions;
 
 		#endregion

@@ -176,15 +176,13 @@
 			}
 		}
 
-		private static void SetText(RichTextBox richTextBox, string text)
+		private void SetText(RichTextBox richTextBox, string text)
 		{
 			// TODO: Do intelligent diffs rather than rebuild whole document each time. [Bill, 4/18/2022]
-			using StringReader reader = new(text);
-			string? line;
+			string[] lines = text.Split(this.model.Newline);
 			FlowDocument document = new();
-			while ((line = reader.ReadLine()) != null)
+			foreach (string line in lines)
 			{
-				// TODO: Handle Enter correctly. [Bill, 4/19/2022]
 				document.Blocks.Add(new Paragraph(new Run(line)));
 			}
 
@@ -320,7 +318,7 @@
 			{
 				if (sb.Length > 0)
 				{
-					sb.Append(this.model.UnixNewline ? "\n" : "\r\n");
+					sb.Append(this.model.Newline);
 				}
 
 				TextRange range = new(block.ContentStart, block.ContentEnd);
@@ -382,8 +380,8 @@
 			{
 				using (this.SetState(UpdateState.ShowingResults))
 				{
-					SetText(this.pattern, this.model.Pattern); // TODO: Highlight regex syntax. [Bill, 4/15/2022]
-					SetText(this.input, this.model.Input); // TODO: Alternate highlight matches and underline groups. [Bill, 4/15/2022]
+					this.SetText(this.pattern, this.model.Pattern); // TODO: Highlight regex syntax. [Bill, 4/15/2022]
+					this.SetText(this.input, this.model.Input); // TODO: Alternate highlight matches and underline groups. [Bill, 4/15/2022]
 
 					this.timing.Content = $"{evaluator.Elapsed.TotalMilliseconds} ms";
 					this.message.Content = evaluator.Exception?.Message;
@@ -406,8 +404,8 @@
 
 					if (this.model.InReplaceMode)
 					{
-						SetText(this.replacement, this.model.Replacement); // TODO: Highlight ${} replacers. [Bill, 4/15/2022]
-						SetText(this.replaced, evaluator.Replaced);
+						this.SetText(this.replacement, this.model.Replacement); // TODO: Highlight ${} replacers. [Bill, 4/15/2022]
+						this.SetText(this.replaced, evaluator.Replaced);
 					}
 					else if (this.model.InSplitMode)
 					{
