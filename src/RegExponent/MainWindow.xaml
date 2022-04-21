@@ -183,7 +183,7 @@
 
 		<TabControl x:Name="bottomTabs" Grid.Row="6">
 			<TabItem Header="Matches">
-				<DataGrid x:Name="matchGrid" IsReadOnly="True" AutoGenerateColumns="False">
+				<DataGrid x:Name="matchGrid" IsReadOnly="True" AutoGenerateColumns="False" CanUserReorderColumns="False">
 					<DataGrid.Columns>
 						<DataGridTextColumn Header="Match" Binding="{Binding Match, Mode=OneWay}"/>
 						<DataGridTextColumn x:Name="groupColumn" Header="Group" Binding="{Binding Group, Mode=OneWay}" Visibility="Collapsed"/>
@@ -204,7 +204,7 @@
 			<TabItem Header="Output"
 					 Visibility="{Binding InSplitMode, Converter={StaticResource BoolToVisibility}, Source={StaticResource Model}}"
 					 IsVisibleChanged="OutputTabIsVisibleChanged">
-				<DataGrid x:Name="splitGrid" IsReadOnly="True" AutoGenerateColumns="False"
+				<DataGrid x:Name="splitGrid" IsReadOnly="True" AutoGenerateColumns="False" CanUserReorderColumns="False"
 						Visibility="{Binding InSplitMode, Converter={StaticResource BoolToVisibility}, Source={StaticResource Model}}">
 					<DataGrid.Columns>
 						<DataGridTextColumn Header="#" Binding="{Binding Index, Mode=OneWay}"/>

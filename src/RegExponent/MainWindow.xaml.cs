@@ -42,6 +42,7 @@
 		private readonly Model model;
 		private readonly WindowSaver saver;
 		private readonly HashSet<RichTextBox> dirtyText = new();
+		private readonly Control[] customFontControls;
 		private string currentFileName;
 
 		private int updateLevel;
@@ -55,6 +56,15 @@
 		{
 			// TODO: Add good icon. [Bill, 4/9/2022]
 			this.InitializeComponent();
+			this.customFontControls = new Control[]
+			{
+				this.pattern,
+				this.replacement,
+				this.input,
+				this.replaced,
+				this.matchGrid,
+				this.splitGrid,
+			};
 
 			this.model = (Model)this.FindResource(nameof(Model));
 			this.model.PropertyChanged += this.ModelPropertyChanged;
@@ -119,27 +129,6 @@
 
 		#region Private Methods
 
-		private static void ApplyFont(Control control, Drawing.Font font)
-		{
-			// From https://stackoverflow.com/a/37578593/1882616
-			control.FontFamily = new FontFamily(font.Name);
-			switch (font.Unit)
-			{
-				case Drawing.GraphicsUnit.Point:
-					const double XamlPixelsPerInch = 96.0;
-					const double DrawingPointsPerInch = 72.0;
-					control.FontSize = font.Size * XamlPixelsPerInch / DrawingPointsPerInch;
-					break;
-
-				case Drawing.GraphicsUnit.Pixel:
-					control.FontSize = font.Size;
-					break;
-			}
-
-			control.FontWeight = font.Bold ? FontWeights.Bold : FontWeights.Regular;
-			control.FontStyle = font.Italic ? FontStyles.Italic : FontStyles.Normal;
-		}
-
 		private static void InsertText(RichTextBox richTextBox, string text)
 		{
 			if (!richTextBox.Selection.IsEmpty)
@@ -176,29 +165,15 @@
 			}
 		}
 
-		private void SetText(RichTextBox richTextBox, string text)
+		private void ApplyFont(string familyName, double size, FontStyle style, FontWeight weight)
 		{
-			// TODO: Do intelligent diffs rather than rebuild whole document each time. [Bill, 4/18/2022]
-			string[] lines = text.Split(this.model.Newline);
-			FlowDocument document = new();
-			foreach (string line in lines)
+			FontFamily fontFamily = new(familyName);
+			foreach (Control control in this.customFontControls)
 			{
-				document.Blocks.Add(new Paragraph(new Run(line)));
-			}
-
-			TextSelection selection = richTextBox.Selection;
-			int selectionStartOffset = richTextBox.Document.ContentStart.GetOffsetToPosition(selection.Start);
-			int selectionLength = selection.Start.GetOffsetToPosition(selection.End);
-			LogicalDirection direction = selection.End.LogicalDirection;
-
-			// TODO: Take a lamdba to highlight runs based on syntax or matches. [Bill, 4/15/2022]
-			richTextBox.Document = document;
-
-			TextPointer? selectionStart = richTextBox.Document.ContentStart.GetPositionAtOffset(selectionStartOffset, LogicalDirection.Forward);
-			TextPointer? selectionEnd = selectionStart?.GetPositionAtOffset(selectionLength, direction);
-			if (selectionStart != null && selectionEnd != null)
-			{
-				richTextBox.Selection.Select(selectionStart, selectionEnd);
+				control.FontFamily = fontFamily;
+				control.FontSize = size;
+				control.FontStyle = style;
+				control.FontWeight = weight;
 			}
 		}
 
@@ -328,6 +303,32 @@
 
 			string result = sb.ToString();
 			return result;
+		}
+
+		private void SetText(RichTextBox richTextBox, string text)
+		{
+			// TODO: Do intelligent diffs rather than rebuild whole document each time. [Bill, 4/18/2022]
+			string[] lines = text.Split(this.model.Newline);
+			FlowDocument document = new();
+			foreach (string line in lines)
+			{
+				document.Blocks.Add(new Paragraph(new Run(line)));
+			}
+
+			TextSelection selection = richTextBox.Selection;
+			int selectionStartOffset = richTextBox.Document.ContentStart.GetOffsetToPosition(selection.Start);
+			int selectionLength = selection.Start.GetOffsetToPosition(selection.End);
+			LogicalDirection direction = selection.End.LogicalDirection;
+
+			// TODO: Take a lamdba to highlight runs based on syntax or matches. [Bill, 4/15/2022]
+			richTextBox.Document = document;
+
+			TextPointer? selectionStart = richTextBox.Document.ContentStart.GetPositionAtOffset(selectionStartOffset, LogicalDirection.Forward);
+			TextPointer? selectionEnd = selectionStart?.GetPositionAtOffset(selectionLength, direction);
+			if (selectionStart != null && selectionEnd != null)
+			{
+				richTextBox.Selection.Select(selectionStart, selectionEnd);
+			}
 		}
 
 		private void TryQueueUpdate()
@@ -533,12 +534,44 @@
 				ShowHelp = false,
 			};
 
+			Control control = this.pattern;
+			string familyName = control.FontFamily.Source;
+			Drawing.FontStyle fontStyle = Drawing.FontStyle.Regular;
+			if (control.FontWeight == FontWeights.Bold)
+			{
+				fontStyle |= Drawing.FontStyle.Bold;
+			}
+
+			if (control.FontStyle == FontStyles.Italic)
+			{
+				fontStyle |= Drawing.FontStyle.Italic;
+			}
+
+			using Drawing.Font priorFont = new(familyName, (float)control.FontSize, fontStyle, Drawing.GraphicsUnit.Pixel);
+			dialog.Font = priorFont;
 			if (dialog.ShowDialog() == WinForms.DialogResult.OK)
 			{
-				ApplyFont(this.pattern, dialog.Font);
-				ApplyFont(this.replacement, dialog.Font);
-				ApplyFont(this.input, dialog.Font);
-				ApplyFont(this.replaced, dialog.Font);
+				// From https://stackoverflow.com/a/37578593/1882616
+				Drawing.Font font = dialog.Font;
+				double fontSize = control.FontSize;
+				switch (font.Unit)
+				{
+					case Drawing.GraphicsUnit.Point:
+						const double XamlPixelsPerInch = 96.0;
+						const double DrawingPointsPerInch = 72.0;
+						fontSize = font.Size * XamlPixelsPerInch / DrawingPointsPerInch;
+						break;
+
+					case Drawing.GraphicsUnit.Pixel:
+						fontSize = font.Size;
+						break;
+				}
+
+				this.ApplyFont(
+					font.Name,
+					fontSize,
+					font.Italic ? FontStyles.Italic : FontStyles.Normal,
+					font.Bold ? FontWeights.Bold : FontWeights.Regular);
 			}
 		}
 
