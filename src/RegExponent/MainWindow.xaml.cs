@@ -405,7 +405,7 @@
 
 					if (this.model.InReplaceMode)
 					{
-						this.SetText(this.replacement, this.model.Replacement); // TODO: Highlight ${} replacers. [Bill, 4/15/2022]
+						this.SetText(this.replacement, this.model.Replacement); // TODO: Highlight ${} replacers? [Bill, 4/15/2022]
 						this.SetText(this.replaced, evaluator.Replaced);
 					}
 					else if (this.model.InSplitMode)
@@ -467,7 +467,18 @@
 
 		private void FormSaverSaveSettings(object? sender, SettingsEventArgs e)
 		{
-			// TODO: Save font info, recent files, current file, control contents. [Bill, 3/22/2022]
+			ISettingsNode settings = e.SettingsNode;
+
+			Control control = this.customFontControls[0];
+			settings.SetValue("Font.Family", control.FontFamily.Source);
+			settings.SetValue("Font.Size", control.FontSize.ToString());
+			settings.SetValue("Font.Style", control.FontStyle);
+			settings.SetValue("Font.Weight", control.FontWeight);
+
+			// TODO: Save to temp file if this.CurrentFileName is empty. [Bill, 4/22/2022]
+			settings.SetValue(nameof(this.CurrentFileName), this.currentFileName);
+
+			// TODO: Save recent files. [Bill, 3/22/2022]
 			Conditions.RequireReference(this, nameof(MainWindow));
 		}
 
@@ -534,7 +545,7 @@
 				ShowHelp = false,
 			};
 
-			Control control = this.pattern;
+			Control control = this.customFontControls[0];
 			string familyName = control.FontFamily.Source;
 			Drawing.FontStyle fontStyle = Drawing.FontStyle.Regular;
 			if (control.FontWeight == FontWeights.Bold)

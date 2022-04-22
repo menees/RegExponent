@@ -75,27 +75,30 @@
 				-> Tablet PC Settings -> Other -> Handedness -> Left Handed
 				https://stackoverflow.com/a/25109673/1882616 -->
 				<MenuItem Header="_File">
-					<MenuItem Header="_New" Command="New" />
-					<MenuItem Header="_Open..." Command="Open" />
+					<MenuItem Header="_New" Command="New" Icon="{StaticResource Icon.New}" />
+					<MenuItem Header="_Open..." Command="Open" Icon="{StaticResource Icon.OpenFolder}" />
 					<Separator/>
-					<MenuItem Header="_Save" Command="Save" />
-					<MenuItem Header="Save _As..." Command="SaveAs" />
+					<MenuItem Header="_Save" Command="Save" Icon="{StaticResource Icon.Save}" />
+					<MenuItem Header="Save _As..." Command="SaveAs" Icon="{StaticResource Icon.SaveAs}" />
 					<Separator/>
 					<MenuItem Header="_Recent">
 						<MenuItem Header="&lt;None>" IsEnabled="False" />
 					</MenuItem>
 					<Separator/>
-					<MenuItem Header="E_xit" Command="local:Commands.Exit"/>
+					<MenuItem Header="E_xit" Command="local:Commands.Exit" Icon="{StaticResource Icon.Close}"/>
 				</MenuItem>
 				<MenuItem Header="_Mode">
-					<MenuItem Header="_Match" IsCheckable="True" IsChecked="{Binding InMatchMode, Source={StaticResource Model}}"/>
-					<MenuItem Header="_Replace" IsCheckable="True" IsChecked="{Binding InReplaceMode, Source={StaticResource Model}}"/>
-					<MenuItem Header="_Split" IsCheckable="True" IsChecked="{Binding InSplitMode, Source={StaticResource Model}}"/>
+					<MenuItem Header="_Match" IsCheckable="True" IsChecked="{Binding InMatchMode, Source={StaticResource Model}}"
+							   Icon="{StaticResource Icon.RunFilter}" />
+					<MenuItem Header="_Replace" IsCheckable="True" IsChecked="{Binding InReplaceMode, Source={StaticResource Model}}"
+							   Icon="{StaticResource Icon.ReplaceAll}"/>
+					<MenuItem Header="_Split" IsCheckable="True" IsChecked="{Binding InSplitMode, Source={StaticResource Model}}"
+							   Icon="{StaticResource Icon.Split}"/>
 					<Separator/>
 					<MenuItem Header="_Windows Newline: \r\n" IsCheckable="True" IsChecked="{Binding UnixNewline, Converter={StaticResource InvertBool}, Source={StaticResource Model}}"/>
 					<MenuItem Header="_Unix Newline: \n" IsCheckable="True" IsChecked="{Binding UnixNewline, Source={StaticResource Model}}"/>
 					<Separator/>
-					<MenuItem Header="_Font..." Command="local:Commands.Font"/>
+					<MenuItem Header="_Font..." Command="local:Commands.Font" Icon="{StaticResource Icon.Font}"/>
 				</MenuItem>
 				<MenuItem Header="_Options">
 					<MenuItem Header="Ignore _Case (?i-i)" IsCheckable="True" IsChecked="{Binding UseIgnoreCase, Source={StaticResource Model}}"
@@ -115,11 +118,11 @@
 					<MenuItem Header="Culture Invariant" IsCheckable="True" IsChecked="{Binding UseCultureInvariant, Source={StaticResource Model}}"
 							  ToolTip="Ignore cultural differences in language."/>
 					<Separator/>
-					<MenuItem Header="Insert Inline Options" Command="local:Commands.InsertInlineOptions"/>
-					<MenuItem Header="Generate C# To Clipboard" Command="local:Commands.GenerateCodeToClipboard"/>
+					<MenuItem Header="Insert Inline Options" Command="local:Commands.InsertInlineOptions" Icon="{StaticResource Icon.InsertSpan}"/>
+					<MenuItem Header="Generate C# To Clipboard" Command="local:Commands.GenerateCodeToClipboard" Icon="{StaticResource Icon.CSFileNode}"/>
 				</MenuItem>
 				<MenuItem Header="_Help">
-					<MenuItem Header=".NET Regex _Quick Reference" Command="Help"/>
+					<MenuItem Header=".NET Regex _Quick Reference" Command="Help" Icon="{StaticResource Icon.F1Help}"/>
 					<MenuItem Header=".NET Regex _Options" Command="local:Commands.ShellExecute" CommandParameter="https://docs.microsoft.com/en-us/dotnet/standard/base-types/regular-expression-options"/>
 					<MenuItem Header=".NET Regex _Substitutions" Command="local:Commands.ShellExecute" CommandParameter="https://docs.microsoft.com/en-us/dotnet/standard/base-types/substitutions-in-regular-expressions"/>
 					<Separator/>
@@ -135,16 +138,41 @@
 					<MenuItem CommandParameter="\1" Tag="Backreference First Capture" Style="{StaticResource RegexMenuItem}" Command="local:Commands.InsertPattern"/>
 					<MenuItem CommandParameter="\k&lt;name>" Tag="Backreference Named Capture" Style="{StaticResource RegexMenuItem}" Command="local:Commands.InsertPattern"/>
 					<Separator/>
-					<MenuItem Header="_About..." Command="local:Commands.About"/>
+					<MenuItem Header="_About..." Command="local:Commands.About" Icon="{StaticResource Icon.AboutBox}"/>
 				</MenuItem>
 				<Separator/>
 			</Menu>
 
 			<ToolBarPanel ClipToBounds="True">
 				<ToolBar ToolBarTray.IsLocked="True" Margin="0,0,-13,0" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
-					<ToggleButton Content="Match" Style="{StaticResource ToolbarToggleButton}" IsChecked="{Binding InMatchMode, Source={StaticResource Model}}"/>
-					<ToggleButton Content="Replace" Style="{StaticResource ToolbarToggleButton}" IsChecked="{Binding InReplaceMode, Source={StaticResource Model}}"/>
-					<ToggleButton Content="Split" Style="{StaticResource ToolbarToggleButton}" IsChecked="{Binding InSplitMode, Source={StaticResource Model}}"/>
+					<StackPanel Orientation="Horizontal">
+						<Button Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Command="Open" Content="{StaticResource Icon.OpenFolder}" />
+						<Button Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+							<!-- Content="&#9660;"  -->
+							<Viewbox Height="16" Stretch="None">
+								<Polygon Points="0,0 4,4 8,0" Fill="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
+							</Viewbox>
+						</Button>
+					</StackPanel>
+					<Separator/>
+					<ToggleButton Style="{StaticResource ToolbarToggleButton}" IsChecked="{Binding InMatchMode, Source={StaticResource Model}}">
+						<StackPanel Orientation="Horizontal">
+							<ContentControl Content="{StaticResource Icon.RunFilter}"/>
+							<TextBlock Margin="2,0,0,0">Match</TextBlock>
+						</StackPanel>
+					</ToggleButton>
+					<ToggleButton Style="{StaticResource ToolbarToggleButton}" IsChecked="{Binding InReplaceMode, Source={StaticResource Model}}">
+						<StackPanel Orientation="Horizontal">
+							<ContentControl Content="{StaticResource Icon.ReplaceAll}"/>
+							<TextBlock Margin="2,0,0,0">Replace</TextBlock>
+						</StackPanel>
+					</ToggleButton>
+					<ToggleButton Style="{StaticResource ToolbarToggleButton}" IsChecked="{Binding InSplitMode, Source={StaticResource Model}}">
+						<StackPanel Orientation="Horizontal">
+							<ContentControl Content="{StaticResource Icon.Split}"/>
+							<TextBlock Margin="2,0,0,0">Split</TextBlock>
+						</StackPanel>
+					</ToggleButton>
 					<Separator/>
 					<ToggleButton Content="i" Style="{StaticResource ToolbarToggleButton}" ToolTip="Ignore Case (?i-i)" IsChecked="{Binding UseIgnoreCase, Source={StaticResource Model}}"/>
 					<ToggleButton Content="m" Style="{StaticResource ToolbarToggleButton}" ToolTip="Multiline (?m-m)" IsChecked="{Binding UseMultiline, Source={StaticResource Model}}"/>

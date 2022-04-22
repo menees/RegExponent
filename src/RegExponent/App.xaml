@@ -7,6 +7,23 @@
 		<ResourceDictionary>
 			<ResourceDictionary.MergedDictionaries>
 				<ResourceDictionary Source="pack://application:,,,/Menees.Windows.Presentation;component/SharedResources.xaml" />
+
+				<!-- The XAML icon files have to be manually edited to use ResourceDictionary as their root
+				and to use the x:Key and x:Shared="false" attributes on the Viewbox element.
+				https://stackoverflow.com/questions/58031297/embed-xaml-file-with-viewbox-as-a-resource -->
+				<ResourceDictionary Source="Resources/AboutBox.xaml"/>
+				<ResourceDictionary Source="Resources/Close.xaml"/>
+				<ResourceDictionary Source="Resources/CSFileNode.xaml"/>
+				<ResourceDictionary Source="Resources/F1Help.xaml"/>
+				<ResourceDictionary Source="Resources/Font.xaml"/>
+				<ResourceDictionary Source="Resources/InsertSpan.xaml"/>
+				<ResourceDictionary Source="Resources/New.xaml"/>
+				<ResourceDictionary Source="Resources/OpenFolder.xaml"/>
+				<ResourceDictionary Source="Resources/ReplaceAll.xaml"/>
+				<ResourceDictionary Source="Resources/RunFilter.xaml"/>
+				<ResourceDictionary Source="Resources/Save.xaml"/>
+				<ResourceDictionary Source="Resources/SaveAs.xaml"/>
+				<ResourceDictionary Source="Resources/Split.xaml"/>
 			</ResourceDictionary.MergedDictionaries>
 		</ResourceDictionary>
 	</Application.Resources>
