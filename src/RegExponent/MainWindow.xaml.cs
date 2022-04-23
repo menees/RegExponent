@@ -83,7 +83,6 @@
 			DataObject.AddPastingHandler(this.input, OnPaste);
 
 			// TODO: Handle SystemEvents.SessionEnding. If IsModified, then auto-save and close. [Bill, 3/31/2022]
-			// TODO: Support reading a file name from the command line. [Bill, 4/9/2022]
 		}
 
 		#endregion
@@ -101,9 +100,9 @@
 
 		#endregion
 
-		#region Private Properties
+		#region Internal Properties
 
-		private string CurrentFileName
+		internal string CurrentFileName
 		{
 			get => this.currentFileName;
 			set
@@ -112,13 +111,13 @@
 				{
 					this.currentFileName = value;
 					this.UpdateTitle();
-					if (this.currentFileName.IsNotEmpty())
-					{
-						// TODO: Update recent files. [Bill, 4/9/2022]
-					}
 				}
 			}
 		}
+
+		#endregion
+
+		#region Private Properties
 
 		private string ModelDisplayName =>
 			this.CurrentFileName.IsNotEmpty()
@@ -236,6 +235,8 @@
 				using (this.SetState(UpdateState.Resetting))
 				{
 					this.model.Load(fileName);
+
+					// TODO: Update recent files after a successful open. [Bill, 4/22/2022]
 				}
 
 				this.TryQueueUpdate();
@@ -267,6 +268,8 @@
 			{
 				this.model.Save(this.CurrentFileName);
 				saved = true;
+
+				// TODO: Update recent files after a successful save. [Bill, 4/22/2022]
 			}
 
 			return saved;
@@ -461,8 +464,31 @@
 
 		private void FormSaverLoadSettings(object? sender, SettingsEventArgs e)
 		{
-			// TODO: Load font info, recent files, last file, control contents. [Bill, 3/22/2022]
-			Conditions.RequireReference(this, nameof(MainWindow));
+			ISettingsNode settings = e.SettingsNode;
+
+			Control control = this.customFontControls[0];
+			string fontFamily = settings.GetValue("Font.Family", control.FontFamily.Source);
+			if (!double.TryParse(settings.GetValue("Font.Size", control.FontSize.ToString()), out double fontSize))
+			{
+				fontSize = control.FontSize;
+			}
+
+			FontStyle fontStyle = settings.GetValue("Font.Style", control.FontStyle);
+			FontWeight fontWeight = settings.GetValue("Font.Weight", control.FontWeight);
+			this.ApplyFont(fontFamily, fontSize, fontStyle, fontWeight);
+
+			// App.cs may have already assigned a CurrentFileName from the command-line.
+			if (this.CurrentFileName.IsEmpty())
+			{
+				this.CurrentFileName = settings.GetValue(nameof(this.CurrentFileName), string.Empty);
+			}
+
+			if (this.CurrentFileName.IsNotEmpty())
+			{
+				this.Dispatcher.BeginInvoke(new Action(() => this.Load(this.CurrentFileName, checkCanClear: false)));
+			}
+
+			// TODO: Load recent files, last file, control contents. [Bill, 3/22/2022]
 		}
 
 		private void FormSaverSaveSettings(object? sender, SettingsEventArgs e)
@@ -479,7 +505,6 @@
 			settings.SetValue(nameof(this.CurrentFileName), this.currentFileName);
 
 			// TODO: Save recent files. [Bill, 3/22/2022]
-			Conditions.RequireReference(this, nameof(MainWindow));
 		}
 
 		private void OutputTabIsVisibleChanged(object? sender, DependencyPropertyChangedEventArgs e)

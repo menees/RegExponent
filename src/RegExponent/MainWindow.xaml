@@ -89,9 +89,9 @@
 				</MenuItem>
 				<MenuItem Header="_Mode">
 					<MenuItem Header="_Match" IsCheckable="True" IsChecked="{Binding InMatchMode, Source={StaticResource Model}}"
-							   Icon="{StaticResource Icon.RunFilter}" />
+							   Icon="{StaticResource Icon.QuickFind}" />
 					<MenuItem Header="_Replace" IsCheckable="True" IsChecked="{Binding InReplaceMode, Source={StaticResource Model}}"
-							   Icon="{StaticResource Icon.ReplaceAll}"/>
+							   Icon="{StaticResource Icon.QuickReplace}"/>
 					<MenuItem Header="_Split" IsCheckable="True" IsChecked="{Binding InSplitMode, Source={StaticResource Model}}"
 							   Icon="{StaticResource Icon.Split}"/>
 					<Separator/>
@@ -157,13 +157,13 @@
 					<Separator/>
 					<ToggleButton Style="{StaticResource ToolbarToggleButton}" IsChecked="{Binding InMatchMode, Source={StaticResource Model}}">
 						<StackPanel Orientation="Horizontal">
-							<ContentControl Content="{StaticResource Icon.RunFilter}"/>
+							<ContentControl Content="{StaticResource Icon.QuickFind}"/>
 							<TextBlock Margin="2,0,0,0">Match</TextBlock>
 						</StackPanel>
 					</ToggleButton>
 					<ToggleButton Style="{StaticResource ToolbarToggleButton}" IsChecked="{Binding InReplaceMode, Source={StaticResource Model}}">
 						<StackPanel Orientation="Horizontal">
-							<ContentControl Content="{StaticResource Icon.ReplaceAll}"/>
+							<ContentControl Content="{StaticResource Icon.QuickReplace}"/>
 							<TextBlock Margin="2,0,0,0">Replace</TextBlock>
 						</StackPanel>
 					</ToggleButton>
