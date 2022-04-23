@@ -16,14 +16,7 @@
 		protected override void OnStartup(StartupEventArgs e)
 		{
 			base.OnStartup(e);
-
-			MainWindow mainWindow = new();
-
-			if (e.Args.Length == 1)
-			{
-				mainWindow.CurrentFileName = e.Args[0];
-			}
-
+			MainWindow mainWindow = new(e.Args);
 			mainWindow.Show();
 		}
 	}

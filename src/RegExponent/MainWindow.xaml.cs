@@ -25,6 +25,7 @@
 	using Menees.Windows.Presentation;
 	using Microsoft.Win32;
 	using Drawing = System.Drawing;
+	using IO = System.IO;
 	using WinForms = System.Windows.Forms;
 
 	#endregion
@@ -38,7 +39,9 @@
 
 		private const string FileDialogDefaultExt = ".rgxp";
 		private const string FileDialogFilter = nameof(RegExponent) + " Files (*" + FileDialogDefaultExt + ")|*" + FileDialogDefaultExt;
+		private const string TempExt = ".rgxtmp";
 
+		private readonly string[] commandLineArgs;
 		private readonly Model model;
 		private readonly WindowSaver saver;
 		private readonly HashSet<RichTextBox> dirtyText = new();
@@ -53,9 +56,15 @@
 		#region Constructors
 
 		public MainWindow()
+			: this(Array.Empty<string>())
+		{
+		}
+
+		internal MainWindow(string[] commandLineArgs)
 		{
 			// TODO: Add good icon. [Bill, 4/9/2022]
 			this.InitializeComponent();
+			this.commandLineArgs = commandLineArgs;
 			this.customFontControls = new Control[]
 			{
 				this.pattern,
@@ -100,33 +109,43 @@
 
 		#endregion
 
-		#region Internal Properties
+		#region Private Properties
 
-		internal string CurrentFileName
+		private string CurrentFileName
 		{
 			get => this.currentFileName;
 			set
 			{
 				if (this.currentFileName != value)
 				{
-					this.currentFileName = value;
-					this.UpdateTitle();
+					// Ignore temp files so they don't show in the title or in the recent file list.
+					if (!IsTempFile(value))
+					{
+						this.currentFileName = value;
+						this.UpdateTitle();
+
+						// TODO: Update recent files. [Bill, 4/22/2022]
+					}
 				}
 			}
 		}
 
-		#endregion
-
-		#region Private Properties
-
 		private string ModelDisplayName =>
 			this.CurrentFileName.IsNotEmpty()
-			? System.IO.Path.GetFileNameWithoutExtension(this.CurrentFileName)
+			? IO.Path.GetFileNameWithoutExtension(this.CurrentFileName)
 			: "<Untitled>";
 
 		#endregion
 
 		#region Private Methods
+
+		private static bool IsTempFile(string fileName)
+		{
+			bool result = fileName.IsNotEmpty()
+				&& IO.Path.GetExtension(fileName).Equals(TempExt, StringComparison.OrdinalIgnoreCase)
+				&& (IO.Path.GetDirectoryName(fileName) ?? string.Empty).Equals(GetTempFolder(false), StringComparison.OrdinalIgnoreCase);
+			return result;
+		}
 
 		private static void InsertText(RichTextBox richTextBox, string text)
 		{
@@ -162,6 +181,26 @@
 				d.SetData(DataFormats.UnicodeText, text);
 				e.DataObject = d;
 			}
+		}
+
+		private static string GetTempFolder(bool ensureExists)
+		{
+			// Even though this isn't for user-and-system-specific data, I'm going to use the LocalAppData folder
+			// instead of (roaming) AppData because this is just for local temp data. If the user really wants the
+			// data persisted and roamed, they can save it to a roaming location themselves (e.g., OneDrive).
+			// Also, modern recommendations from MS are to reduce profile bloat whenever possible. I'm not using
+			// the user's temp path because it's a shared use temporary folder. Using LocalAppData is a little more
+			// private and less likely to get purged between runs.
+			// https://danv74.wordpress.com/2020/11/23/appdata-and-localappdata/
+			// https://techcommunity.microsoft.com/t5/windows-it-pro-blog/windows-10-roaming-settings-for-remote-work-scenarios/ba-p/1544100
+			string baseFolder = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+			string result = IO.Path.Combine(baseFolder, nameof(RegExponent));
+			if (ensureExists)
+			{
+				Directory.CreateDirectory(result);
+			}
+
+			return result;
 		}
 
 		private void ApplyFont(string familyName, double size, FontStyle style, FontWeight weight)
@@ -231,12 +270,11 @@
 
 			if (File.Exists(fileName) && (!checkCanClear || this.CanClear()))
 			{
-				this.CurrentFileName = FileUtility.ExpandFileName(fileName);
+				fileName = FileUtility.ExpandFileName(fileName);
 				using (this.SetState(UpdateState.Resetting))
 				{
 					this.model.Load(fileName);
-
-					// TODO: Update recent files after a successful open. [Bill, 4/22/2022]
+					this.CurrentFileName = fileName;
 				}
 
 				this.TryQueueUpdate();
@@ -250,29 +288,34 @@
 		{
 			bool trySave = true;
 
-			if (forceSaveDialog || this.CurrentFileName.IsEmpty())
+			string fileName = this.CurrentFileName;
+			if (forceSaveDialog || fileName.IsEmpty())
 			{
 				SaveFileDialog dialog = new();
-				dialog.FileName = this.CurrentFileName;
+				dialog.FileName = fileName;
 				dialog.DefaultExt = FileDialogDefaultExt;
 				dialog.Filter = FileDialogFilter;
 				trySave = dialog.ShowDialog(this) ?? false;
 				if (trySave)
 				{
-					this.CurrentFileName = dialog.FileName;
+					fileName = dialog.FileName;
 				}
 			}
 
 			bool saved = false;
-			if (trySave && this.CurrentFileName.IsNotEmpty())
+			if (trySave && fileName.IsNotEmpty())
 			{
-				this.model.Save(this.CurrentFileName);
+				this.SaveAs(fileName);
 				saved = true;
-
-				// TODO: Update recent files after a successful save. [Bill, 4/22/2022]
 			}
 
 			return saved;
+		}
+
+		private void SaveAs(string fileName)
+		{
+			this.model.Save(fileName);
+			this.CurrentFileName = fileName;
 		}
 
 		private void UpdateTitle()
@@ -477,18 +520,27 @@
 			FontWeight fontWeight = settings.GetValue("Font.Weight", control.FontWeight);
 			this.ApplyFont(fontFamily, fontSize, fontStyle, fontWeight);
 
-			// App.cs may have already assigned a CurrentFileName from the command-line.
-			if (this.CurrentFileName.IsEmpty())
+			// TODO: Load recent files. [Bill, 3/22/2022]
+			string loadFileName = string.Empty;
+			if (this.commandLineArgs.Length == 1)
 			{
-				this.CurrentFileName = settings.GetValue(nameof(this.CurrentFileName), string.Empty);
+				loadFileName = this.commandLineArgs[0];
+			}
+			else
+			{
+				loadFileName = settings.GetValue(nameof(this.CurrentFileName), string.Empty);
 			}
 
-			if (this.CurrentFileName.IsNotEmpty())
+			if (loadFileName.IsNotEmpty())
 			{
-				this.Dispatcher.BeginInvoke(new Action(() => this.Load(this.CurrentFileName, checkCanClear: false)));
+				this.Dispatcher.BeginInvoke(new Action(() =>
+				{
+					if (this.Load(loadFileName, checkCanClear: false) && IsTempFile(loadFileName))
+					{
+						FileUtility.TryDeleteFile(loadFileName);
+					}
+				}));
 			}
-
-			// TODO: Load recent files, last file, control contents. [Bill, 3/22/2022]
 		}
 
 		private void FormSaverSaveSettings(object? sender, SettingsEventArgs e)
@@ -501,10 +553,18 @@
 			settings.SetValue("Font.Style", control.FontStyle);
 			settings.SetValue("Font.Weight", control.FontWeight);
 
-			// TODO: Save to temp file if this.CurrentFileName is empty. [Bill, 4/22/2022]
-			settings.SetValue(nameof(this.CurrentFileName), this.currentFileName);
-
 			// TODO: Save recent files. [Bill, 3/22/2022]
+			string saveFileName = this.CurrentFileName;
+
+			// If there's no current file name, then save everything to a temp file.
+			if (saveFileName.IsEmpty())
+			{
+				string tempFolder = GetTempFolder(true);
+				saveFileName = FileUtility.GetTempFileName(TempExt, tempFolder);
+				this.SaveAs(saveFileName);
+			}
+
+			settings.SetValue(nameof(this.CurrentFileName), saveFileName);
 		}
 
 		private void OutputTabIsVisibleChanged(object? sender, DependencyPropertyChangedEventArgs e)
@@ -719,7 +779,10 @@
 
 		private void WindowClosing(object sender, CancelEventArgs e)
 		{
-			e.Cancel = !this.CanClear();
+			// If there's no current file name, then the FormSaver events will implicitly save to a
+			// temp file and then reload the current data from the temp file on the next run.
+			// So we only need to prompt about unsaved changes if there is an explicit file name.
+			e.Cancel = this.CurrentFileName.IsNotEmpty() && !this.CanClear();
 		}
 
 		#endregion
