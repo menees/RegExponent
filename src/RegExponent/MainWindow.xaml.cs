@@ -811,7 +811,7 @@
 		{
 			if (!this.Load(recentFile) && !this.model.IsModified)
 			{
-				if (WindowsUtility.ShowQuestion(this, $"File \"{recentFile}\" couldn't be loaded. Do you want to remove it from the recent items?"))
+				if (WindowsUtility.ShowQuestion(this, $"Could not load:\n\n\"{recentFile}\"\n\nDo you want to remove it from the recent items?"))
 				{
 					this.recentFiles.Remove(recentFile);
 				}
