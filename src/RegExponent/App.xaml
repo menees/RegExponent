@@ -24,6 +24,13 @@
 				<ResourceDictionary Source="Resources/SaveAs.xaml"/>
 				<ResourceDictionary Source="Resources/Split.xaml"/>
 			</ResourceDictionary.MergedDictionaries>
+
+			<!-- Prevent "harmless" warnings about binding failures in the debugger when RecentItemList removes menu items.
+			https://stackoverflow.com/a/66020737/1882616 -->
+			<Style TargetType="{x:Type MenuItem}">
+				<Setter Property="HorizontalContentAlignment" Value="Left" />
+				<Setter Property="VerticalContentAlignment" Value="Top" />
+			</Style>
 		</ResourceDictionary>
 	</Application.Resources>
 </Application>

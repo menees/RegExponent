@@ -30,14 +30,10 @@
 		<BooleanToVisibilityConverter x:Key="BoolToVisibility"/>
 		<m:InverseBooleanConverter x:Key="InvertBool"/>
 
-		<ContextMenu x:Key="RecentDropDownMenu" x:Shared="true" Placement="Bottom">
-			<MenuItem Header="&lt;None>" IsEnabled="False"/>
-		</ContextMenu>
-
 		<Style x:Key="ToolbarToggleButton" TargetType="ToggleButton">
 			<!-- This style needs an explicit key. Toolbar overrides the styles for ToggleButton, so we have to explicitly pick this style. -->
 			<Setter Property="ToolBar.OverflowMode" Value="Never"/>
-			<Setter Property="Margin" Value="1,1,1,0"/>
+			<Setter Property="Margin" Value="1,2,1,0"/>
 			<Setter Property="MinWidth" Value="20"/>
 		</Style>
 
@@ -85,9 +81,7 @@
 					<MenuItem Header="_Save" Command="Save" Icon="{StaticResource Icon.Save}" />
 					<MenuItem Header="Save _As..." Command="SaveAs" Icon="{StaticResource Icon.SaveAs}" />
 					<Separator/>
-					<MenuItem x:Name="recentMainMenu" Header="_Recent">
-						<MenuItem Header="&lt;None>" IsEnabled="False"/>
-					</MenuItem>
+					<MenuItem x:Name="recentMainMenu" Header="_Recent" />
 					<Separator/>
 					<MenuItem Header="E_xit" Command="local:Commands.Exit" Icon="{StaticResource Icon.Close}"/>
 				</MenuItem>

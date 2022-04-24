@@ -13,6 +13,7 @@
 	using System.Threading.Tasks;
 	using System.Windows;
 	using System.Windows.Controls;
+	using System.Windows.Controls.Primitives;
 	using System.Windows.Data;
 	using System.Windows.Documents;
 	using System.Windows.Input;
@@ -77,7 +78,7 @@
 				this.splitGrid,
 			};
 
-			this.recentDropDownMenu = (ContextMenu)this.FindResource("RecentDropDownMenu");
+			this.recentDropDownMenu = new ContextMenu { Placement = PlacementMode.Bottom };
 			this.recentDropDownMenu.PlacementTarget = this.openButton;
 
 			this.model = (Model)this.FindResource(nameof(Model));
@@ -485,6 +486,12 @@
 			}
 		}
 
+		private void SelectLastVisibleBottomTab()
+		{
+			TabItem? lastItem = this.bottomTabs.Items.OfType<TabItem>().LastOrDefault(tab => tab.IsVisible);
+			this.bottomTabs.SelectedIndex = lastItem != null ? this.bottomTabs.Items.IndexOf(lastItem) : 0;
+		}
+
 		#endregion
 
 		#region Private Event Handlers
@@ -590,8 +597,7 @@
 			// See first comment under https://stackoverflow.com/a/12951255/1882616.
 			if (sender is TabItem tab && !tab.IsVisible && this.bottomTabs.SelectedIndex > 0)
 			{
-				TabItem? lastItem = this.bottomTabs.Items.OfType<TabItem>().LastOrDefault(tab => tab.IsVisible);
-				this.bottomTabs.SelectedIndex = lastItem != null ? this.bottomTabs.Items.IndexOf(lastItem) : 0;
+				this.SelectLastVisibleBottomTab();
 			}
 		}
 
@@ -772,6 +778,12 @@
 					}
 
 					break;
+
+				case nameof(Model.InMatchMode):
+				case nameof(Model.InReplaceMode):
+				case nameof(Model.InSplitMode):
+					this.Dispatcher.BeginInvoke(new Action(() => this.SelectLastVisibleBottomTab()));
+					goto default;
 
 				default:
 					// An option or a mode changed.
