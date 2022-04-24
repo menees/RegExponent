@@ -46,6 +46,8 @@
 		private readonly WindowSaver saver;
 		private readonly HashSet<RichTextBox> dirtyText = new();
 		private readonly Control[] customFontControls;
+		private readonly ContextMenu recentDropDownMenu;
+		private readonly RecentItemList<string> recentFiles;
 		private string currentFileName;
 
 		private int updateLevel;
@@ -75,6 +77,9 @@
 				this.splitGrid,
 			};
 
+			this.recentDropDownMenu = (ContextMenu)this.FindResource("RecentDropDownMenu");
+			this.recentDropDownMenu.PlacementTarget = this.openButton;
+
 			this.model = (Model)this.FindResource(nameof(Model));
 			this.model.PropertyChanged += this.ModelPropertyChanged;
 
@@ -90,6 +95,8 @@
 			DataObject.AddPastingHandler(this.pattern, OnPaste);
 			DataObject.AddPastingHandler(this.replacement, OnPaste);
 			DataObject.AddPastingHandler(this.input, OnPaste);
+
+			this.recentFiles = new(this.recentMainMenu, this.RecentFileClick, this.recentDropDownMenu);
 
 			// TODO: Handle SystemEvents.SessionEnding. If IsModified, then auto-save and close. [Bill, 3/31/2022]
 		}
@@ -124,7 +131,10 @@
 						this.currentFileName = value;
 						this.UpdateTitle();
 
-						// TODO: Update recent files. [Bill, 4/22/2022]
+						if (value.IsNotEmpty())
+						{
+							this.recentFiles.Add(value);
+						}
 					}
 				}
 			}
@@ -312,9 +322,9 @@
 			return saved;
 		}
 
-		private void SaveAs(string fileName)
+		private void SaveAs(string fileName, bool isTempFile = false)
 		{
-			this.model.Save(fileName);
+			this.model.Save(fileName, isTempFile);
 			this.CurrentFileName = fileName;
 		}
 
@@ -520,10 +530,12 @@
 			FontWeight fontWeight = settings.GetValue("Font.Weight", control.FontWeight);
 			this.ApplyFont(fontFamily, fontSize, fontStyle, fontWeight);
 
-			// TODO: Load recent files. [Bill, 3/22/2022]
+			this.recentFiles.Load(settings, RecentItemList<string>.LoadString);
+
 			string loadFileName = string.Empty;
 			if (this.commandLineArgs.Length == 1)
 			{
+				// TODO: Loading from command line can leave the previous temp file unused (and never deleted). [Bill, 4/24/2022]
 				loadFileName = this.commandLineArgs[0];
 			}
 			else
@@ -538,6 +550,10 @@
 					if (this.Load(loadFileName, checkCanClear: false) && IsTempFile(loadFileName))
 					{
 						FileUtility.TryDeleteFile(loadFileName);
+
+						// Set as modified so New and Open will know to prompt before clearing changes,
+						// and so we'll know to auto-save the settings on close if there's no filename.
+						this.model.IsModified = true;
 					}
 				}));
 			}
@@ -553,15 +569,16 @@
 			settings.SetValue("Font.Style", control.FontStyle);
 			settings.SetValue("Font.Weight", control.FontWeight);
 
-			// TODO: Save recent files. [Bill, 3/22/2022]
+			this.recentFiles.Save(settings, RecentItemList<string>.SaveString);
+
 			string saveFileName = this.CurrentFileName;
 
 			// If there's no current file name, then save everything to a temp file.
-			if (saveFileName.IsEmpty())
+			if (saveFileName.IsEmpty() && this.model.IsModified)
 			{
 				string tempFolder = GetTempFolder(true);
 				saveFileName = FileUtility.GetTempFileName(TempExt, tempFolder);
-				this.SaveAs(saveFileName);
+				this.SaveAs(saveFileName, isTempFile: true);
 			}
 
 			settings.SetValue(nameof(this.CurrentFileName), saveFileName);
@@ -783,6 +800,22 @@
 			// temp file and then reload the current data from the temp file on the next run.
 			// So we only need to prompt about unsaved changes if there is an explicit file name.
 			e.Cancel = this.CurrentFileName.IsNotEmpty() && !this.CanClear();
+		}
+
+		private void DropDownRecentItemsClick(object sender, RoutedEventArgs e)
+		{
+			this.recentDropDownMenu.IsOpen = true;
+		}
+
+		private void RecentFileClick(string recentFile)
+		{
+			if (!this.Load(recentFile) && !this.model.IsModified)
+			{
+				if (WindowsUtility.ShowQuestion(this, $"File \"{recentFile}\" couldn't be loaded. Do you want to remove it from the recent items?"))
+				{
+					this.recentFiles.Remove(recentFile);
+				}
+			}
 		}
 
 		#endregion

@@ -30,6 +30,10 @@
 		<BooleanToVisibilityConverter x:Key="BoolToVisibility"/>
 		<m:InverseBooleanConverter x:Key="InvertBool"/>
 
+		<ContextMenu x:Key="RecentDropDownMenu" x:Shared="true" Placement="Bottom">
+			<MenuItem Header="&lt;None>" IsEnabled="False"/>
+		</ContextMenu>
+
 		<Style x:Key="ToolbarToggleButton" TargetType="ToggleButton">
 			<!-- This style needs an explicit key. Toolbar overrides the styles for ToggleButton, so we have to explicitly pick this style. -->
 			<Setter Property="ToolBar.OverflowMode" Value="Never"/>
@@ -81,8 +85,8 @@
 					<MenuItem Header="_Save" Command="Save" Icon="{StaticResource Icon.Save}" />
 					<MenuItem Header="Save _As..." Command="SaveAs" Icon="{StaticResource Icon.SaveAs}" />
 					<Separator/>
-					<MenuItem Header="_Recent">
-						<MenuItem Header="&lt;None>" IsEnabled="False" />
+					<MenuItem x:Name="recentMainMenu" Header="_Recent">
+						<MenuItem Header="&lt;None>" IsEnabled="False"/>
 					</MenuItem>
 					<Separator/>
 					<MenuItem Header="E_xit" Command="local:Commands.Exit" Icon="{StaticResource Icon.Close}"/>
@@ -146,12 +150,13 @@
 			<ToolBarPanel ClipToBounds="True">
 				<ToolBar ToolBarTray.IsLocked="True" Margin="0,0,-13,0" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
 					<StackPanel Orientation="Horizontal">
-						<Button Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Command="Open" Content="{StaticResource Icon.OpenFolder}" />
-						<Button Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
-							<!-- Content="&#9660;"  -->
-							<Viewbox Height="16" Stretch="None">
-								<Polygon Points="0,0 4,4 8,0" Fill="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
-							</Viewbox>
+						<Button x:Name="openButton" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Command="Open" Content="{StaticResource Icon.OpenFolder}" />
+						<Button Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Click="DropDownRecentItemsClick">
+							<Button.Content>
+								<Viewbox Height="16" Stretch="None">
+									<Polygon Points="0,0 4,4 8,0" Fill="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
+								</Viewbox>
+							</Button.Content>
 						</Button>
 					</StackPanel>
 					<Separator/>

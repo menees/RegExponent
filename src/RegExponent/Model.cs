@@ -226,7 +226,7 @@
 			this.IsModified = false;
 		}
 
-		public void Save(string fileName)
+		public void Save(string fileName, bool isTempFile = false)
 		{
 			using MemoryStream memory = new();
 
@@ -235,40 +235,51 @@
 			writer.WriteStartObject();
 			writer.WriteNumber(nameof(Version), 1);
 
+			// Track writeCount so we don't write out temp files with just a Version number.
+			int writeCount = 0;
 			if (this.UnixNewline)
 			{
+				writeCount++;
 				writer.WriteBoolean(nameof(this.UnixNewline), this.UnixNewline);
 			}
 
 			if (this.mode != default)
 			{
+				writeCount++;
 				writer.WriteString(nameof(this.Mode), this.mode.ToString());
 			}
 
 			if (this.regexOptions != default)
 			{
+				writeCount++;
 				writer.WriteString(nameof(RegexOptions), this.regexOptions.ToString());
 			}
 
 			if (this.Pattern.IsNotEmpty())
 			{
+				writeCount++;
 				writer.WriteString(nameof(this.Pattern), this.Pattern);
 			}
 
 			if (this.Replacement.IsNotEmpty())
 			{
+				writeCount++;
 				writer.WriteString(nameof(this.Replacement), this.Replacement);
 			}
 
 			if (this.Input.IsNotEmpty())
 			{
+				writeCount++;
 				writer.WriteString(nameof(this.Input), this.Input);
 			}
 
-			writer.WriteEndObject();
-			writer.Flush();
+			if (!isTempFile || writeCount > 0)
+			{
+				writer.WriteEndObject();
+				writer.Flush();
+				File.WriteAllBytes(fileName, memory.ToArray());
+			}
 
-			File.WriteAllBytes(fileName, memory.ToArray());
 			this.IsModified = false;
 		}
 
