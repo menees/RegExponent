@@ -5,7 +5,9 @@
 	using System;
 	using System.Collections.Generic;
 	using System.Diagnostics;
+	using System.Linq;
 	using System.Text.RegularExpressions;
+	using System.Threading.Tasks;
 	using Menees;
 
 	#endregion
@@ -17,6 +19,7 @@
 		private readonly string pattern;
 		private readonly string replacement;
 		private readonly string input;
+		private readonly string newline;
 		private readonly RegexOptions options;
 		private readonly Mode mode;
 		private readonly TimeSpan timeout;
@@ -33,12 +36,13 @@
 			this.input = model.Input;
 			this.options = model.Options;
 			this.mode = model.Mode;
+			this.newline = model.Newline;
 
 			this.timeout = timeout;
 			this.UpdateLevel = updateLevel;
 
 			this.Matches = Array.Empty<Match>();
-			this.Replaced = string.Empty;
+			this.Replaced = new(string.Empty, this.newline);
 			this.Splits = Array.Empty<string>();
 		}
 
@@ -48,7 +52,7 @@
 
 		public IReadOnlyList<Match> Matches { get; private set; }
 
-		public string Replaced { get; private set; }
+		public Highlighter Replaced { get; private set; }
 
 		public string[] Splits { get; private set; }
 
@@ -58,12 +62,19 @@
 
 		public int UpdateLevel { get; }
 
+		public PatternHighlighter? Pattern { get; private set; }
+
+		public InputHighlighter? Input { get; private set; }
+
+		public ReplacementHighlighter? Replacement { get; private set; }
+
 		#endregion
 
 		#region Public Methods
 
-		public void Evaluate(Func<int> getLatestUpdateLevel)
+		public bool Evaluate(Func<int> getLatestUpdateLevel)
 		{
+			bool result = false;
 			Stopwatch stopwatch = Stopwatch.StartNew();
 			try
 			{
@@ -80,7 +91,7 @@
 					{
 						if (this.UpdateLevel == getLatestUpdateLevel())
 						{
-							this.Replaced = expression.Replace(this.input, this.replacement);
+							this.Replaced = new Highlighter(expression.Replace(this.input, this.replacement), this.newline);
 						}
 					}
 					else if (this.mode == Mode.Split)
@@ -90,6 +101,8 @@
 							this.Splits = expression.Split(this.input);
 						}
 					}
+
+					result = true;
 				}
 			}
 			catch (ArgumentException ex)
@@ -102,6 +115,23 @@
 			}
 
 			this.Elapsed = stopwatch.Elapsed;
+			return result;
+		}
+
+		public void Highlight()
+		{
+			this.Pattern = new(this.pattern, this.newline);
+			this.Input = new(this.input, this.newline);
+			List<Highlighter> highlighters = new() { this.Pattern, this.Input };
+
+			if (this.mode == Mode.Replace)
+			{
+				this.Replacement = new(this.replacement, this.newline);
+				highlighters.Add(this.Replacement);
+			}
+
+			Task[] tasks = highlighters.Select(h => Task.Run(h.Parse)).ToArray();
+			Task.WaitAll(tasks);
 		}
 
 		#endregion

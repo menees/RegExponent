@@ -201,6 +201,45 @@
 			return result;
 		}
 
+		private static string GetText(RichTextBox richTextBox, string newline)
+		{
+			StringBuilder sb = new();
+			foreach (Block block in richTextBox.Document.Blocks)
+			{
+				if (sb.Length > 0)
+				{
+					sb.Append(newline);
+				}
+
+				TextRange range = new(block.ContentStart, block.ContentEnd);
+				string text = range.Text;
+				sb.Append(text);
+			}
+
+			string result = sb.ToString();
+			return result;
+		}
+
+		private static void SetText(RichTextBox richTextBox, Highlighter? highlighter)
+		{
+			TextSelection selection = richTextBox.Selection;
+			int selectionStartOffset = richTextBox.Document.ContentStart.GetOffsetToPosition(selection.Start);
+			int selectionLength = selection.Start.GetOffsetToPosition(selection.End);
+			LogicalDirection direction = selection.End.LogicalDirection;
+
+			// TODO: Do intelligent diffs rather than rebuild whole document each time. [Bill, 4/18/2022]
+			highlighter ??= Highlighter.Empty;
+			FlowDocument document = highlighter.CreateDocument();
+			richTextBox.Document = document;
+
+			TextPointer? selectionStart = richTextBox.Document.ContentStart.GetPositionAtOffset(selectionStartOffset, LogicalDirection.Forward);
+			TextPointer? selectionEnd = selectionStart?.GetPositionAtOffset(selectionLength, direction);
+			if (selectionStart != null && selectionEnd != null)
+			{
+				richTextBox.Selection.Select(selectionStart, selectionEnd);
+			}
+		}
+
 		private void ApplyFont(string familyName, double size, FontStyle style, FontWeight weight)
 		{
 			FontFamily fontFamily = new(familyName);
@@ -330,50 +369,6 @@
 			this.Title = sb.ToString();
 		}
 
-		private string GetText(RichTextBox richTextBox)
-		{
-			StringBuilder sb = new();
-			foreach (Block block in richTextBox.Document.Blocks)
-			{
-				if (sb.Length > 0)
-				{
-					sb.Append(this.model.Newline);
-				}
-
-				TextRange range = new(block.ContentStart, block.ContentEnd);
-				string text = range.Text;
-				sb.Append(text);
-			}
-
-			string result = sb.ToString();
-			return result;
-		}
-
-		private void SetText(RichTextBox richTextBox, string text)
-		{
-			// TODO: Do intelligent diffs rather than rebuild whole document each time. [Bill, 4/18/2022]
-			string[] lines = text.Split(this.model.Newline);
-			FlowDocument document = new();
-			foreach (string line in lines)
-			{
-				document.Blocks.Add(new Paragraph(new Run(line)));
-			}
-
-			TextSelection selection = richTextBox.Selection;
-			int selectionStartOffset = richTextBox.Document.ContentStart.GetOffsetToPosition(selection.Start);
-			int selectionLength = selection.Start.GetOffsetToPosition(selection.End);
-			LogicalDirection direction = selection.End.LogicalDirection;
-
-			richTextBox.Document = document;
-
-			TextPointer? selectionStart = richTextBox.Document.ContentStart.GetPositionAtOffset(selectionStartOffset, LogicalDirection.Forward);
-			TextPointer? selectionEnd = selectionStart?.GetPositionAtOffset(selectionLength, direction);
-			if (selectionStart != null && selectionEnd != null)
-			{
-				richTextBox.Selection.Select(selectionStart, selectionEnd);
-			}
-		}
-
 		private void TryQueueUpdate()
 		{
 			if (!this.updating)
@@ -388,19 +383,19 @@
 			// remain in the dirty set while the model's PropertyChanged event is handled.
 			if (this.dirtyText.Contains(this.pattern))
 			{
-				this.model.Pattern = this.GetText(this.pattern);
+				this.model.Pattern = GetText(this.pattern, this.model.Newline);
 				this.dirtyText.Remove(this.pattern);
 			}
 
 			if (this.dirtyText.Contains(this.replacement))
 			{
-				this.model.Replacement = this.GetText(this.replacement);
+				this.model.Replacement = GetText(this.replacement, this.model.Newline);
 				this.dirtyText.Remove(this.replacement);
 			}
 
 			if (this.dirtyText.Contains(this.input))
 			{
-				this.model.Input = this.GetText(this.input);
+				this.model.Input = GetText(this.input, this.model.Newline);
 				this.dirtyText.Remove(this.input);
 			}
 
@@ -413,21 +408,24 @@
 			// https://devblogs.microsoft.com/dotnet/migrating-delegate-begininvoke-calls-for-net-core/
 			Task.Run(() =>
 			{
-				evaluator.Evaluate(() => this.updateLevel);
+				if (evaluator.Evaluate(() => this.updateLevel) && evaluator.UpdateLevel == this.updateLevel)
+				{
+					evaluator.Highlight();
+				}
 
-				// TODO: Build new syntax highlighted documents in the background (using evaluator). [Bill, 4/24/2022]
 				this.Dispatcher.BeginInvoke(new Action<Evaluator>(this.EndForegroundUpdate), DispatcherPriority.ApplicationIdle, evaluator);
 			});
 		}
 
 		private void EndForegroundUpdate(Evaluator evaluator)
 		{
+			// Note: This needs to run even if Evaluate returned false because we need New() to reset all the controls.
 			if (evaluator.UpdateLevel == this.updateLevel)
 			{
 				using (this.BeginUpdate())
 				{
-					this.SetText(this.pattern, this.model.Pattern); // TODO: Highlight regex syntax. [Bill, 4/15/2022]
-					this.SetText(this.input, this.model.Input); // TODO: Alternate highlight matches and underline groups. [Bill, 4/15/2022]
+					SetText(this.pattern, evaluator.Pattern);
+					SetText(this.input, evaluator.Input);
 
 					this.timing.Content = $"{evaluator.Elapsed.TotalMilliseconds} ms";
 					this.message.Content = evaluator.Exception?.Message;
@@ -450,8 +448,8 @@
 
 					if (this.model.InReplaceMode)
 					{
-						this.SetText(this.replacement, this.model.Replacement); // TODO: Highlight ${} replacers? [Bill, 4/15/2022]
-						this.SetText(this.replaced, evaluator.Replaced);
+						SetText(this.replacement, evaluator.Replacement);
+						SetText(this.replaced, evaluator.Replaced);
 					}
 					else if (this.model.InSplitMode)
 					{
