@@ -99,7 +99,7 @@
 
 			this.recentFiles = new(this.recentMainMenu, this.RecentFileClick, this.recentDropDownMenu);
 
-			// TODO: Handle SystemEvents.SessionEnding. If IsModified, then auto-save and close. [Bill, 3/31/2022]
+			SystemEvents.SessionEnding += this.SystemEventsSessionEnding;
 		}
 
 		#endregion
@@ -352,7 +352,6 @@
 		private void SetText(RichTextBox richTextBox, string text)
 		{
 			// TODO: Do intelligent diffs rather than rebuild whole document each time. [Bill, 4/18/2022]
-			// TODO: Take a lamdba to highlight runs based on syntax or matches. Or build new document in background evaluation. [Bill, 4/15/2022]
 			string[] lines = text.Split(this.model.Newline);
 			FlowDocument document = new();
 			foreach (string line in lines)
@@ -415,6 +414,8 @@
 			Task.Run(() =>
 			{
 				evaluator.Evaluate(() => this.updateLevel);
+
+				// TODO: Build new syntax highlighted documents in the background (using evaluator). [Bill, 4/24/2022]
 				this.Dispatcher.BeginInvoke(new Action<Evaluator>(this.EndForegroundUpdate), DispatcherPriority.ApplicationIdle, evaluator);
 			});
 		}
@@ -818,6 +819,20 @@
 					this.recentFiles.Remove(recentFile);
 				}
 			}
+		}
+
+		private void SystemEventsSessionEnding(object sender, SessionEndingEventArgs e)
+		{
+			// If the session is ending (due to user logoff or system shutdown),
+			// then quietly save any changes to the current file. I'd rather err on
+			// the side of preserving the most recent edits than to pop up a
+			// modal confirmation dialog during shutdown.
+			if (this.CurrentFileName.IsNotEmpty() && this.model.IsModified)
+			{
+				this.Save();
+			}
+
+			this.Close();
 		}
 
 		#endregion
