@@ -52,7 +52,7 @@
 		private string currentFileName;
 
 		private int updateLevel;
-		private UpdateState updateState;
+		private bool updating;
 
 		#endregion
 
@@ -100,19 +100,6 @@
 			this.recentFiles = new(this.recentMainMenu, this.RecentFileClick, this.recentDropDownMenu);
 
 			// TODO: Handle SystemEvents.SessionEnding. If IsModified, then auto-save and close. [Bill, 3/31/2022]
-		}
-
-		#endregion
-
-		#region Private Enums
-
-		private enum UpdateState
-		{
-			None,
-
-			// TODO: Can these states be combined? Do we just need bool isUpdating? [Bill, 4/17/2022]
-			ShowingResults,
-			Resetting,
 		}
 
 		#endregion
@@ -254,11 +241,11 @@
 			return allowClear;
 		}
 
-		private IDisposable SetState(UpdateState state)
+		private IDisposable BeginUpdate()
 		{
-			UpdateState previous = this.updateState;
-			this.updateState = state;
-			return new Disposer(() => this.updateState = previous);
+			bool previous = this.updating;
+			this.updating = true;
+			return new Disposer(() => this.updating = previous);
 		}
 
 		private void Clear()
@@ -266,7 +253,7 @@
 			if (this.CanClear())
 			{
 				this.CurrentFileName = string.Empty;
-				using (this.SetState(UpdateState.Resetting))
+				using (this.BeginUpdate())
 				{
 					this.model.Clear();
 				}
@@ -282,7 +269,7 @@
 			if (File.Exists(fileName) && (!checkCanClear || this.CanClear()))
 			{
 				fileName = FileUtility.ExpandFileName(fileName);
-				using (this.SetState(UpdateState.Resetting))
+				using (this.BeginUpdate())
 				{
 					this.model.Load(fileName);
 					this.CurrentFileName = fileName;
@@ -365,6 +352,7 @@
 		private void SetText(RichTextBox richTextBox, string text)
 		{
 			// TODO: Do intelligent diffs rather than rebuild whole document each time. [Bill, 4/18/2022]
+			// TODO: Take a lamdba to highlight runs based on syntax or matches. Or build new document in background evaluation. [Bill, 4/15/2022]
 			string[] lines = text.Split(this.model.Newline);
 			FlowDocument document = new();
 			foreach (string line in lines)
@@ -377,7 +365,6 @@
 			int selectionLength = selection.Start.GetOffsetToPosition(selection.End);
 			LogicalDirection direction = selection.End.LogicalDirection;
 
-			// TODO: Take a lamdba to highlight runs based on syntax or matches. [Bill, 4/15/2022]
 			richTextBox.Document = document;
 
 			TextPointer? selectionStart = richTextBox.Document.ContentStart.GetPositionAtOffset(selectionStartOffset, LogicalDirection.Forward);
@@ -390,7 +377,7 @@
 
 		private void TryQueueUpdate()
 		{
-			if (this.updateState == UpdateState.None)
+			if (!this.updating)
 			{
 				this.Dispatcher.BeginInvoke(new Action(this.BeginForegroundUpdate), DispatcherPriority.ApplicationIdle);
 			}
@@ -436,7 +423,7 @@
 		{
 			if (evaluator.UpdateLevel == this.updateLevel)
 			{
-				using (this.SetState(UpdateState.ShowingResults))
+				using (this.BeginUpdate())
 				{
 					this.SetText(this.pattern, this.model.Pattern); // TODO: Highlight regex syntax. [Bill, 4/15/2022]
 					this.SetText(this.input, this.model.Input); // TODO: Alternate highlight matches and underline groups. [Bill, 4/15/2022]
@@ -539,15 +526,16 @@
 
 			this.recentFiles.Load(settings, RecentItemList<string>.LoadString);
 
-			string loadFileName = string.Empty;
+			string loadFileName = settings.GetValue(nameof(this.CurrentFileName), string.Empty);
 			if (this.commandLineArgs.Length == 1)
 			{
-				// TODO: Loading from command line can leave the previous temp file unused (and never deleted). [Bill, 4/24/2022]
+				// Clean up the previous auto-save temp file since we're not going to use it.
+				if (IsTempFile(loadFileName))
+				{
+					FileUtility.TryDeleteFile(loadFileName);
+				}
+
 				loadFileName = this.commandLineArgs[0];
-			}
-			else
-			{
-				loadFileName = settings.GetValue(nameof(this.CurrentFileName), string.Empty);
 			}
 
 			if (loadFileName.IsNotEmpty())
@@ -583,6 +571,8 @@
 			// If there's no current file name, then save everything to a temp file.
 			if (saveFileName.IsEmpty() && this.model.IsModified)
 			{
+				// Save to a unique temp file name in case the user runs multiple copies of RegExponent from
+				// different directories. Then each copy's settings store will have its own temp auto-save file.
 				string tempFolder = GetTempFolder(true);
 				saveFileName = FileUtility.GetTempFileName(TempExt, tempFolder);
 				this.SaveAs(saveFileName, isTempFile: true);
@@ -768,7 +758,7 @@
 					break;
 
 				case nameof(Model.UnixNewline):
-					if (this.updateState == UpdateState.None)
+					if (!this.updating)
 					{
 						// How we split the lines changed, so we need to re-read the text boxes.
 						this.dirtyText.Add(this.pattern);
@@ -787,7 +777,7 @@
 
 				default:
 					// An option or a mode changed.
-					if (this.updateState == UpdateState.None)
+					if (!this.updating)
 					{
 						this.TryQueueUpdate();
 					}
@@ -798,7 +788,7 @@
 
 		private void EditorTextChanged(object sender, TextChangedEventArgs e)
 		{
-			if (this.updateState == UpdateState.None
+			if (!this.updating
 				&& sender is RichTextBox richTextBox
 				&& this.dirtyText.Add(richTextBox))
 			{
