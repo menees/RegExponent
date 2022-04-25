@@ -12,21 +12,34 @@
 
 	internal sealed class PatternHighlighter : Highlighter
 	{
+		#region Private Data Members
+
+		private readonly bool ignorePatternWhitespace;
+
+		#endregion
+
 		#region Constructors
 
-		public PatternHighlighter(string text, string newline)
+		public PatternHighlighter(string text, string newline, bool ignorePatternWhitespace)
 			: base(text, newline)
 		{
+			this.ignorePatternWhitespace = ignorePatternWhitespace;
 		}
 
 		#endregion
 
-		#region Public Methods
+		#region Protected Methods
 
-		public override void Parse()
+		protected override void Parse()
 		{
 			// TODO: Highlight regex syntax. [Bill, 4/15/2022]
+			// Blue: ( (? (?<name>
+			// Green: \escape [range]
+			// Purple: ? + *
+			// Gray: #comment
+			// Orange: |
 			base.Parse();
+			this.ignorePatternWhitespace.GetHashCode();
 		}
 
 		#endregion

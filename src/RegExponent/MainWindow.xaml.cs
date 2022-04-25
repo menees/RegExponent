@@ -163,6 +163,7 @@
 
 		private static void OnPaste(object sender, DataObjectPastingEventArgs e)
 		{
+			// TODO: Paste gets overwritten with empty data. [Bill, 4/25/2022]
 			// If rich, formatted text is on the clipboard, we only want to paste it as plain text.
 			// https://stackoverflow.com/a/3061506/1882616
 			bool hasText = e.SourceDataObject.GetDataPresent(DataFormats.UnicodeText, true);
@@ -706,12 +707,15 @@
 			AddOption(this.model.UseIgnorePatternWhitespace, 'x');
 
 			string inlineOptions = negative.IsEmpty() ? $"(?{positive})" : $"(?{positive}-{negative})";
-			InsertText(this.pattern, inlineOptions);
+			using (this.BeginUpdate())
+			{
+				InsertText(this.pattern, inlineOptions);
+			}
 		}
 
 		private void GenerateCodeToClipboardExecuted(object? sender, ExecutedRoutedEventArgs e)
 		{
-			// TODO: Finish GenerateCodeToClipboardExecuted. [Bill, 3/31/2022]
+			// TODO: Finish GenerateCodeToClipboardExecuted. Add submenu for: Pattern literal, Replacement literal, Input literal, Code block,  [Bill, 3/31/2022]
 			GC.KeepAlive(this);
 		}
 
@@ -719,8 +723,11 @@
 		{
 			if (e.Parameter is string text)
 			{
-				InsertText(this.pattern, text);
 				e.Handled = true;
+				using (this.BeginUpdate())
+				{
+					InsertText(this.pattern, text);
+				}
 			}
 		}
 

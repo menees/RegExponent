@@ -42,7 +42,7 @@
 			this.UpdateLevel = updateLevel;
 
 			this.Matches = Array.Empty<Match>();
-			this.Replaced = new(string.Empty, this.newline);
+			this.Replaced = Highlighter.Empty;
 			this.Splits = Array.Empty<string>();
 		}
 
@@ -120,17 +120,18 @@
 
 		public void Highlight()
 		{
-			this.Pattern = new(this.pattern, this.newline);
-			this.Input = new(this.input, this.newline);
+			this.Pattern = new(this.pattern, this.newline, this.options.HasFlag(RegexOptions.IgnorePatternWhitespace));
+			this.Input = new(this.input, this.newline, this.Matches);
 			List<Highlighter> highlighters = new() { this.Pattern, this.Input };
 
 			if (this.mode == Mode.Replace)
 			{
+				highlighters.Add(this.Replaced);
 				this.Replacement = new(this.replacement, this.newline);
 				highlighters.Add(this.Replacement);
 			}
 
-			Task[] tasks = highlighters.Select(h => Task.Run(h.Parse)).ToArray();
+			Task[] tasks = highlighters.Select(h => Task.Run(h.Highlight)).ToArray();
 			Task.WaitAll(tasks);
 		}
 
