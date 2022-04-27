@@ -36,8 +36,8 @@
 			const HighlightColor PrimaryBackColor = HighlightColor.Yellow;
 			const HighlightColor AlternateBackColor = HighlightColor.Orange;
 
-			const HighlightColor PrimaryUnderColor = HighlightColor.Blue;
-			const HighlightColor AlternateUnderColor = HighlightColor.Purple;
+			const HighlightColor PrimaryUnderColor = HighlightColor.Green;
+			const HighlightColor AlternateUnderColor = HighlightColor.Red;
 
 			HighlightColor background = PrimaryBackColor;
 			foreach (Match match in this.matches.Where(m => m.Success))

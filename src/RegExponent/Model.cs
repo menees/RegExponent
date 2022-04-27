@@ -154,12 +154,10 @@
 			this.UseECMAScript = default;
 			this.UseCultureInvariant = default;
 
-			this.InMatchMode = true;
-			this.InReplaceMode = default;
-			this.InSplitMode = default;
-
 			this.UnixNewline = default;
 
+			// Note: We're not resetting the In*Mode properties since they don't affect IsModified.
+			// It was also jarring to the user when File > New switched back to the Match page.
 			this.IsModified = false;
 		}
 

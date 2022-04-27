@@ -72,9 +72,8 @@
 
 		#region Public Methods
 
-		public bool Evaluate(Func<int> getLatestUpdateLevel)
+		public void Evaluate(Func<int> getLatestUpdateLevel)
 		{
-			bool result = false;
 			Stopwatch stopwatch = Stopwatch.StartNew();
 			try
 			{
@@ -101,8 +100,6 @@
 							this.Splits = expression.Split(this.input);
 						}
 					}
-
-					result = true;
 				}
 			}
 			catch (ArgumentException ex)
@@ -115,7 +112,6 @@
 			}
 
 			this.Elapsed = stopwatch.Elapsed;
-			return result;
 		}
 
 		public void Highlight()

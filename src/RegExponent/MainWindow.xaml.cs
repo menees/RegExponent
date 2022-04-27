@@ -226,18 +226,23 @@
 			TextSelection selection = richTextBox.Selection;
 			int selectionStartOffset = richTextBox.Document.ContentStart.GetOffsetToPosition(selection.Start);
 			int selectionLength = selection.Start.GetOffsetToPosition(selection.End);
-			LogicalDirection direction = selection.End.LogicalDirection;
 
 			// TODO: Do intelligent diffs rather than rebuild whole document each time. [Bill, 4/18/2022]
 			highlighter ??= Highlighter.Empty;
 			FlowDocument document = highlighter.CreateDocument();
 			richTextBox.Document = document;
 
-			TextPointer? selectionStart = richTextBox.Document.ContentStart.GetPositionAtOffset(selectionStartOffset, LogicalDirection.Forward);
-			TextPointer? selectionEnd = selectionStart?.GetPositionAtOffset(selectionLength, direction);
-			if (selectionStart != null && selectionEnd != null)
+			richTextBox.CaretPosition = richTextBox.Document.ContentStart;
+			TextPointer? position = richTextBox.CaretPosition.GetPositionAtOffset(selectionStartOffset, LogicalDirection.Forward)
+				?? richTextBox.Document.ContentEnd;
+			richTextBox.CaretPosition = position;
+			if (selectionLength != 0)
 			{
-				richTextBox.Selection.Select(selectionStart, selectionEnd);
+				TextPointer? selectionEnd = richTextBox.CaretPosition.GetPositionAtOffset(selectionLength, LogicalDirection.Forward);
+				if (selectionEnd != null)
+				{
+					richTextBox.Selection.Select(richTextBox.CaretPosition, selectionEnd);
+				}
 			}
 		}
 
@@ -409,7 +414,8 @@
 			// https://devblogs.microsoft.com/dotnet/migrating-delegate-begininvoke-calls-for-net-core/
 			Task.Run(() =>
 			{
-				if (evaluator.Evaluate(() => this.updateLevel) && evaluator.UpdateLevel == this.updateLevel)
+				evaluator.Evaluate(() => this.updateLevel);
+				if (evaluator.UpdateLevel == this.updateLevel)
 				{
 					evaluator.Highlight();
 				}

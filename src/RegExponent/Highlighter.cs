@@ -97,8 +97,11 @@
 
 					if (part.Underline != HighlightColor.None)
 					{
-						TextDecorationLocation location = decorationCount % 2 == 0 ? TextDecorationLocation.Underline : TextDecorationLocation.Baseline;
-						TextDecoration decoration = new() { Pen = new Pen(GetBrush(part.Underline), 1) };
+						TextDecoration decoration = new()
+						{
+							Pen = new Pen(GetBrush(part.Underline), 1),
+							Location = decorationCount % 2 == 0 ? TextDecorationLocation.Underline : TextDecorationLocation.Baseline,
+						};
 						run.TextDecorations.Add(decoration);
 						decorationCount++;
 					}
@@ -155,9 +158,9 @@
 					int seg2Length = length;
 					int seg3Index = index + length;
 					int seg3Length = outer.Length - seg3Index;
-					this.AddCombinedSegment(seg1Index, seg1Length, foreground, background, underline, outer);
-					this.AddCombinedSegment(seg2Index, seg2Length, foreground, background, underline, outer);
-					this.AddCombinedSegment(seg3Index, seg3Length, foreground, background, underline, outer);
+					this.AddSplitSegment(seg1Index, seg1Length, outer);
+					this.AddSplitSegment(seg2Index, seg2Length, outer, foreground, background, underline);
+					this.AddSplitSegment(seg3Index, seg3Length, outer);
 				}
 			}
 		}
@@ -172,10 +175,11 @@
 				HighlightColor.None => null,
 				HighlightColor.Blue => Brushes.Blue,
 				HighlightColor.Green => Brushes.ForestGreen,
-				HighlightColor.Purple => Brushes.DarkViolet,
+				HighlightColor.Purple => Brushes.Indigo,
 				HighlightColor.Gray => Brushes.Gray,
-				HighlightColor.Yellow => Brushes.Yellow,
-				HighlightColor.Orange => Brushes.Orange,
+				HighlightColor.Yellow => Brushes.LemonChiffon,
+				HighlightColor.Orange => Brushes.NavajoWhite,
+				HighlightColor.Red => Brushes.Red,
 				_ => Brushes.Black,
 			};
 
@@ -190,13 +194,13 @@
 			return nextIndex;
 		}
 
-		private void AddCombinedSegment(
+		private void AddSplitSegment(
 			int index,
 			int length,
-			HighlightColor foreground,
-			HighlightColor background,
-			HighlightColor underline,
-			Segment outer)
+			Segment outer,
+			HighlightColor foreground = HighlightColor.None,
+			HighlightColor background = HighlightColor.None,
+			HighlightColor underline = HighlightColor.None)
 		{
 			if (length > 0)
 			{
