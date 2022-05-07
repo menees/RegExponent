@@ -44,8 +44,6 @@
 		private const string FileDialogFilter = nameof(RegExponent) + " Files (*" + FileDialogDefaultExt + ")|*" + FileDialogDefaultExt;
 		private const string TempExt = ".rgxtmp";
 
-		private static readonly string[] SupportedNewlines = new[] { "\n", "\r\n" };
-
 		private readonly string[] commandLineArgs;
 		private readonly Model model;
 		private readonly WindowSaver saver;
@@ -198,42 +196,6 @@
 			return result;
 		}
 
-		private static string GetText(TextEditor textEditor, string newline)
-		{
-			string[] lines = textEditor.Text.Split(SupportedNewlines, StringSplitOptions.None);
-			string result = string.Join(newline, lines);
-			return result;
-		}
-
-		private static void SetText(TextEditor textEditor, string text)
-		{
-			string currentText = textEditor.Text;
-			if (currentText != text)
-			{
-				// Try to restore line and column position (instead of selection start and length)
-				// so the caret stays in the same visible position when newlines are converted.
-				// Also, if a file is loading and completely changing the text, then preserving the
-				// current selection isn't meaningful.
-				Caret caret = textEditor.TextArea.Caret;
-				int caretLine = caret.Line;
-				int caretColumn = caret.Column;
-				bool caretAtEnd = textEditor.CaretOffset == textEditor.Document.TextLength;
-
-				textEditor.Text = text;
-				if (caretAtEnd)
-				{
-					textEditor.CaretOffset = textEditor.Document.TextLength;
-				}
-				else
-				{
-					caret = textEditor.TextArea.Caret;
-					caret.Line = caretLine;
-					caret.Column = caretColumn;
-					caret.BringCaretToView();
-				}
-			}
-		}
-
 		private void ApplyFont(string familyName, double size, FontStyle style, FontWeight weight)
 		{
 			FontFamily fontFamily = new(familyName);
@@ -377,19 +339,19 @@
 			// remain in the dirty set while the model's PropertyChanged event is handled.
 			if (this.dirtyText.Contains(this.pattern))
 			{
-				this.model.Pattern = GetText(this.pattern, this.model.Newline);
+				this.model.Pattern = this.pattern.GetText();
 				this.dirtyText.Remove(this.pattern);
 			}
 
 			if (this.dirtyText.Contains(this.replacement))
 			{
-				this.model.Replacement = GetText(this.replacement, this.model.Newline);
+				this.model.Replacement = this.replacement.GetText();
 				this.dirtyText.Remove(this.replacement);
 			}
 
 			if (this.dirtyText.Contains(this.input))
 			{
-				this.model.Input = GetText(this.input, this.model.Newline);
+				this.model.Input = this.input.GetText();
 				this.dirtyText.Remove(this.input);
 			}
 
@@ -415,8 +377,8 @@
 				using (this.BeginUpdate())
 				{
 					// TODO: Update this.input syntax highlighting using evaluator.Matches. [Bill, 5/7/2022]
-					SetText(this.pattern, this.model.Pattern);
-					SetText(this.input, this.model.Input);
+					this.pattern.SetText(this.model.Pattern);
+					this.input.SetText(this.model.Input);
 
 					this.timing.Content = $"{evaluator.Elapsed.TotalMilliseconds} ms";
 					this.message.Content = evaluator.Exception?.Message;
@@ -439,8 +401,8 @@
 
 					if (this.model.InReplaceMode)
 					{
-						SetText(this.replacement, this.model.Replacement);
-						SetText(this.replaced, evaluator.Replaced);
+						this.replacement.SetText(this.model.Replacement);
+						this.replaced.SetText(evaluator.Replaced);
 					}
 					else if (this.model.InSplitMode)
 					{

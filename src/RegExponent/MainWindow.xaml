@@ -51,7 +51,7 @@
 			</Setter>
 		</Style>
 
-		<Style TargetType="ae:TextEditor">
+		<Style TargetType="local:Editor">
 			<Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
 			<Setter Property="HorizontalScrollBarVisibility" Value="Auto"/>
 			<Setter Property="BorderThickness" Value="1"/>
@@ -205,18 +205,18 @@
 
 		<DockPanel Grid.Row="2" Margin="3,0,3,3">
 			<Label Content="_Pattern:" DockPanel.Dock="Top" Padding="2,0" Target="{Binding ElementName=pattern}"/>
-			<ae:TextEditor x:Name="pattern" MaxHeight="100" TextChanged="EditorTextChanged"/>
+			<local:Editor x:Name="pattern" MaxHeight="100" TextChanged="EditorTextChanged"/>
 		</DockPanel>
 
 		<DockPanel Grid.Row="3" Margin="3,3,3,3"
 					Visibility="{Binding InReplaceMode, Source={StaticResource Model}, Converter={StaticResource BoolToVisibility}}">
 			<Label Content="_Replacement:" DockPanel.Dock="Top" Padding="2,0" Target="{Binding ElementName=replacement}"/>
-			<ae:TextEditor x:Name="replacement" MaxHeight="100" TextChanged="EditorTextChanged"/>
+			<local:Editor x:Name="replacement" MaxHeight="100" TextChanged="EditorTextChanged"/>
 		</DockPanel>
 
 		<DockPanel Grid.Row="4" Margin="3,3,3,0">
 			<Label Content="_Input:" DockPanel.Dock="Top" Padding="2,0" Target="{Binding ElementName=input}"/>
-			<ae:TextEditor x:Name="input"  TextChanged="EditorTextChanged"/>
+			<local:Editor x:Name="input"  TextChanged="EditorTextChanged"/>
 		</DockPanel>
 
 		<GridSplitter x:Name="splitter" Grid.Row="5" HorizontalAlignment="Stretch" VerticalAlignment="Center" ShowsPreview="True" Height="4" />
@@ -236,7 +236,7 @@
 			<TabItem Header="Output"
 					 Visibility="{Binding InReplaceMode, Converter={StaticResource BoolToVisibility}, Source={StaticResource Model}}"
 					 IsVisibleChanged="OutputTabIsVisibleChanged">
-				<ae:TextEditor x:Name="replaced" IsReadOnly="True"
+				<local:Editor x:Name="replaced" IsReadOnly="True"
 							   Visibility="{Binding InReplaceMode, Converter={StaticResource BoolToVisibility}, Source={StaticResource Model}}"
 							   Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" />
 			</TabItem>
