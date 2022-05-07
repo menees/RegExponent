@@ -174,19 +174,19 @@
 					<Separator/>
 					<ToggleButton Style="{StaticResource ToolbarToggleButton}" IsChecked="{Binding InMatchMode, Source={StaticResource Model}}">
 						<StackPanel Orientation="Horizontal">
-							<ContentControl Content="{StaticResource Icon.QuickFind}"/>
+							<ContentControl Content="{StaticResource Icon.QuickFind}" Focusable="False"/>
 							<TextBlock Margin="2,0,0,0">Match</TextBlock>
 						</StackPanel>
 					</ToggleButton>
 					<ToggleButton Style="{StaticResource ToolbarToggleButton}" IsChecked="{Binding InReplaceMode, Source={StaticResource Model}}">
 						<StackPanel Orientation="Horizontal">
-							<ContentControl Content="{StaticResource Icon.QuickReplace}"/>
+							<ContentControl Content="{StaticResource Icon.QuickReplace}" Focusable="False"/>
 							<TextBlock Margin="2,0,0,0">Replace</TextBlock>
 						</StackPanel>
 					</ToggleButton>
 					<ToggleButton Style="{StaticResource ToolbarToggleButton}" IsChecked="{Binding InSplitMode, Source={StaticResource Model}}">
 						<StackPanel Orientation="Horizontal">
-							<ContentControl Content="{StaticResource Icon.Split}"/>
+							<ContentControl Content="{StaticResource Icon.Split}" Focusable="False"/>
 							<TextBlock Margin="2,0,0,0">Split</TextBlock>
 						</StackPanel>
 					</ToggleButton>
@@ -203,18 +203,18 @@
 			</ToolBarPanel>
 		</DockPanel>
 
-		<DockPanel Grid.Row="2" Margin="3,0">
+		<DockPanel Grid.Row="2" Margin="3,0,3,3">
 			<Label Content="_Pattern:" DockPanel.Dock="Top" Padding="2,0" Target="{Binding ElementName=pattern}"/>
 			<ae:TextEditor x:Name="pattern" MaxHeight="100" TextChanged="EditorTextChanged"/>
 		</DockPanel>
 
-		<DockPanel Grid.Row="3" Margin="3,2"
+		<DockPanel Grid.Row="3" Margin="3,3,3,3"
 					Visibility="{Binding InReplaceMode, Source={StaticResource Model}, Converter={StaticResource BoolToVisibility}}">
 			<Label Content="_Replacement:" DockPanel.Dock="Top" Padding="2,0" Target="{Binding ElementName=replacement}"/>
 			<ae:TextEditor x:Name="replacement" MaxHeight="100" TextChanged="EditorTextChanged"/>
 		</DockPanel>
 
-		<DockPanel Grid.Row="4" Margin="3,2,3,0">
+		<DockPanel Grid.Row="4" Margin="3,3,3,0">
 			<Label Content="_Input:" DockPanel.Dock="Top" Padding="2,0" Target="{Binding ElementName=input}"/>
 			<ae:TextEditor x:Name="input"  TextChanged="EditorTextChanged"/>
 		</DockPanel>

@@ -23,6 +23,7 @@
 	using System.Windows.Shapes;
 	using System.Windows.Threading;
 	using ICSharpCode.AvalonEdit;
+	using ICSharpCode.AvalonEdit.Editing;
 	using Menees;
 	using Menees.Windows.Presentation;
 	using Microsoft.Win32;
@@ -68,7 +69,10 @@
 
 		internal MainWindow(string[] commandLineArgs)
 		{
-			// TODO: Make Ctrl+Shift+Tab focus the previous control when in a TextEditor. [Bill, 5/7/2022]
+			// TODO: Make Ctrl+Shift+Tab focus the previous control when in a TextEditor. https://stackoverflow.com/a/40677396/1882616 [Bill, 5/7/2022]
+			// TODO: Make Tab and Shift+Tab work as expected on readonly TextEditor (replaced). [Bill, 5/7/2022]
+			// TODO: Add Regex pattern syntax highlighter for singleline and for IgnorePatternWhitespace.[Bill, 5/7/2022]
+			// TODO: Add Replacement syntax highlighter. [Bill, 5/7/2022]
 			// TODO: Add good icon. [Bill, 4/9/2022]
 			this.InitializeComponent();
 			this.commandLineArgs = commandLineArgs;
@@ -156,7 +160,6 @@
 
 		private static void OnPaste(object sender, DataObjectPastingEventArgs e)
 		{
-			// TODO: Paste gets overwritten with empty data. [Bill, 4/25/2022]
 			// If rich, formatted text is on the clipboard, we only want to paste it as plain text.
 			// https://stackoverflow.com/a/3061506/1882616
 			bool hasText = e.SourceDataObject.GetDataPresent(DataFormats.UnicodeText, true);
@@ -207,8 +210,27 @@
 			string currentText = textEditor.Text;
 			if (currentText != text)
 			{
-				// TODO: Preserve selection if possible. [Bill, 5/7/2022]
+				// Try to restore line and column position (instead of selection start and length)
+				// so the caret stays in the same visible position when newlines are converted.
+				// Also, if a file is loading and completely changing the text, then preserving the
+				// current selection isn't meaningful.
+				Caret caret = textEditor.TextArea.Caret;
+				int caretLine = caret.Line;
+				int caretColumn = caret.Column;
+				bool caretAtEnd = textEditor.CaretOffset == textEditor.Document.TextLength;
+
 				textEditor.Text = text;
+				if (caretAtEnd)
+				{
+					textEditor.CaretOffset = textEditor.Document.TextLength;
+				}
+				else
+				{
+					caret = textEditor.TextArea.Caret;
+					caret.Line = caretLine;
+					caret.Column = caretColumn;
+					caret.BringCaretToView();
+				}
 			}
 		}
 
@@ -747,6 +769,10 @@
 				case nameof(Model.InReplaceMode):
 				case nameof(Model.InSplitMode):
 					this.Dispatcher.BeginInvoke(new Action(() => this.SelectLastVisibleBottomTab()));
+					goto default;
+
+				case nameof(Model.UseIgnorePatternWhitespace):
+					// TODO: Toggle Regex syntax highlighter mode. [Bill, 5/7/2022]
 					goto default;
 
 				default:
