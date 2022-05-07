@@ -22,6 +22,7 @@
 	using System.Windows.Navigation;
 	using System.Windows.Shapes;
 	using System.Windows.Threading;
+	using ICSharpCode.AvalonEdit;
 	using Menees;
 	using Menees.Windows.Presentation;
 	using Microsoft.Win32;
@@ -42,10 +43,12 @@
 		private const string FileDialogFilter = nameof(RegExponent) + " Files (*" + FileDialogDefaultExt + ")|*" + FileDialogDefaultExt;
 		private const string TempExt = ".rgxtmp";
 
+		private static readonly string[] SupportedNewlines = new[] { "\n", "\r\n" };
+
 		private readonly string[] commandLineArgs;
 		private readonly Model model;
 		private readonly WindowSaver saver;
-		private readonly HashSet<RichTextBox> dirtyText = new();
+		private readonly HashSet<TextEditor> dirtyText = new();
 		private readonly Control[] customFontControls;
 		private readonly ContextMenu recentDropDownMenu;
 		private readonly RecentItemList<string> recentFiles;
@@ -65,6 +68,7 @@
 
 		internal MainWindow(string[] commandLineArgs)
 		{
+			// TODO: Make Ctrl+Shift+Tab focus the previous control when in a TextEditor. [Bill, 5/7/2022]
 			// TODO: Add good icon. [Bill, 4/9/2022]
 			this.InitializeComponent();
 			this.commandLineArgs = commandLineArgs;
@@ -145,20 +149,9 @@
 			return result;
 		}
 
-		private static void InsertText(RichTextBox richTextBox, string text)
+		private static void InsertText(TextEditor editor, string text)
 		{
-			if (!richTextBox.Selection.IsEmpty)
-			{
-				richTextBox.Selection.Text = text;
-			}
-			else
-			{
-				// Make sure the caret moves to the end of the text after insertion by ensuring LogicalDirection is Forward.
-				// We can't directly set TextPointer.LogicalDirection, so we have to replace the TextPointer with a new instance.
-				// https://stackoverflow.com/a/2916699/1882616
-				richTextBox.CaretPosition = richTextBox.CaretPosition.GetPositionAtOffset(0, LogicalDirection.Forward);
-				richTextBox.CaretPosition.InsertTextInRun(text);
-			}
+			editor.SelectedText = text;
 		}
 
 		private static void OnPaste(object sender, DataObjectPastingEventArgs e)
@@ -202,47 +195,20 @@
 			return result;
 		}
 
-		private static string GetText(RichTextBox richTextBox, string newline)
+		private static string GetText(TextEditor textEditor, string newline)
 		{
-			StringBuilder sb = new();
-			foreach (Block block in richTextBox.Document.Blocks)
-			{
-				if (sb.Length > 0)
-				{
-					sb.Append(newline);
-				}
-
-				TextRange range = new(block.ContentStart, block.ContentEnd);
-				string text = range.Text;
-				sb.Append(text);
-			}
-
-			string result = sb.ToString();
+			string[] lines = textEditor.Text.Split(SupportedNewlines, StringSplitOptions.None);
+			string result = string.Join(newline, lines);
 			return result;
 		}
 
-		private static void SetText(RichTextBox richTextBox, Highlighter? highlighter)
+		private static void SetText(TextEditor textEditor, string text)
 		{
-			TextSelection selection = richTextBox.Selection;
-			int selectionStartOffset = richTextBox.Document.ContentStart.GetOffsetToPosition(selection.Start);
-			int selectionLength = selection.Start.GetOffsetToPosition(selection.End);
-
-			// TODO: Do intelligent diffs rather than rebuild whole document each time. [Bill, 4/18/2022]
-			highlighter ??= Highlighter.Empty;
-			FlowDocument document = highlighter.CreateDocument();
-			richTextBox.Document = document;
-
-			richTextBox.CaretPosition = richTextBox.Document.ContentStart;
-			TextPointer? position = richTextBox.CaretPosition.GetPositionAtOffset(selectionStartOffset, LogicalDirection.Forward)
-				?? richTextBox.Document.ContentEnd;
-			richTextBox.CaretPosition = position;
-			if (selectionLength != 0)
+			string currentText = textEditor.Text;
+			if (currentText != text)
 			{
-				TextPointer? selectionEnd = richTextBox.CaretPosition.GetPositionAtOffset(selectionLength, LogicalDirection.Forward);
-				if (selectionEnd != null)
-				{
-					richTextBox.Selection.Select(richTextBox.CaretPosition, selectionEnd);
-				}
+				// TODO: Preserve selection if possible. [Bill, 5/7/2022]
+				textEditor.Text = text;
 			}
 		}
 
@@ -415,11 +381,6 @@
 			Task.Run(() =>
 			{
 				evaluator.Evaluate(() => this.updateLevel);
-				if (evaluator.UpdateLevel == this.updateLevel)
-				{
-					evaluator.Highlight();
-				}
-
 				this.Dispatcher.BeginInvoke(new Action<Evaluator>(this.EndForegroundUpdate), DispatcherPriority.ApplicationIdle, evaluator);
 			});
 		}
@@ -431,8 +392,9 @@
 			{
 				using (this.BeginUpdate())
 				{
-					SetText(this.pattern, evaluator.Pattern);
-					SetText(this.input, evaluator.Input);
+					// TODO: Update this.input syntax highlighting using evaluator.Matches. [Bill, 5/7/2022]
+					SetText(this.pattern, this.model.Pattern);
+					SetText(this.input, this.model.Input);
 
 					this.timing.Content = $"{evaluator.Elapsed.TotalMilliseconds} ms";
 					this.message.Content = evaluator.Exception?.Message;
@@ -455,7 +417,7 @@
 
 					if (this.model.InReplaceMode)
 					{
-						SetText(this.replacement, evaluator.Replacement);
+						SetText(this.replacement, this.model.Replacement);
 						SetText(this.replaced, evaluator.Replaced);
 					}
 					else if (this.model.InSplitMode)
@@ -798,11 +760,11 @@
 			}
 		}
 
-		private void EditorTextChanged(object sender, TextChangedEventArgs e)
+		private void EditorTextChanged(object sender, EventArgs e)
 		{
 			if (!this.updating
-				&& sender is RichTextBox richTextBox
-				&& this.dirtyText.Add(richTextBox))
+				&& sender is TextEditor editor
+				&& this.dirtyText.Add(editor))
 			{
 				this.TryQueueUpdate();
 			}
@@ -844,6 +806,24 @@
 			}
 
 			this.Close();
+		}
+
+		private void MessageDoubleClick(object sender, MouseButtonEventArgs e)
+		{
+			if (sender is ContentControl contentControl && contentControl.Content is string text)
+			{
+				Match match = Regex.Match(text, @"(?n)at offset (?<offset>\d+)[^\d]");
+				if (match.Success
+					&& match.Groups.Count == 2
+					&& int.TryParse(match.Groups[1].Value, out int offset)
+					&& offset >= 0
+					&& offset <= this.pattern.Document.TextLength)
+				{
+					this.pattern.CaretOffset = offset;
+					this.pattern.TextArea.Caret.BringCaretToView();
+					this.pattern.Focus();
+				}
+			}
 		}
 
 		#endregion

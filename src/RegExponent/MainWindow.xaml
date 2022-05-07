@@ -5,6 +5,7 @@
 		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 		xmlns:m="http://menees.com/xaml"
 		xmlns:local="clr-namespace:RegExponent"
+		xmlns:ae="http://icsharpcode.net/sharpdevelop/avalonedit"
 		mc:Ignorable="d"
 		Title="RegExponent" Height="450" Width="800"
 				   ResizeMode="CanResizeWithGrip" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"
@@ -37,11 +38,6 @@
 			<Setter Property="MinWidth" Value="20"/>
 		</Style>
 
-		<Style TargetType="Paragraph">
-			<!-- https://stackoverflow.com/a/445897/1882616 -->
-			<Setter Property="Margin" Value="0"/>
-		</Style>
-
 		<Style x:Key="RegexMenuItem" TargetType="MenuItem">
 			<Setter Property="HeaderTemplate">
 				<Setter.Value>
@@ -53,6 +49,28 @@
 					</DataTemplate>
 				</Setter.Value>
 			</Setter>
+		</Style>
+
+		<Style TargetType="ae:TextEditor">
+			<Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
+			<Setter Property="HorizontalScrollBarVisibility" Value="Auto"/>
+			<Setter Property="BorderThickness" Value="1"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}"/>
+		</Style>
+
+		<Style TargetType="ae:TextView">
+			<Setter Property="Margin" Value="2"/>
+		</Style>
+
+		<Style TargetType="DataGrid">
+			<Setter Property="IsReadOnly" Value="True"/>
+			<Setter Property="AutoGenerateColumns" Value="False"/>
+			<Setter Property="CanUserReorderColumns" Value="False"/>
+			<Setter Property="SelectionUnit" Value="Cell"/>
+			
+			<!-- https://stackoverflow.com/a/35301853/1882616 -->
+			<Setter Property="AlternationCount" Value="2" />
+			<Setter Property="AlternatingRowBackground" Value="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" />
 		</Style>
 	</Window.Resources>
 
@@ -185,32 +203,27 @@
 			</ToolBarPanel>
 		</DockPanel>
 
-		<StackPanel Grid.Row="2" Margin="3">
-			<RichTextBox x:Name="pattern" AcceptsReturn="{Binding UseIgnorePatternWhitespace, Source={StaticResource Model}}" Style="{StaticResource Menees.Windows.Presentation.PlaceholderTextBox}"
-						 m:PlaceholderTextHelper.PlaceholderText="Pattern" MaxHeight="100"
-						 VerticalScrollBarVisibility="Auto" IsInactiveSelectionHighlightEnabled="True" TextChanged="EditorTextChanged"/>
-		</StackPanel>
+		<DockPanel Grid.Row="2" Margin="3,0">
+			<Label Content="_Pattern:" DockPanel.Dock="Top" Padding="2,0" Target="{Binding ElementName=pattern}"/>
+			<ae:TextEditor x:Name="pattern" MaxHeight="100" TextChanged="EditorTextChanged"/>
+		</DockPanel>
 
-		<StackPanel Grid.Row="3" Margin="3"
+		<DockPanel Grid.Row="3" Margin="3,2"
 					Visibility="{Binding InReplaceMode, Source={StaticResource Model}, Converter={StaticResource BoolToVisibility}}">
-			<RichTextBox x:Name="replacement" Style="{StaticResource Menees.Windows.Presentation.PlaceholderTextBox}"
-						 m:PlaceholderTextHelper.PlaceholderText="Replacement" MaxHeight="100"
-						 VerticalScrollBarVisibility="Auto" IsInactiveSelectionHighlightEnabled="True" TextChanged="EditorTextChanged"/>
-		</StackPanel>
+			<Label Content="_Replacement:" DockPanel.Dock="Top" Padding="2,0" Target="{Binding ElementName=replacement}"/>
+			<ae:TextEditor x:Name="replacement" MaxHeight="100" TextChanged="EditorTextChanged"/>
+		</DockPanel>
 
-		<DockPanel Grid.Row="4">
-			<Label Content="_Input:" DockPanel.Dock="Top" Padding="5,0,5,0"/>
-			<RichTextBox x:Name="input" Margin="3,3,3,0" HorizontalScrollBarVisibility="Auto"
-						 VerticalScrollBarVisibility="Auto" IsInactiveSelectionHighlightEnabled="True"
-						 Style="{StaticResource Menees.Windows.Presentation.PlaceholderTextBox}"
-						 m:PlaceholderTextHelper.PlaceholderText="Text to search for matches" TextChanged="EditorTextChanged"/>
+		<DockPanel Grid.Row="4" Margin="3,2,3,0">
+			<Label Content="_Input:" DockPanel.Dock="Top" Padding="2,0" Target="{Binding ElementName=input}"/>
+			<ae:TextEditor x:Name="input"  TextChanged="EditorTextChanged"/>
 		</DockPanel>
 
 		<GridSplitter x:Name="splitter" Grid.Row="5" HorizontalAlignment="Stretch" VerticalAlignment="Center" ShowsPreview="True" Height="4" />
 
 		<TabControl x:Name="bottomTabs" Grid.Row="6">
 			<TabItem Header="Matches">
-				<DataGrid x:Name="matchGrid" IsReadOnly="True" AutoGenerateColumns="False" CanUserReorderColumns="False">
+				<DataGrid x:Name="matchGrid">
 					<DataGrid.Columns>
 						<DataGridTextColumn Header="Match" Binding="{Binding Match, Mode=OneWay}"/>
 						<DataGridTextColumn x:Name="groupColumn" Header="Group" Binding="{Binding Group, Mode=OneWay}" Visibility="Collapsed"/>
@@ -223,15 +236,14 @@
 			<TabItem Header="Output"
 					 Visibility="{Binding InReplaceMode, Converter={StaticResource BoolToVisibility}, Source={StaticResource Model}}"
 					 IsVisibleChanged="OutputTabIsVisibleChanged">
-				<RichTextBox x:Name="replaced" IsReadOnly="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
-							Visibility="{Binding InReplaceMode, Converter={StaticResource BoolToVisibility}, Source={StaticResource Model}}"
-							IsInactiveSelectionHighlightEnabled="True">
-				</RichTextBox>
+				<ae:TextEditor x:Name="replaced" IsReadOnly="True"
+							   Visibility="{Binding InReplaceMode, Converter={StaticResource BoolToVisibility}, Source={StaticResource Model}}"
+							   Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" />
 			</TabItem>
 			<TabItem Header="Output"
 					 Visibility="{Binding InSplitMode, Converter={StaticResource BoolToVisibility}, Source={StaticResource Model}}"
 					 IsVisibleChanged="OutputTabIsVisibleChanged">
-				<DataGrid x:Name="splitGrid" IsReadOnly="True" AutoGenerateColumns="False" CanUserReorderColumns="False"
+				<DataGrid x:Name="splitGrid"
 						Visibility="{Binding InSplitMode, Converter={StaticResource BoolToVisibility}, Source={StaticResource Model}}">
 					<DataGrid.Columns>
 						<DataGridTextColumn Header="#" Binding="{Binding Index, Mode=OneWay}"/>
@@ -246,7 +258,7 @@
 		<StatusBar Grid.Row="7">
 			<StatusBarItem x:Name="timing" Content="0.0 ms"/>
 			<Separator/>
-			<StatusBarItem x:Name="message">
+			<StatusBarItem x:Name="message" MouseDoubleClick="MessageDoubleClick">
 				<StatusBarItem.Style>
 					<Style TargetType="StatusBarItem">
 						<Style.Triggers>

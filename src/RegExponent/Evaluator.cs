@@ -42,7 +42,7 @@
 			this.UpdateLevel = updateLevel;
 
 			this.Matches = Array.Empty<Match>();
-			this.Replaced = Highlighter.Empty;
+			this.Replaced = string.Empty;
 			this.Splits = Array.Empty<string>();
 		}
 
@@ -52,7 +52,7 @@
 
 		public IReadOnlyList<Match> Matches { get; private set; }
 
-		public Highlighter Replaced { get; private set; }
+		public string Replaced { get; private set; }
 
 		public string[] Splits { get; private set; }
 
@@ -61,12 +61,6 @@
 		public TimeSpan Elapsed { get; private set; }
 
 		public int UpdateLevel { get; }
-
-		public PatternHighlighter? Pattern { get; private set; }
-
-		public InputHighlighter? Input { get; private set; }
-
-		public ReplacementHighlighter? Replacement { get; private set; }
 
 		#endregion
 
@@ -90,7 +84,7 @@
 					{
 						if (this.UpdateLevel == getLatestUpdateLevel())
 						{
-							this.Replaced = new Highlighter(expression.Replace(this.input, this.replacement), this.newline);
+							this.Replaced = expression.Replace(this.input, this.replacement);
 						}
 					}
 					else if (this.mode == Mode.Split)
@@ -112,23 +106,6 @@
 			}
 
 			this.Elapsed = stopwatch.Elapsed;
-		}
-
-		public void Highlight()
-		{
-			this.Pattern = new(this.pattern, this.newline, this.options.HasFlag(RegexOptions.IgnorePatternWhitespace));
-			this.Input = new(this.input, this.newline, this.Matches);
-			List<Highlighter> highlighters = new() { this.Pattern, this.Input };
-
-			if (this.mode == Mode.Replace)
-			{
-				highlighters.Add(this.Replaced);
-				this.Replacement = new(this.replacement, this.newline);
-				highlighters.Add(this.Replacement);
-			}
-
-			Task[] tasks = highlighters.Select(h => Task.Run(h.Highlight)).ToArray();
-			Task.WaitAll(tasks);
 		}
 
 		#endregion
