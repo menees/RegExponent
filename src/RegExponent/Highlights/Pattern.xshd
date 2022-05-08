@@ -1,0 +1,94 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<SyntaxDefinition name="Replacement" xmlns="http://icsharpcode.net/sharpdevelop/syntaxdefinition/2008">
+	<!--
+	Helpful links:
+	https://docs.microsoft.com/en-us/dotnet/standard/base-types/regular-expression-language-quick-reference
+	https://download.microsoft.com/download/D/2/4/D240EBF6-A9BA-4E4F-A63F-AEB6DA0B921C/Regular%20expressions%20quick%20reference.pdf
+	-->
+	<!-- TODO: Support ignorePatternWhitespace as a mode flag. [Bill, 5/8/2022] -->
+	<Color name="Anchor" foreground="Orange"/>
+	<Color name="Backreference" foreground="DarkGreen"/>
+	<Color name="CharSet" foreground="Green"/>
+	<Color name="Dot" foreground="Green" fontWeight="bold"/>
+	<Color name="Escape" foreground="Green"/>
+	<Color name="Group" foreground="Blue"/>
+	<Color name="Quantifier" foreground="Purple"/>
+
+	<RuleSet>
+		<Rule color="Backreference">
+			\\
+			(
+			\d+					# Indexed group
+			|	k \&lt;.+?\&gt;		# Named group
+			)
+		</Rule>
+		
+		<Rule color="Escape">
+			\\
+			(
+					[tvberfnawWdDsS]	# Control chars and char classes
+				|	c .							# ASCII Ctrl+x char where . is x.
+				|	[0-7]{2,3}				# Octal char code
+				|	x [0-9a-fA-F]{2}		# 2 digit hex char code
+				|	u [0-9a-fA-F]{4}		# 4 digit hex char code
+				|	[pP] (Lu|LI|Lt|Lm|Lo|L|Mn|Mc |Me|M |Nd|Nl |No|N |Pc|Pd |Ps|Pe  |Pi |Pf|Po|P|Sm|Sc|Sk|So|S|Zs|Zl|Zp|Z|Cc|Cf|Cs|Co|Cn|C) # Char in supported Unicode category
+				|	[\\\[\]\(\).^-{}*+?,$&lt;&gt;!=:|#]		# Special char used elsewhere in grammar
+			)
+		</Rule>
+
+		<Span color="CharSet" begin="\[" end="\]">
+			<RuleSet>
+				<!-- Handle escaped end bracket. -->
+				<Span begin="\\" end="\]"/>
+			</RuleSet>
+		</Span>
+		
+		<Rule color="Anchor">
+			(
+					\^					# At start of string or line
+				|	\$					# At end (or before \n at end) of string or line
+				|	\\ [AzZGbB]		# At other string boundaries (start, end, before \n, previous match end, word, not word)
+			)
+		</Rule>
+
+		<!--
+			I'm matching group start in a separate rule from group end because any expression (including sub-groups) can be used
+			inside a group. So, we'd end up having to recursively import the entire main rule set if we tried to do this as a span.
+			For an example of a span that uses an imported rule set, see XmlTag and its attribute handling here:
+			https://github.com/icsharpcode/AvalonEdit/blob/master/ICSharpCode.AvalonEdit/Highlighting/Resources/XML-Mode.xshd
+		-->
+		<Rule color="Group">
+			\(		# Group start
+			\??	# Group with special behavior
+			(
+					\&lt;.+?&gt;			# Named group
+				|	\&lt;.+?\-.+?&gt;		# Balancing group
+				|	\:							# Non-capturing group
+				|	\=							# Zero-width positive lookahead
+				|	\!							# Zero-width negative lookahead
+				|	\&lt;\=					# Zero-width positive lookbehind
+				|	\&lt;\!					# Zero-width negative lookbehind
+				|	\&gt;						# Non-backtracking (greedy)
+				|	[imnsx]{0,5}(\-[imnsx]{1,5})?\:?	# Inline options for case-insensitive, multiline, explicit named captures, singleline, ignore whitespace
+			)
+		</Rule>
+		
+		<Rule color="Group">
+			\)	# Group end
+		</Rule>
+
+		<Rule color="Quantifier">
+			(
+			\*						# 0 or more times
+			|	\+						# 1 or more times
+			|	\?						# 0 or 1 time
+			|	\{\d+,?(\d+)?\}	# Exactly (n), At least (n,), or From..To (n,m)
+			)
+			\??	# Lazy indicator
+		</Rule>
+		
+		<Rule color="Dot">
+			\.	# Any char except \n (unless in multiline mode).
+		</Rule>
+	</RuleSet>
+</SyntaxDefinition>

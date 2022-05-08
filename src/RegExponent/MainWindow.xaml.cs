@@ -369,12 +369,14 @@
 
 		private void EndForegroundUpdate(Evaluator evaluator)
 		{
-			// Note: This needs to run even if Evaluate returned false because we need New() to reset all the controls.
+			// Note: This needs to run even if Evaluate did nothing because we need New() to reset all the controls.
 			if (evaluator.UpdateLevel == this.updateLevel)
 			{
 				using (this.BeginUpdate())
 				{
 					// TODO: Update this.input syntax highlighting using evaluator.Matches. [Bill, 5/7/2022]
+					// https://github.com/icsharpcode/AvalonEdit/issues/102#issuecomment-277183963
+					// https://github.com/icsharpcode/AvalonEdit/issues/171#issuecomment-581861977
 					this.pattern.SetText(this.model.Pattern);
 					this.input.SetText(this.model.Input);
 

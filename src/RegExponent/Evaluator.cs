@@ -73,8 +73,8 @@
 			{
 				ValidateOptions(this.options);
 
+				// Evaluate even if input is empty so the pattern will be validated by the Regex constructor.
 				if (this.pattern.IsNotEmpty()
-					&& this.input.IsNotEmpty()
 					&& this.UpdateLevel == getLatestUpdateLevel())
 				{
 					Regex expression = new(this.pattern, this.options, this.timeout);

@@ -24,6 +24,7 @@
 		{
 			WindowsUtility.InitializeApplication(nameof(RegExponent), null, this.GetType().Assembly);
 
+			RegisterHighlighting("Pattern");
 			RegisterHighlighting("Replacement");
 		}
 
