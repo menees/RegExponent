@@ -67,8 +67,6 @@
 
 		internal MainWindow(string[] commandLineArgs)
 		{
-			// TODO: Make Ctrl+Shift+Tab focus the previous control when in a TextEditor. https://stackoverflow.com/a/40677396/1882616 [Bill, 5/7/2022]
-			// TODO: Make Tab and Shift+Tab work as expected on readonly TextEditor (replaced). [Bill, 5/7/2022]
 			// TODO: Add Regex pattern syntax highlighter for singleline and for IgnorePatternWhitespace.[Bill, 5/7/2022]
 			// TODO: Add Replacement syntax highlighter. [Bill, 5/7/2022]
 			// TODO: Add good icon. [Bill, 4/9/2022]

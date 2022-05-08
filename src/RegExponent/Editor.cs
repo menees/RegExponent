@@ -3,6 +3,7 @@
 	#region Using Directives
 
 	using System;
+	using System.Diagnostics;
 	using System.Windows;
 	using System.Windows.Input;
 	using ICSharpCode.AvalonEdit;
@@ -29,6 +30,7 @@
 			this.TextArea.TextEntering += this.TextAreaTextEntering;
 			DataObject.AddPastingHandler(this, this.OnPaste);
 			SearchPanel.Install(this);
+			this.PreviewKeyDown += this.EditorPreviewKeyDown;
 		}
 
 		#endregion
@@ -147,6 +149,42 @@
 			{
 				SetSelection(area, this.Newline);
 				e.Handled = true;
+			}
+		}
+
+		private void EditorPreviewKeyDown(object sender, KeyEventArgs e)
+		{
+			if (e.Key == Key.Tab)
+			{
+				// https://stackoverflow.com/a/40677396/1882616
+				ModifierKeys modifiers = Keyboard.Modifiers;
+				FocusNavigationDirection? direction = null;
+
+				if ((modifiers == ModifierKeys.Shift && this.IsReadOnly) || (modifiers == (ModifierKeys.Control | ModifierKeys.Shift)))
+				{
+					direction = FocusNavigationDirection.Previous;
+				}
+				else if ((modifiers == ModifierKeys.None && this.IsReadOnly) || (modifiers == ModifierKeys.Control))
+				{
+					direction = FocusNavigationDirection.Next;
+				}
+
+				if (direction != null)
+				{
+					// https://github.com/icsharpcode/AvalonEdit/issues/118#issuecomment-447380654
+					// https://social.msdn.microsoft.com/Forums/vstudio/en-US/007a0905-a05b-4009-930c-e206804b6a39/programatically-set-focus-on-the-next-control?forum=wpf
+					TraversalRequest traversal = new(direction.Value);
+					if (direction == FocusNavigationDirection.Previous)
+					{
+						this.MoveFocus(traversal);
+					}
+					else
+					{
+						this.TextArea.MoveFocus(traversal);
+					}
+
+					e.Handled = true;
+				}
 			}
 		}
 
