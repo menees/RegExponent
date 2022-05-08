@@ -68,7 +68,7 @@
 		internal MainWindow(string[] commandLineArgs)
 		{
 			// TODO: Add Regex pattern syntax highlighter for singleline and for IgnorePatternWhitespace.[Bill, 5/7/2022]
-			// TODO: Add Replacement syntax highlighter. [Bill, 5/7/2022]
+			// TODO: Add keys: Ctrl+# for option toggles. Ctrl+M/R/T for Match/Replace/Split. [Bill, 5/7/2022]
 			// TODO: Add good icon. [Bill, 4/9/2022]
 			this.InitializeComponent();
 			this.commandLineArgs = commandLineArgs;
