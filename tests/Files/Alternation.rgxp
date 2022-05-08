@@ -1,0 +1,8 @@
+{
+  "Version": 1,
+  "Mode": "Replace",
+  "RegexOptions": "IgnoreCase, Multiline, IgnorePatternWhitespace",
+  "Pattern": "(?\u003Cx\u003Ef){0,1}(?#Named group x is optional)\r\n(?(x)y|z)(?#If matched f [as group x] then match y else match z)",
+  "Replacement": "($1) or ($\u0026)",
+  "Input": "fy and z\r\nfy and FY"
+}

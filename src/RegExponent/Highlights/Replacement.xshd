@@ -4,9 +4,9 @@
 
 	<RuleSet>
 		<!--
-		// See https://docs.microsoft.com/en-us/dotnet/standard/base-types/substitutions-in-regular-expressions for $* syntax.
-		// A group's "name must not contain any punctuation characters and cannot begin with a number." per:
-		// https://docs.microsoft.com/en-us/dotnet/standard/base-types/grouping-constructs-in-regular-expressions#named-matched-subexpressions		
+			See https://docs.microsoft.com/en-us/dotnet/standard/base-types/substitutions-in-regular-expressions for $* syntax.
+			A group's "name must not contain any punctuation characters and cannot begin with a number." per:
+			https://docs.microsoft.com/en-us/dotnet/standard/base-types/grouping-constructs-in-regular-expressions#named-matched-subexpressions		
 		-->
 		<Rule color="Substitution">\$(\d+|\{([a-zA-Z_][a-zA-Z0-9_]*?|\d+?)\}|[$&amp;`'+_])</Rule>
 	</RuleSet>

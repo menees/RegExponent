@@ -9,17 +9,35 @@
 	<Color name="Anchor" foreground="Orange"/>
 	<Color name="Backreference" foreground="DarkGreen"/>
 	<Color name="CharSet" foreground="Green"/>
+	<Color name="Comment" foreground="Gray"/>
 	<Color name="Dot" foreground="Green" fontWeight="bold"/>
 	<Color name="Escape" foreground="Green"/>
-	<Color name="Group" foreground="Blue"/>
+	<Color name="Group" foreground="Blue" fontWeight="bold"/>
 	<Color name="Quantifier" foreground="Purple"/>
+	<Color name="Alternation" foreground="Orange"/>
+
+	<!--
+		A group's "name must not contain any punctuation characters and cannot begin with a number." per:
+		https://docs.microsoft.com/en-us/dotnet/standard/base-types/grouping-constructs-in-regular-expressions#named-matched-subexpressions
+		So, we'll use the following regex to match a group "name", which can also be a group index number:
+			([a-zA-Z_][a-zA-Z0-9_]*?|\d+?)
+		Note: This "name" pattern is also used in Replacement.xshd.
+	-->
 
 	<RuleSet>
+		<Rule color="Anchor">
+			(
+					\^					# At start of string or line
+				|	\$					# At end (or before \n at end) of string or line
+				|	\\ [AzZGbB]		# At other string boundaries (start, end, before \n, previous match end, word, not word)
+			)
+		</Rule>
+		
 		<Rule color="Backreference">
 			\\
 			(
-			\d+					# Indexed group
-			|	k \&lt;.+?\&gt;		# Named group
+					\d+															# Indexed group
+				|	k \&lt;([a-zA-Z_][a-zA-Z0-9_]*?|\d+?)\&gt;		# Named group
 			)
 		</Rule>
 		
@@ -42,17 +60,16 @@
 				<Span begin="\\" end="\]"/>
 			</RuleSet>
 		</Span>
-		
-		<Rule color="Anchor">
-			(
-					\^					# At start of string or line
-				|	\$					# At end (or before \n at end) of string or line
-				|	\\ [AzZGbB]		# At other string boundaries (start, end, before \n, previous match end, word, not word)
-			)
-		</Rule>
+
+		<Span color="Comment" begin="\(\?\#" end="\)">
+			<RuleSet>
+				<!-- Handle escaped end parenthesis. -->
+				<Span begin="\\" end="\)"/>
+			</RuleSet>
+		</Span>
 
 		<!--
-			I'm matching group start in a separate rule from group end because any expression (including sub-groups) can be used
+			I'm matching "group start" in a separate rule from "group end" because any regex (including sub-groups) can be used
 			inside a group. So, we'd end up having to recursively import the entire main rule set if we tried to do this as a span.
 			For an example of a span that uses an imported rule set, see XmlTag and its attribute handling here:
 			https://github.com/icsharpcode/AvalonEdit/blob/master/ICSharpCode.AvalonEdit/Highlighting/Resources/XML-Mode.xshd
@@ -61,8 +78,8 @@
 			\(		# Group start
 			\??	# Group with special behavior
 			(
-					\&lt;.+?&gt;			# Named group
-				|	\&lt;.+?\-.+?&gt;		# Balancing group
+					\&lt;([a-zA-Z_][a-zA-Z0-9_]*?|\d+?)&gt;													# Named group
+				|	\&lt;([a-zA-Z_][a-zA-Z0-9_]*?|\d+?)\-([a-zA-Z_][a-zA-Z0-9_]*?|\d+?)&gt;		# Balancing group
 				|	\:							# Non-capturing group
 				|	\=							# Zero-width positive lookahead
 				|	\!							# Zero-width negative lookahead
@@ -79,12 +96,16 @@
 
 		<Rule color="Quantifier">
 			(
-			\*						# 0 or more times
-			|	\+						# 1 or more times
-			|	\?						# 0 or 1 time
-			|	\{\d+,?(\d+)?\}	# Exactly (n), At least (n,), or From..To (n,m)
+					\*						# 0 or more times
+				|	\+						# 1 or more times
+				|	\?						# 0 or 1 time
+				|	\{\d+,?(\d+)?\}	# Exactly (n), At least (n,), or From..To (n,m)
 			)
 			\??	# Lazy indicator
+		</Rule>
+
+		<Rule color="Alternation">
+			\|	# The OR operator
 		</Rule>
 		
 		<Rule color="Dot">
