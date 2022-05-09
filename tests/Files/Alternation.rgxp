@@ -1,8 +1,9 @@
 {
   "Version": 1,
+  "UnixNewline": true,
   "Mode": "Replace",
   "RegexOptions": "IgnoreCase, Multiline, IgnorePatternWhitespace",
-  "Pattern": "(?\u003Cx\u003Ef){0,1}(?#Named group x is optional)\r\n(?(x)y|z)(?#If matched f [as group x] then match y else match z)",
+  "Pattern": "(?\u003Cx\u003Ef){0,1}(?#Named group x is optional)\n(?(x)y|z)(?#If matched f [as group x] then match y else match z)\n\\n* #End-of-line comment\n\\s* #Another EOL comment",
   "Replacement": "($1) or ($\u0026)",
-  "Input": "fy and z\r\nfy and FY"
+  "Input": "fy and z\nfy and FY"
 }

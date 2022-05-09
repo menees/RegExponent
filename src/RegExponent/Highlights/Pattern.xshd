@@ -1,5 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<SyntaxDefinition name="Replacement" xmlns="http://icsharpcode.net/sharpdevelop/syntaxdefinition/2008">
+<SyntaxDefinition name="Pattern"
+				  xmlns="http://icsharpcode.net/sharpdevelop/syntaxdefinition/2008"
+				  xmlns:m="http://menees.com/regexponent">
 	<!--
 	Helpful links:
 	https://docs.microsoft.com/en-us/dotnet/standard/base-types/regular-expression-language-quick-reference
@@ -67,6 +69,16 @@
 				<Span begin="\\" end="\)"/>
 			</RuleSet>
 		</Span>
+
+		<Rule color="Comment" m:tag="X-Mode">
+			<!--
+			Support single-line comments that go to the end of the current line.
+			This is only valid when RegexOptions.IgnorePatternWhitespace (x-mode) is enabled (e.g., via (?x)).
+			The App constructor will remove this Rule node to make two different Pattern highlight definitions
+			(one for x-mode and one for non-x-mode).
+			-->
+			\# .*
+		</Rule>
 
 		<!--
 			I'm matching "group start" in a separate rule from "group end" because any regex (including sub-groups) can be used
