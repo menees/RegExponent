@@ -33,6 +33,7 @@
 
 	<ItemGroup>
 	  <EmbeddedResource Include="Highlights\Pattern.xshd" />
+	  <EmbeddedResource Include="Highlights\PatternXMode.xshd" />
 	  <EmbeddedResource Include="Highlights\Replacement.xshd" />
 	</ItemGroup>
 

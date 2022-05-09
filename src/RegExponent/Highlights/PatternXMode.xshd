@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<SyntaxDefinition name="PatternXMode"
+				  xmlns="http://icsharpcode.net/sharpdevelop/syntaxdefinition/2008"
+				  xmlns:m="http://menees.com/regexponent">
+	<RuleSet>
+		<!--
+			Using '/' to separate definition name and element name comes from the Xshd.V2Loader's
+			ParseRuleSetReference and ParseColorReference methods, which create XshdReference instances. 
+			I couldn't find it documented anywhere, but the fact that HighlightingLoader.Load takes an
+			IHighlightingDefinitionReferenceResolver made it clear that there was some supported way for
+			one definition to refer to another.
+		-->
+		<Import ruleSet="Pattern/Shared"/>
+
+		<Rule color="Pattern/Comment" m:tag="X-Mode">
+			<!--
+				Support single-line comments that go to the end of the current line.
+				This is only valid when RegexOptions.IgnorePatternWhitespace (x-mode) is enabled (e.g., via (?x)).
+			-->
+			\# .*
+		</Rule>
+	</RuleSet>
+</SyntaxDefinition>

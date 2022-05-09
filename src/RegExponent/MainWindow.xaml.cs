@@ -24,6 +24,7 @@
 	using System.Windows.Threading;
 	using ICSharpCode.AvalonEdit;
 	using ICSharpCode.AvalonEdit.Editing;
+	using ICSharpCode.AvalonEdit.Highlighting;
 	using Menees;
 	using Menees.Windows.Presentation;
 	using Microsoft.Win32;
@@ -67,7 +68,6 @@
 
 		internal MainWindow(string[] commandLineArgs)
 		{
-			// TODO: Add Regex pattern syntax highlighter for singleline and for IgnorePatternWhitespace.[Bill, 5/7/2022]
 			// TODO: Add keys: Ctrl+# for option toggles. Ctrl+M/R/T for Match/Replace/Split. [Bill, 5/7/2022]
 			// TODO: Add good icon. [Bill, 4/9/2022]
 			this.InitializeComponent();
@@ -734,7 +734,8 @@
 					goto default;
 
 				case nameof(Model.UseIgnorePatternWhitespace):
-					// TODO: Toggle Regex syntax highlighter mode. [Bill, 5/7/2022]
+					this.pattern.SyntaxHighlighting = HighlightingManager.Instance.GetDefinition(
+						this.model.UseIgnorePatternWhitespace ? "PatternXMode" : "Pattern");
 					goto default;
 
 				default:

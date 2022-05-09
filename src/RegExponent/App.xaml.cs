@@ -25,6 +25,7 @@
 			WindowsUtility.InitializeApplication(nameof(RegExponent), null, this.GetType().Assembly);
 
 			RegisterHighlighting("Pattern");
+			RegisterHighlighting("PatternXMode");
 			RegisterHighlighting("Replacement");
 		}
 

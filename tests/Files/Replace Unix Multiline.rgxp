@@ -2,8 +2,8 @@
   "Version": 1,
   "UnixNewline": true,
   "Mode": "Replace",
-  "RegexOptions": "IgnoreCase, Multiline, ExplicitCapture, Singleline, IgnorePatternWhitespace",
-  "Pattern": "test",
+  "RegexOptions": "IgnoreCase, Multiline, ExplicitCapture, Singleline",
+  "Pattern": "(?i)(?#Start case-insensitive)t(?-i)(?#Then be case-sensitive)est",
   "Replacement": "project",
-  "Input": "This test has\nmultiple Test lines\nin its input."
+  "Input": "This test has\nmultiple Test lines\nin its TEST input.\n"
 }
