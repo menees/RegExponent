@@ -52,6 +52,7 @@
 		private readonly Control[] customFontControls;
 		private readonly ContextMenu recentDropDownMenu;
 		private readonly RecentItemList<string> recentFiles;
+		private readonly RichTextModel inputHighlight;
 		private string currentFileName;
 
 		private int updateLevel;
@@ -102,6 +103,10 @@
 			DataObject.AddPastingHandler(this.input, OnPaste);
 
 			this.recentFiles = new(this.recentMainMenu, this.RecentFileClick, this.recentDropDownMenu);
+
+			// https://github.com/icsharpcode/AvalonEdit/issues/244#issuecomment-725214919
+			this.inputHighlight = new();
+			this.input.TextArea.TextView.LineTransformers.Add(new RichTextColorizer(this.inputHighlight));
 
 			SystemEvents.SessionEnding += this.SystemEventsSessionEnding;
 		}
@@ -374,11 +379,9 @@
 			{
 				using (this.BeginUpdate())
 				{
-					// TODO: Update this.input syntax highlighting using evaluator.Matches. [Bill, 5/7/2022]
-					// https://github.com/icsharpcode/AvalonEdit/issues/102#issuecomment-277183963
-					// https://github.com/icsharpcode/AvalonEdit/issues/171#issuecomment-581861977
 					this.pattern.SetText(this.model.Pattern);
 					this.input.SetText(this.model.Input);
+					this.UpdateInputHighlight(evaluator.Matches);
 
 					this.timing.Content = $"{evaluator.Elapsed.TotalMilliseconds} ms";
 					this.message.Content = evaluator.Exception?.Message;
@@ -414,7 +417,7 @@
 								line?.Length,
 								Comment = line == null ? "null"
 									: line.Length == 0 ? "empty"
-									: line.IsWhiteSpace() ? "whitespace"
+									: line.IsWhiteSpace() ? "whitespace" // TODO: Show C# escaped string: \r\n\t. [Bill, 5/9/2022]
 									: double.TryParse(line, out _) || decimal.TryParse(line, out _) ? "numeric"
 									: string.Empty,
 							});
@@ -423,6 +426,33 @@
 					}
 				}
 			}
+		}
+
+		private void UpdateInputHighlight(IReadOnlyList<Match> matches)
+		{
+			// https://github.com/icsharpcode/AvalonEdit/issues/244#issuecomment-725214919
+			int textLength = this.input.Document.TextLength;
+
+			// First, remove any prior colors because the pattern or the input could have changed.
+			HighlightingColor noColor = new();
+			this.inputHighlight.SetHighlighting(0, textLength, noColor);
+
+			// Next, apply highlights for the new matches.
+			SimpleHighlightingBrush yellow = new(Colors.LemonChiffon);
+			SimpleHighlightingBrush orange = new(Colors.NavajoWhite);
+			SimpleHighlightingBrush background = yellow;
+			foreach (Match match in matches.Where(m => m.Success))
+			{
+				this.inputHighlight.SetBackground(match.Index, match.Length, background);
+				background = background == yellow ? orange : yellow;
+
+				foreach (Group group in match.Groups.Cast<Group>().Skip(1).Where(g => g.Success))
+				{
+					this.inputHighlight.SetFontWeight(group.Index, group.Length, FontWeights.Bold);
+				}
+			}
+
+			this.input.TextArea.TextView.Redraw(DispatcherPriority.Render);
 		}
 
 		private void SelectLastVisibleBottomTab()

@@ -1,0 +1,6 @@
+{
+  "Version": 1,
+  "Mode": "Split",
+  "Pattern": "(?\u003Ct1\u003Et)es(?\u003Ct2\u003Et)",
+  "Input": "testtesttesttesttesttesttest\r\ntesttesttesttesttesttesttest\r\ntesttesttesttesttesttesttest\r\ntesttesttesttesttesttesttest"
+}
