@@ -113,6 +113,18 @@
 
 		#endregion
 
+		#region Private Enums
+
+		private enum Code
+		{
+			Pattern,
+			Replacement,
+			Input,
+			Block,
+		}
+
+		#endregion
+
 		#region Private Properties
 
 		private string CurrentFileName
@@ -461,6 +473,44 @@
 			this.bottomTabs.SelectedIndex = lastItem != null ? this.bottomTabs.Items.IndexOf(lastItem) : 0;
 		}
 
+		private void GenerateCSharp(Code code)
+		{
+			// TODO: Generate: Pattern, Replacement, Input, Code block,  [Bill, 3/31/2022]
+			GC.KeepAlive(this);
+		}
+
+		private void GenerateHtml(Code code)
+		{
+			Editor? editor = code switch
+			{
+				Code.Pattern => this.pattern,
+				Code.Replacement => this.replacement,
+				Code.Input => this.input,
+				_ => null,
+			};
+
+			if (editor != null)
+			{
+				HtmlOptions options = new();
+				string html;
+				if (editor == this.input)
+				{
+					// TODO: This causes a StackOverflowException for Geometry and others! [Bill, 5/10/2022]
+					RichText richText = new(editor.Text, this.inputHighlight);
+					html = richText.ToHtml(options);
+				}
+				else
+				{
+					IHighlighter? highlighter = editor.TextArea.GetService(typeof(IHighlighter)) as IHighlighter;
+					html = HtmlClipboard.CreateHtmlFragment(editor.Document, highlighter, null, options);
+				}
+
+				DataObject dataObject = new DataObject(html);
+				HtmlClipboard.SetHtml(dataObject, html);
+				Clipboard.SetDataObject(dataObject);
+			}
+		}
+
 		#endregion
 
 		#region Private Event Handlers
@@ -710,9 +760,24 @@
 
 		private void GenerateCodeToClipboardExecuted(object? sender, ExecutedRoutedEventArgs e)
 		{
-			// TODO: Finish GenerateCodeToClipboardExecuted. Add submenu for: Pattern literal, Replacement literal, Input literal, Code block,  [Bill, 3/31/2022]
-			// TODO: Use Highlighting.HtmlClipboard to generate HTML for Pattern, Replacement, and Input. [Bill, 5/9/2022]
-			GC.KeepAlive(this);
+			if (e.Parameter is string parameter)
+			{
+				string[] args = parameter.Split('/');
+				if (args.Length == 2 && Enum.TryParse(args[1], out Code code))
+				{
+					string language = args[0];
+					switch (language)
+					{
+						case "C#":
+							this.GenerateCSharp(code);
+							break;
+
+						case "HTML":
+							this.GenerateHtml(code);
+							break;
+					}
+				}
+			}
 		}
 
 		private void InsertPatternExecuted(object? sender, ExecutedRoutedEventArgs e)

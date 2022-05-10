@@ -182,7 +182,19 @@
 							  Command="local:Commands.Option8" />
 					<Separator/>
 					<MenuItem Header="Insert Inline Options" Command="local:Commands.InsertInlineOptions" Icon="{StaticResource Icon.InsertSpan}"/>
-					<MenuItem Header="Generate C# To Clipboard" Command="local:Commands.GenerateCodeToClipboard" Icon="{StaticResource Icon.CSFileNode}"/>
+					<MenuItem Header="Generate C# To Clipboard" Icon="{StaticResource Icon.CSFileNode}">
+						<MenuItem Header="_Pattern" Command="local:Commands.GenerateCodeToClipboard" CommandParameter="C#/Pattern"/>
+						<MenuItem Header="_Replacement" Command="local:Commands.GenerateCodeToClipboard" CommandParameter="C#/Replacement"
+								  Visibility="{Binding InReplaceMode, Converter={StaticResource BoolToVisibility}, Source={StaticResource Model}}"/>
+						<MenuItem Header="_Input" Command="local:Commands.GenerateCodeToClipboard" CommandParameter="C#/Input"/>
+						<MenuItem Header="_Code Block" Command="local:Commands.GenerateCodeToClipboard" CommandParameter="C#/Block"/>
+					</MenuItem>
+					<MenuItem Header="Generate HTML To Clipboard">
+						<MenuItem Header="_Pattern" Command="local:Commands.GenerateCodeToClipboard" CommandParameter="HTML/Pattern"/>
+						<MenuItem Header="_Replacement" Command="local:Commands.GenerateCodeToClipboard" CommandParameter="HTML/Replacement"
+								  Visibility="{Binding InReplaceMode, Converter={StaticResource BoolToVisibility}, Source={StaticResource Model}}"/>
+						<MenuItem Header="_Input" Command="local:Commands.GenerateCodeToClipboard" CommandParameter="HTML/Input"/>
+					</MenuItem>
 				</MenuItem>
 				<MenuItem Header="_Help">
 					<MenuItem Header=".NET Regex _Quick Reference" Command="Help" Icon="{StaticResource Icon.F1Help}"/>
