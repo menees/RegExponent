@@ -189,7 +189,7 @@
 						<MenuItem Header="_Input" Command="local:Commands.GenerateCodeToClipboard" CommandParameter="C#/Input"/>
 						<MenuItem Header="_Code Block" Command="local:Commands.GenerateCodeToClipboard" CommandParameter="C#/Block"/>
 					</MenuItem>
-					<MenuItem Header="Generate HTML To Clipboard">
+					<MenuItem Header="Generate HTML To Clipboard" Icon="{StaticResource Icon.Html}">
 						<MenuItem Header="_Pattern" Command="local:Commands.GenerateCodeToClipboard" CommandParameter="HTML/Pattern"/>
 						<MenuItem Header="_Replacement" Command="local:Commands.GenerateCodeToClipboard" CommandParameter="HTML/Replacement"
 								  Visibility="{Binding InReplaceMode, Converter={StaticResource BoolToVisibility}, Source={StaticResource Model}}"/>

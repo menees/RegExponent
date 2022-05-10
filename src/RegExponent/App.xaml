@@ -15,6 +15,7 @@
 				<ResourceDictionary Source="Resources/CSFileNode.xaml"/>
 				<ResourceDictionary Source="Resources/F1Help.xaml"/>
 				<ResourceDictionary Source="Resources/Font.xaml"/>
+				<ResourceDictionary Source="Resources/Html.xaml"/>
 				<ResourceDictionary Source="Resources/InsertSpan.xaml"/>
 				<ResourceDictionary Source="Resources/New.xaml"/>
 				<ResourceDictionary Source="Resources/OpenFolder.xaml"/>
