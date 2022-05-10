@@ -17,11 +17,7 @@
 
 		public static readonly RoutedUICommand About = new(nameof(About), nameof(About), typeof(Commands));
 
-		public static readonly RoutedUICommand Exit = new(
-			nameof(Exit),
-			nameof(Exit),
-			typeof(Commands),
-			new InputGestureCollection { new KeyGesture(Key.F4, ModifierKeys.Alt), });
+		public static readonly RoutedUICommand Exit = new(nameof(Exit), nameof(Exit), typeof(Commands));
 
 		public static readonly RoutedUICommand Font = new(nameof(Font), nameof(Font), typeof(Commands));
 
@@ -34,6 +30,19 @@
 		public static readonly RoutedUICommand ShellExecute = new(nameof(ShellExecute), nameof(ShellExecute), typeof(Commands));
 
 		public static readonly RoutedUICommand InsertPattern = new(nameof(InsertPattern), nameof(InsertPattern), typeof(Commands));
+
+		public static readonly RoutedUICommand Match = new(nameof(Match), nameof(Match), typeof(Commands));
+		public static readonly RoutedUICommand Replace = new(nameof(Replace), nameof(Replace), typeof(Commands));
+		public static readonly RoutedUICommand Split = new(nameof(Split), nameof(Split), typeof(Commands));
+
+		public static readonly RoutedUICommand Option1 = new(nameof(Option1), nameof(Option1), typeof(Commands));
+		public static readonly RoutedUICommand Option2 = new(nameof(Option2), nameof(Option2), typeof(Commands));
+		public static readonly RoutedUICommand Option3 = new(nameof(Option3), nameof(Option3), typeof(Commands));
+		public static readonly RoutedUICommand Option4 = new(nameof(Option4), nameof(Option4), typeof(Commands));
+		public static readonly RoutedUICommand Option5 = new(nameof(Option5), nameof(Option5), typeof(Commands));
+		public static readonly RoutedUICommand Option6 = new(nameof(Option6), nameof(Option6), typeof(Commands));
+		public static readonly RoutedUICommand Option7 = new(nameof(Option7), nameof(Option7), typeof(Commands));
+		public static readonly RoutedUICommand Option8 = new(nameof(Option8), nameof(Option8), typeof(Commands));
 
 		#endregion
 	}

@@ -5,6 +5,7 @@
 	using System;
 	using System.Collections.Generic;
 	using System.ComponentModel;
+	using System.Globalization;
 	using System.IO;
 	using System.Linq;
 	using System.Text;
@@ -69,7 +70,6 @@
 
 		internal MainWindow(string[] commandLineArgs)
 		{
-			// TODO: Add keys: Ctrl+# for option toggles. Ctrl+M/R/T for Match/Replace/Split. [Bill, 5/7/2022]
 			// TODO: Add good icon. [Bill, 4/9/2022]
 			this.InitializeComponent();
 			this.commandLineArgs = commandLineArgs;
@@ -491,6 +491,19 @@
 			WindowsUtility.ShowAboutBox(this, this.GetType().Assembly, nameof(RegExponent));
 		}
 
+		private void WindowSourceInitialized(object sender, EventArgs e)
+		{
+			// This can't go in the constructor or Load event because the CommandParameter bindings return null there.
+			// See the <Window.InputBindings> element in MainWindow.xaml for why this is necessary.
+			foreach (KeyBinding keyBinding in this.InputBindings.OfType<KeyBinding>())
+			{
+				if (keyBinding.CommandParameter is MenuItem menuItem && keyBinding.Gesture is KeyGesture gesture)
+				{
+					menuItem.InputGestureText = gesture.GetDisplayStringForCulture(CultureInfo.CurrentCulture);
+				}
+			}
+		}
+
 		private void FormSaverLoadSettings(object? sender, SettingsEventArgs e)
 		{
 			ISettingsNode settings = e.SettingsNode;
@@ -698,6 +711,7 @@
 		private void GenerateCodeToClipboardExecuted(object? sender, ExecutedRoutedEventArgs e)
 		{
 			// TODO: Finish GenerateCodeToClipboardExecuted. Add submenu for: Pattern literal, Replacement literal, Input literal, Code block,  [Bill, 3/31/2022]
+			// TODO: Use Highlighting.HtmlClipboard to generate HTML for Pattern, Replacement, and Input. [Bill, 5/9/2022]
 			GC.KeepAlive(this);
 		}
 
@@ -842,6 +856,16 @@
 					this.pattern.TextArea.Caret.BringCaretToView();
 					this.pattern.Focus();
 				}
+			}
+		}
+
+#pragma warning disable CC0091 // Use static method. Event handler doesn't need to be static.
+		private void ToggleMenuItemExecuted(object sender, ExecutedRoutedEventArgs e)
+#pragma warning restore CC0091 // Use static method
+		{
+			if (e.Parameter is MenuItem menuItem)
+			{
+				menuItem.IsChecked = !menuItem.IsChecked;
 			}
 		}
 
