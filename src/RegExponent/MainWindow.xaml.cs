@@ -759,6 +759,7 @@
 
 					break;
 
+				case nameof(Model.WindowsNewline):
 				case nameof(Model.UnixNewline):
 					if (!this.updating)
 					{
@@ -769,6 +770,7 @@
 						this.TryQueueUpdate();
 					}
 
+					this.newlineDisplay.Content = this.model.Newline.Replace("\r", "\\r").Replace("\n", "\\n");
 					break;
 
 				case nameof(Model.InMatchMode):
@@ -859,13 +861,25 @@
 			}
 		}
 
-#pragma warning disable CC0091 // Use static method. Event handler doesn't need to be static.
+#pragma warning disable CC0091 // Use static method. Xaml expects non-static event handler.
 		private void ToggleMenuItemExecuted(object sender, ExecutedRoutedEventArgs e)
 #pragma warning restore CC0091 // Use static method
 		{
 			if (e.Parameter is MenuItem menuItem)
 			{
 				menuItem.IsChecked = !menuItem.IsChecked;
+			}
+		}
+
+		private void NewlineDisplayDoubleClick(object sender, MouseButtonEventArgs e)
+		{
+			if (this.model.UnixNewline)
+			{
+				this.model.WindowsNewline = true;
+			}
+			else
+			{
+				this.model.UnixNewline = true;
 			}
 		}
 

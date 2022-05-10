@@ -120,7 +120,29 @@
 			}
 		}
 
-		public bool UnixNewline { get => this.unixNewline; set => this.Update(ref this.unixNewline, value); }
+		public bool WindowsNewline
+		{
+			get => !this.unixNewline;
+			set
+			{
+				if (value && this.Update(ref this.unixNewline, !value))
+				{
+					this.OnPropertyChanged(nameof(this.UnixNewline));
+				}
+			}
+		}
+
+		public bool UnixNewline
+		{
+			get => this.unixNewline;
+			set
+			{
+				if (value && this.Update(ref this.unixNewline, value))
+				{
+					this.OnPropertyChanged(nameof(this.WindowsNewline));
+				}
+			}
+		}
 
 		#endregion
 
@@ -154,6 +176,7 @@
 			this.UseECMAScript = default;
 			this.UseCultureInvariant = default;
 
+			this.WindowsNewline = !default(bool);
 			this.UnixNewline = default;
 
 			// Note: We're not resetting the In*Mode properties since they don't affect IsModified.
@@ -180,7 +203,9 @@
 			// Set the public properties rather than the backing members to ensure change notifications are sent.
 			if (root.TryGetProperty(nameof(this.UnixNewline), out JsonElement newline))
 			{
-				this.UnixNewline = newline.GetBoolean();
+				bool value = newline.GetBoolean();
+				this.WindowsNewline = !value;
+				this.UnixNewline = value;
 			}
 
 			if (root.TryGetProperty(nameof(this.Mode), out JsonElement modeElement)

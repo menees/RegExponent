@@ -34,6 +34,8 @@
 		public static readonly RoutedUICommand Match = new(nameof(Match), nameof(Match), typeof(Commands));
 		public static readonly RoutedUICommand Replace = new(nameof(Replace), nameof(Replace), typeof(Commands));
 		public static readonly RoutedUICommand Split = new(nameof(Split), nameof(Split), typeof(Commands));
+		public static readonly RoutedUICommand WindowsNewline = new(nameof(WindowsNewline), nameof(WindowsNewline), typeof(Commands));
+		public static readonly RoutedUICommand UnixNewline = new(nameof(UnixNewline), nameof(UnixNewline), typeof(Commands));
 
 		public static readonly RoutedUICommand Option1 = new(nameof(Option1), nameof(Option1), typeof(Commands));
 		public static readonly RoutedUICommand Option2 = new(nameof(Option2), nameof(Option2), typeof(Commands));

@@ -11,44 +11,50 @@
 				   ResizeMode="CanResizeWithGrip" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"
 				  FocusManager.FocusedElement="{Binding ElementName=pattern}" Closing="WindowClosing" SourceInitialized="WindowSourceInitialized">
 
-    <Window.CommandBindings>
-        <CommandBinding Command="New" Executed="NewExecuted"/>
-        <CommandBinding Command="Open" Executed="OpenExecuted"/>
-        <CommandBinding Command="Save" Executed="SaveExecuted"/>
-        <CommandBinding Command="SaveAs" Executed="SaveAsExecuted"/>
-        <CommandBinding Command="local:Commands.Exit" Executed="ExitExecuted" />
-        <CommandBinding Command="local:Commands.Font" Executed="FontExecuted" />
-        <CommandBinding Command="local:Commands.InsertInlineOptions" Executed="InsertInlineOptionsExecuted" />
-        <CommandBinding Command="local:Commands.GenerateCodeToClipboard" Executed="GenerateCodeToClipboardExecuted" />
-        <CommandBinding Command="Help" Executed="HelpExecuted" />
-        <CommandBinding Command="local:Commands.ShellExecute" Executed="ShellExecuteExecuted" />
-        <CommandBinding Command="local:Commands.InsertPattern" Executed="InsertPatternExecuted" />
-        <CommandBinding Command="local:Commands.About" Executed="AboutExecuted" />
+	<Window.CommandBindings>
+		<CommandBinding Command="New" Executed="NewExecuted"/>
+		<CommandBinding Command="Open" Executed="OpenExecuted"/>
+		<CommandBinding Command="Save" Executed="SaveExecuted"/>
+		<CommandBinding Command="SaveAs" Executed="SaveAsExecuted"/>
+		<CommandBinding Command="local:Commands.Exit" Executed="ExitExecuted" />
+		<CommandBinding Command="local:Commands.Font" Executed="FontExecuted" />
+		<CommandBinding Command="local:Commands.InsertInlineOptions" Executed="InsertInlineOptionsExecuted" />
+		<CommandBinding Command="local:Commands.GenerateCodeToClipboard" Executed="GenerateCodeToClipboardExecuted" />
+		<CommandBinding Command="Help" Executed="HelpExecuted" />
+		<CommandBinding Command="local:Commands.ShellExecute" Executed="ShellExecuteExecuted" />
+		<CommandBinding Command="local:Commands.InsertPattern" Executed="InsertPatternExecuted" />
+		<CommandBinding Command="local:Commands.About" Executed="AboutExecuted" />
 
-        <CommandBinding Command="local:Commands.Match" Executed="ToggleMenuItemExecuted" />
-        <CommandBinding Command="local:Commands.Replace" Executed="ToggleMenuItemExecuted" />
-        <CommandBinding Command="local:Commands.Split" Executed="ToggleMenuItemExecuted" />
-        <CommandBinding Command="local:Commands.Option1" Executed="ToggleMenuItemExecuted" />
-        <CommandBinding Command="local:Commands.Option2" Executed="ToggleMenuItemExecuted" />
-        <CommandBinding Command="local:Commands.Option3" Executed="ToggleMenuItemExecuted" />
-        <CommandBinding Command="local:Commands.Option4" Executed="ToggleMenuItemExecuted" />
-        <CommandBinding Command="local:Commands.Option5" Executed="ToggleMenuItemExecuted" />
-        <CommandBinding Command="local:Commands.Option6" Executed="ToggleMenuItemExecuted" />
-        <CommandBinding Command="local:Commands.Option7" Executed="ToggleMenuItemExecuted" />
-        <CommandBinding Command="local:Commands.Option8" Executed="ToggleMenuItemExecuted" />
-    </Window.CommandBindings>
+		<CommandBinding Command="local:Commands.Match" Executed="ToggleMenuItemExecuted" />
+		<CommandBinding Command="local:Commands.Replace" Executed="ToggleMenuItemExecuted" />
+		<CommandBinding Command="local:Commands.Split" Executed="ToggleMenuItemExecuted" />
+		<CommandBinding Command="local:Commands.WindowsNewline" Executed="ToggleMenuItemExecuted" />
+		<CommandBinding Command="local:Commands.UnixNewline" Executed="ToggleMenuItemExecuted" />
 
-    <Window.InputBindings>
-		<KeyBinding Command="local:Commands.Exit" Gesture="Alt+F4" CommandParameter="{Binding ElementName=exitMenu}" />
+		<CommandBinding Command="local:Commands.Option1" Executed="ToggleMenuItemExecuted" />
+		<CommandBinding Command="local:Commands.Option2" Executed="ToggleMenuItemExecuted" />
+		<CommandBinding Command="local:Commands.Option3" Executed="ToggleMenuItemExecuted" />
+		<CommandBinding Command="local:Commands.Option4" Executed="ToggleMenuItemExecuted" />
+		<CommandBinding Command="local:Commands.Option5" Executed="ToggleMenuItemExecuted" />
+		<CommandBinding Command="local:Commands.Option6" Executed="ToggleMenuItemExecuted" />
+		<CommandBinding Command="local:Commands.Option7" Executed="ToggleMenuItemExecuted" />
+		<CommandBinding Command="local:Commands.Option8" Executed="ToggleMenuItemExecuted" />
+	</Window.CommandBindings>
 
+	<Window.InputBindings>
 		<!--
 			I can't bind a MenuItem.CommandParameter to the owning MenuItem, so I had to move the parameters here.
 			But that means I have to programmatically assign the MenuItem.InputGestureText from C# code.
 			https://social.msdn.microsoft.com/Forums/en-US/fc7101ca-383e-4f02-b450-82f38b1b34c3/binding-commandparameter-to-menuitem-action-always-return-null
 		-->
-        <KeyBinding Command="local:Commands.Match" Gesture="Ctrl+M" CommandParameter="{Binding ElementName=matchMenu}" />
+		<KeyBinding Command="local:Commands.Exit" Gesture="Alt+F4" CommandParameter="{Binding ElementName=exitMenu}" />
+		<KeyBinding Command="SaveAs" Gesture="Ctrl+Shift+S" CommandParameter="{Binding ElementName=saveAsMenu}" />
+
+		<KeyBinding Command="local:Commands.Match" Gesture="Ctrl+M" CommandParameter="{Binding ElementName=matchMenu}" />
 		<KeyBinding Command="local:Commands.Replace" Gesture="Ctrl+R" CommandParameter="{Binding ElementName=replaceMenu}" />
-		<KeyBinding Command="local:Commands.Split" Gesture="Ctrl+T" CommandParameter="{Binding ElementName=splitMenu}" />
+		<KeyBinding Command="local:Commands.Split" Gesture="Ctrl+P" CommandParameter="{Binding ElementName=splitMenu}" />
+		<KeyBinding Command="local:Commands.WindowsNewline" Gesture="Ctrl+W" CommandParameter="{Binding ElementName=windowsMenu}" />
+		<KeyBinding Command="local:Commands.UnixNewline" Gesture="Ctrl+U" CommandParameter="{Binding ElementName=unixMenu}" />
 
 		<KeyBinding Command="local:Commands.Option1" Gesture="Ctrl+1" CommandParameter="{Binding ElementName=ignoreCaseMenu}" />
 		<KeyBinding Command="local:Commands.Option2" Gesture="Ctrl+2" CommandParameter="{Binding ElementName=multilineMenu}" />
@@ -58,259 +64,273 @@
 		<KeyBinding Command="local:Commands.Option6" Gesture="Ctrl+6" CommandParameter="{Binding ElementName=rightToLeftMenu}" />
 		<KeyBinding Command="local:Commands.Option7" Gesture="Ctrl+7" CommandParameter="{Binding ElementName=ecmaScriptMenu}" />
 		<KeyBinding Command="local:Commands.Option8" Gesture="Ctrl+8" CommandParameter="{Binding ElementName=cultureInvariantMenu}" />
-    </Window.InputBindings>
+	</Window.InputBindings>
 
-    <Window.Resources>
-        <local:Model x:Key="Model"/>
-        <BooleanToVisibilityConverter x:Key="BoolToVisibility"/>
-        <m:InverseBooleanConverter x:Key="InvertBool"/>
+	<Window.Resources>
+		<local:Model x:Key="Model"/>
+		<BooleanToVisibilityConverter x:Key="BoolToVisibility"/>
 
-        <Style x:Key="ToolbarToggleButton" TargetType="ToggleButton">
-            <!-- This style needs an explicit key. Toolbar overrides the styles for ToggleButton, so we have to explicitly pick this style. -->
-            <Setter Property="ToolBar.OverflowMode" Value="Never"/>
-            <Setter Property="Margin" Value="1,2,1,0"/>
-            <Setter Property="MinWidth" Value="20"/>
-        </Style>
+		<Style x:Key="ToolbarToggleButton" TargetType="ToggleButton">
+			<!-- This style needs an explicit key. Toolbar overrides the styles for ToggleButton, so we have to explicitly pick this style. -->
+			<Setter Property="ToolBar.OverflowMode" Value="Never"/>
+			<Setter Property="Margin" Value="1,2,1,0"/>
+			<Setter Property="MinWidth" Value="20"/>
+		</Style>
 
-        <Style x:Key="RegexMenuItem" TargetType="MenuItem">
-            <Setter Property="HeaderTemplate">
-                <Setter.Value>
-                    <DataTemplate>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Width="150" Text="{Binding CommandParameter, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type MenuItem}}}"/>
-                            <TextBlock Text="{Binding Tag, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type MenuItem}}}"/>
-                        </StackPanel>
-                    </DataTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+		<Style x:Key="RegexMenuItem" TargetType="MenuItem">
+			<Setter Property="HeaderTemplate">
+				<Setter.Value>
+					<DataTemplate>
+						<StackPanel Orientation="Horizontal">
+							<TextBlock Width="150" Text="{Binding CommandParameter, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type MenuItem}}}"/>
+							<TextBlock Text="{Binding Tag, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type MenuItem}}}"/>
+						</StackPanel>
+					</DataTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
 
-        <Style TargetType="local:Editor">
-            <Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
-            <Setter Property="HorizontalScrollBarVisibility" Value="Auto"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}"/>
-        </Style>
+		<Style TargetType="local:Editor">
+			<Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
+			<Setter Property="HorizontalScrollBarVisibility" Value="Auto"/>
+			<Setter Property="BorderThickness" Value="1"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}"/>
+		</Style>
 
-        <Style TargetType="ae:TextView">
-            <Setter Property="Margin" Value="2"/>
-        </Style>
+		<Style TargetType="ae:TextView">
+			<Setter Property="Margin" Value="2"/>
+		</Style>
 
-        <Style TargetType="DataGrid">
-            <Setter Property="IsReadOnly" Value="True"/>
-            <Setter Property="AutoGenerateColumns" Value="False"/>
-            <Setter Property="CanUserReorderColumns" Value="False"/>
-            <Setter Property="SelectionUnit" Value="Cell"/>
+		<Style TargetType="DataGrid">
+			<Setter Property="IsReadOnly" Value="True"/>
+			<Setter Property="AutoGenerateColumns" Value="False"/>
+			<Setter Property="CanUserReorderColumns" Value="False"/>
+			<Setter Property="SelectionUnit" Value="Cell"/>
 
-            <!-- https://stackoverflow.com/a/35301853/1882616 -->
-            <Setter Property="AlternationCount" Value="2" />
-            <Setter Property="AlternatingRowBackground" Value="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" />
-        </Style>
-    </Window.Resources>
+			<!-- https://stackoverflow.com/a/35301853/1882616 -->
+			<Setter Property="AlternationCount" Value="2" />
+			<Setter Property="AlternatingRowBackground" Value="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" />
+		</Style>
+	</Window.Resources>
 
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="1*" MinHeight="25"/>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="1*" MinHeight="25"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="1*" MinHeight="25"/>
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="1*" MinHeight="25"/>
+			<RowDefinition Height="Auto"/>
+		</Grid.RowDefinitions>
 
-        <DockPanel Grid.Row="0">
-            <Menu DockPanel.Dock="Left" VerticalAlignment="Center" Padding="4">
-                <!-- Initially this menu was showing with the right edge aligned to the menu item.
+		<DockPanel Grid.Row="0">
+			<Menu DockPanel.Dock="Left" VerticalAlignment="Center" Padding="4">
+				<!-- Initially this menu was showing with the right edge aligned to the menu item.
 				I had to change a Windows setting: Win+R -> shell:::{80F3F1D5-FECA-45F3-BC32-752C152E456E}
 				-> Tablet PC Settings -> Other -> Handedness -> Left Handed
 				https://stackoverflow.com/a/25109673/1882616 -->
-                <MenuItem Header="_File">
-                    <MenuItem Header="_New" Command="New" Icon="{StaticResource Icon.New}" />
-                    <MenuItem Header="_Open..." Command="Open" Icon="{StaticResource Icon.OpenFolder}" />
-                    <Separator/>
-                    <MenuItem Header="_Save" Command="Save" Icon="{StaticResource Icon.Save}" />
-                    <MenuItem Header="Save _As..." Command="SaveAs" Icon="{StaticResource Icon.SaveAs}" />
-                    <Separator/>
-                    <MenuItem x:Name="recentMainMenu" Header="_Recent" />
-                    <Separator/>
-                    <MenuItem x:Name="exitMenu" Header="E_xit" Command="local:Commands.Exit" Icon="{StaticResource Icon.Close}"/>
-                </MenuItem>
-                <MenuItem Header="_Mode">
-                    <MenuItem x:Name="matchMenu" Header="_Match" IsCheckable="True" IsChecked="{Binding InMatchMode, Source={StaticResource Model}}"
+				<MenuItem Header="_File">
+					<MenuItem Header="_New" Command="New" Icon="{StaticResource Icon.New}" />
+					<MenuItem Header="_Open..." Command="Open" Icon="{StaticResource Icon.OpenFolder}" />
+					<Separator/>
+					<MenuItem Header="_Save" Command="Save" Icon="{StaticResource Icon.Save}" />
+					<MenuItem x:Name="saveAsMenu" Header="Save _As..." Command="SaveAs" Icon="{StaticResource Icon.SaveAs}" />
+					<Separator/>
+					<MenuItem x:Name="recentMainMenu" Header="_Recent" />
+					<Separator/>
+					<MenuItem x:Name="exitMenu" Header="E_xit" Command="local:Commands.Exit" Icon="{StaticResource Icon.Close}"/>
+				</MenuItem>
+				<MenuItem Header="_Mode">
+					<MenuItem x:Name="matchMenu" Header="_Match" IsCheckable="True" IsChecked="{Binding InMatchMode, Source={StaticResource Model}}"
 							Icon="{StaticResource Icon.QuickFind}" Command="local:Commands.Match" InputGestureText="Ctrl+M"/>
-                    <MenuItem x:Name="replaceMenu" Header="_Replace" IsCheckable="True" IsChecked="{Binding InReplaceMode, Source={StaticResource Model}}"
+					<MenuItem x:Name="replaceMenu" Header="_Replace" IsCheckable="True" IsChecked="{Binding InReplaceMode, Source={StaticResource Model}}"
 							Icon="{StaticResource Icon.QuickReplace}" Command="local:Commands.Replace" InputGestureText="Ctrl+R"/>
-                    <MenuItem x:Name="splitMenu" Header="_Split" IsCheckable="True" IsChecked="{Binding InSplitMode, Source={StaticResource Model}}"
+					<MenuItem x:Name="splitMenu" Header="_Split" IsCheckable="True" IsChecked="{Binding InSplitMode, Source={StaticResource Model}}"
 							   Icon="{StaticResource Icon.Split}" Command="local:Commands.Split" InputGestureText="Ctrl+T"/>
-                    <Separator/>
-                    <MenuItem Header="_Windows Newline: \r\n" IsCheckable="True" IsChecked="{Binding UnixNewline, Converter={StaticResource InvertBool}, Source={StaticResource Model}}"/>
-                    <MenuItem Header="_Unix Newline: \n" IsCheckable="True" IsChecked="{Binding UnixNewline, Source={StaticResource Model}}"/>
-                    <Separator/>
-                    <MenuItem Header="_Font..." Command="local:Commands.Font" Icon="{StaticResource Icon.Font}"/>
-                </MenuItem>
-                <MenuItem Header="_Options">
-                    <MenuItem x:Name="ignoreCaseMenu" Header="Ignore _Case (?i-i)" IsCheckable="True" IsChecked="{Binding UseIgnoreCase, Source={StaticResource Model}}"
+					<Separator/>
+					<MenuItem x:Name="windowsMenu" Header="_Windows Newline: \r\n" IsCheckable="True" IsChecked="{Binding WindowsNewline, Source={StaticResource Model}}"/>
+					<MenuItem x:Name="unixMenu" Header="_Unix Newline: \n" IsCheckable="True" IsChecked="{Binding UnixNewline, Source={StaticResource Model}}"/>
+					<Separator/>
+					<MenuItem Header="_Font..." Command="local:Commands.Font" Icon="{StaticResource Icon.Font}"/>
+				</MenuItem>
+				<MenuItem Header="_Options">
+					<MenuItem x:Name="ignoreCaseMenu" Header="Ignore _Case (?i-i)" IsCheckable="True" IsChecked="{Binding UseIgnoreCase, Source={StaticResource Model}}"
 							  ToolTip="Use case-insensitive matching."
 							  Command="local:Commands.Option1" />
-                    <MenuItem x:Name="multilineMenu" Header="Multiline (?m-m)" IsCheckable="True" IsChecked="{Binding UseMultiline, Source={StaticResource Model}}"
+					<MenuItem x:Name="multilineMenu" Header="Multiline (?m-m)" IsCheckable="True" IsChecked="{Binding UseMultiline, Source={StaticResource Model}}"
 							  ToolTip="Use multiline mode, where ^ and $ match the beginning and end of each line (instead of the beginning and end of the input string)."
 							  Command="local:Commands.Option2" />
-                    <MenuItem x:Name="singlelineMenu" Header="Singleline (?s-s)" IsCheckable="True" IsChecked="{Binding UseSingleline, Source={StaticResource Model}}"
+					<MenuItem x:Name="singlelineMenu" Header="Singleline (?s-s)" IsCheckable="True" IsChecked="{Binding UseSingleline, Source={StaticResource Model}}"
 							  ToolTip="Use single-line mode, where the period (.) matches every character (instead of every character except \n)."
 							  Command="local:Commands.Option3" />
-                    <MenuItem x:Name="explicitCaptureMenu" Header="Explicit Capture (?n-n)" IsCheckable="True" IsChecked="{Binding UseExplicitCapture, Source={StaticResource Model}}"
+					<MenuItem x:Name="explicitCaptureMenu" Header="Explicit Capture (?n-n)" IsCheckable="True" IsChecked="{Binding UseExplicitCapture, Source={StaticResource Model}}"
 							  ToolTip="Do not capture unnamed groups. The only valid captures are explicitly named or numbered groups of the form (?&lt;name> subexpression)."
 							  Command="local:Commands.Option4" />
-                    <MenuItem x:Name="ignoreWhitespaceMenu" Header="Ignore Pattern Whitespace (?x-x)" IsCheckable="True" IsChecked="{Binding UseIgnorePatternWhitespace, Source={StaticResource Model}}"
+					<MenuItem x:Name="ignoreWhitespaceMenu" Header="Ignore Pattern Whitespace (?x-x)" IsCheckable="True" IsChecked="{Binding UseIgnorePatternWhitespace, Source={StaticResource Model}}"
 							  ToolTip="Exclude unescaped white space from the pattern, and enable comments after a number sign (#)."
 							  Command="local:Commands.Option5" />
-                    <MenuItem x:Name="rightToLeftMenu" Header="Right To Left" IsCheckable="True" IsChecked="{Binding UseRightToLeft, Source={StaticResource Model}}"
+					<MenuItem x:Name="rightToLeftMenu" Header="Right To Left" IsCheckable="True" IsChecked="{Binding UseRightToLeft, Source={StaticResource Model}}"
 							  ToolTip="Change the search direction. Search moves from right to left instead of from left to right."
 							  Command="local:Commands.Option6" />
-                    <MenuItem x:Name="ecmaScriptMenu" Header="ECMAScript" IsCheckable="True" IsChecked="{Binding UseECMAScript, Source={StaticResource Model}}"
+					<MenuItem x:Name="ecmaScriptMenu" Header="ECMAScript" IsCheckable="True" IsChecked="{Binding UseECMAScript, Source={StaticResource Model}}"
 							  ToolTip="Enable ECMAScript-compliant behavior for the expression."
 							  Command="local:Commands.Option7" />
-                    <MenuItem x:Name="cultureInvariantMenu" Header="Culture Invariant" IsCheckable="True" IsChecked="{Binding UseCultureInvariant, Source={StaticResource Model}}"
+					<MenuItem x:Name="cultureInvariantMenu" Header="Culture Invariant" IsCheckable="True" IsChecked="{Binding UseCultureInvariant, Source={StaticResource Model}}"
 							  ToolTip="Ignore cultural differences in language."
 							  Command="local:Commands.Option8" />
-                    <Separator/>
-                    <MenuItem Header="Insert Inline Options" Command="local:Commands.InsertInlineOptions" Icon="{StaticResource Icon.InsertSpan}"/>
-                    <MenuItem Header="Generate C# To Clipboard" Command="local:Commands.GenerateCodeToClipboard" Icon="{StaticResource Icon.CSFileNode}"/>
-                </MenuItem>
-                <MenuItem Header="_Help">
-                    <MenuItem Header=".NET Regex _Quick Reference" Command="Help" Icon="{StaticResource Icon.F1Help}"/>
-                    <MenuItem Header=".NET Regex _Options" Command="local:Commands.ShellExecute" CommandParameter="https://docs.microsoft.com/en-us/dotnet/standard/base-types/regular-expression-options"/>
-                    <MenuItem Header=".NET Regex _Substitutions" Command="local:Commands.ShellExecute" CommandParameter="https://docs.microsoft.com/en-us/dotnet/standard/base-types/substitutions-in-regular-expressions"/>
-                    <Separator/>
-                    <MenuItem CommandParameter="\w+" Tag="Word" Style="{StaticResource RegexMenuItem}" Command="local:Commands.InsertPattern"/>
-                    <MenuItem CommandParameter="\d+" Tag="Unsigned Integer" Style="{StaticResource RegexMenuItem}" Command="local:Commands.InsertPattern"/>
-                    <MenuItem CommandParameter="^[a-zA-Z_][a-zA-Z0-9_]*$" Tag="Simple Identifier" Style="{StaticResource RegexMenuItem}" Command="local:Commands.InsertPattern"/>
-                    <MenuItem CommandParameter="(?&lt;name>pattern)" Tag="Named Capture" Style="{StaticResource RegexMenuItem}" Command="local:Commands.InsertPattern"/>
-                    <Separator/>
-                    <MenuItem CommandParameter="(?&lt;=pattern)" Tag="Positive Lookbehind" Style="{StaticResource RegexMenuItem}" Command="local:Commands.InsertPattern"/>
-                    <MenuItem CommandParameter="(?&lt;!pattern)" Tag="Negative Lookbehind" Style="{StaticResource RegexMenuItem}" Command="local:Commands.InsertPattern"/>
-                    <MenuItem CommandParameter="(?=pattern)" Tag="Positive Lookahead" Style="{StaticResource RegexMenuItem}" Command="local:Commands.InsertPattern"/>
-                    <MenuItem CommandParameter="(?!pattern)" Tag="Negative Lookahead" Style="{StaticResource RegexMenuItem}" Command="local:Commands.InsertPattern"/>
-                    <MenuItem CommandParameter="\1" Tag="Backreference First Capture" Style="{StaticResource RegexMenuItem}" Command="local:Commands.InsertPattern"/>
-                    <MenuItem CommandParameter="\k&lt;name>" Tag="Backreference Named Capture" Style="{StaticResource RegexMenuItem}" Command="local:Commands.InsertPattern"/>
-                    <Separator/>
-                    <MenuItem Header="_About..." Command="local:Commands.About" Icon="{StaticResource Icon.AboutBox}"/>
-                </MenuItem>
-                <Separator/>
-            </Menu>
+					<Separator/>
+					<MenuItem Header="Insert Inline Options" Command="local:Commands.InsertInlineOptions" Icon="{StaticResource Icon.InsertSpan}"/>
+					<MenuItem Header="Generate C# To Clipboard" Command="local:Commands.GenerateCodeToClipboard" Icon="{StaticResource Icon.CSFileNode}"/>
+				</MenuItem>
+				<MenuItem Header="_Help">
+					<MenuItem Header=".NET Regex _Quick Reference" Command="Help" Icon="{StaticResource Icon.F1Help}"/>
+					<MenuItem Header=".NET Regex _Options" Command="local:Commands.ShellExecute" CommandParameter="https://docs.microsoft.com/en-us/dotnet/standard/base-types/regular-expression-options"/>
+					<MenuItem Header=".NET Regex _Substitutions" Command="local:Commands.ShellExecute" CommandParameter="https://docs.microsoft.com/en-us/dotnet/standard/base-types/substitutions-in-regular-expressions"/>
+					<Separator/>
+					<MenuItem CommandParameter="\w+" Tag="Word" Style="{StaticResource RegexMenuItem}" Command="local:Commands.InsertPattern"/>
+					<MenuItem CommandParameter="\d+" Tag="Unsigned Integer" Style="{StaticResource RegexMenuItem}" Command="local:Commands.InsertPattern"/>
+					<MenuItem CommandParameter="^[a-zA-Z_][a-zA-Z0-9_]*$" Tag="Simple Identifier" Style="{StaticResource RegexMenuItem}" Command="local:Commands.InsertPattern"/>
+					<MenuItem CommandParameter="(?&lt;name>pattern)" Tag="Named Capture" Style="{StaticResource RegexMenuItem}" Command="local:Commands.InsertPattern"/>
+					<Separator/>
+					<MenuItem CommandParameter="(?&lt;=pattern)" Tag="Positive Lookbehind" Style="{StaticResource RegexMenuItem}" Command="local:Commands.InsertPattern"/>
+					<MenuItem CommandParameter="(?&lt;!pattern)" Tag="Negative Lookbehind" Style="{StaticResource RegexMenuItem}" Command="local:Commands.InsertPattern"/>
+					<MenuItem CommandParameter="(?=pattern)" Tag="Positive Lookahead" Style="{StaticResource RegexMenuItem}" Command="local:Commands.InsertPattern"/>
+					<MenuItem CommandParameter="(?!pattern)" Tag="Negative Lookahead" Style="{StaticResource RegexMenuItem}" Command="local:Commands.InsertPattern"/>
+					<MenuItem CommandParameter="\1" Tag="Backreference First Capture" Style="{StaticResource RegexMenuItem}" Command="local:Commands.InsertPattern"/>
+					<MenuItem CommandParameter="\k&lt;name>" Tag="Backreference Named Capture" Style="{StaticResource RegexMenuItem}" Command="local:Commands.InsertPattern"/>
+					<Separator/>
+					<MenuItem Header="_About..." Command="local:Commands.About" Icon="{StaticResource Icon.AboutBox}"/>
+				</MenuItem>
+				<Separator/>
+			</Menu>
 
-            <ToolBarPanel ClipToBounds="True">
-                <ToolBar ToolBarTray.IsLocked="True" Margin="0,0,-13,0" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
-                    <StackPanel Orientation="Horizontal">
-                        <Button x:Name="openButton" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Command="Open" Content="{StaticResource Icon.OpenFolder}" />
-                        <Button Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Click="DropDownRecentItemsClick">
-                            <Button.Content>
-                                <Viewbox Height="16" Stretch="None">
-                                    <Polygon Points="0,0 4,4 8,0" Fill="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
-                                </Viewbox>
-                            </Button.Content>
-                        </Button>
-                    </StackPanel>
-                    <Separator/>
-                    <ToggleButton Style="{StaticResource ToolbarToggleButton}" IsChecked="{Binding InMatchMode, Source={StaticResource Model}}">
-                        <StackPanel Orientation="Horizontal">
-                            <ContentControl Content="{StaticResource Icon.QuickFind}" Focusable="False"/>
-                            <TextBlock Margin="2,0,0,0">Match</TextBlock>
-                        </StackPanel>
-                    </ToggleButton>
-                    <ToggleButton Style="{StaticResource ToolbarToggleButton}" IsChecked="{Binding InReplaceMode, Source={StaticResource Model}}">
-                        <StackPanel Orientation="Horizontal">
-                            <ContentControl Content="{StaticResource Icon.QuickReplace}" Focusable="False"/>
-                            <TextBlock Margin="2,0,0,0">Replace</TextBlock>
-                        </StackPanel>
-                    </ToggleButton>
-                    <ToggleButton Style="{StaticResource ToolbarToggleButton}" IsChecked="{Binding InSplitMode, Source={StaticResource Model}}">
-                        <StackPanel Orientation="Horizontal">
-                            <ContentControl Content="{StaticResource Icon.Split}" Focusable="False"/>
-                            <TextBlock Margin="2,0,0,0">Split</TextBlock>
-                        </StackPanel>
-                    </ToggleButton>
-                    <Separator/>
-                    <ToggleButton Content="i" Style="{StaticResource ToolbarToggleButton}" ToolTip="Ignore Case (?i-i)" IsChecked="{Binding UseIgnoreCase, Source={StaticResource Model}}"/>
-                    <ToggleButton Content="m" Style="{StaticResource ToolbarToggleButton}" ToolTip="Multiline (?m-m)" IsChecked="{Binding UseMultiline, Source={StaticResource Model}}"/>
-                    <ToggleButton Content="s" Style="{StaticResource ToolbarToggleButton}" ToolTip="Singleline (?s-s)" IsChecked="{Binding UseSingleline, Source={StaticResource Model}}"/>
-                    <ToggleButton Content="n" Style="{StaticResource ToolbarToggleButton}" ToolTip="Explicit Capture (?n-n)" IsChecked="{Binding UseExplicitCapture, Source={StaticResource Model}}"/>
-                    <ToggleButton Content="x" Style="{StaticResource ToolbarToggleButton}" ToolTip="Ignore Pattern Whitespace (?x-x)" IsChecked="{Binding UseIgnorePatternWhitespace, Source={StaticResource Model}}"/>
-                    <ToggleButton Content="r" Style="{StaticResource ToolbarToggleButton}" ToolTip="Right To Left" IsChecked="{Binding UseRightToLeft, Source={StaticResource Model}}"/>
-                    <ToggleButton Content="e" Style="{StaticResource ToolbarToggleButton}" ToolTip="ECMAScript" IsChecked="{Binding UseECMAScript, Source={StaticResource Model}}"/>
-                    <ToggleButton Content="c" Style="{StaticResource ToolbarToggleButton}" ToolTip="Culture Invariant" IsChecked="{Binding UseCultureInvariant, Source={StaticResource Model}}"/>
-                </ToolBar>
-            </ToolBarPanel>
-        </DockPanel>
+			<ToolBarPanel ClipToBounds="True">
+				<ToolBar ToolBarTray.IsLocked="True" Margin="0,0,-13,0" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
+					<StackPanel Orientation="Horizontal">
+						<Button x:Name="openButton" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Command="Open" Content="{StaticResource Icon.OpenFolder}" />
+						<Button Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Click="DropDownRecentItemsClick">
+							<Button.Content>
+								<Viewbox Height="16" Stretch="None">
+									<Polygon Points="0,0 4,4 8,0" Fill="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
+								</Viewbox>
+							</Button.Content>
+						</Button>
+					</StackPanel>
+					<Separator/>
+					<ToggleButton Style="{StaticResource ToolbarToggleButton}" IsChecked="{Binding InMatchMode, Source={StaticResource Model}}">
+						<StackPanel Orientation="Horizontal">
+							<ContentControl Content="{StaticResource Icon.QuickFind}" Focusable="False"/>
+							<TextBlock Margin="2,0,0,0">Match</TextBlock>
+						</StackPanel>
+					</ToggleButton>
+					<ToggleButton Style="{StaticResource ToolbarToggleButton}" IsChecked="{Binding InReplaceMode, Source={StaticResource Model}}">
+						<StackPanel Orientation="Horizontal">
+							<ContentControl Content="{StaticResource Icon.QuickReplace}" Focusable="False"/>
+							<TextBlock Margin="2,0,0,0">Replace</TextBlock>
+						</StackPanel>
+					</ToggleButton>
+					<ToggleButton Style="{StaticResource ToolbarToggleButton}" IsChecked="{Binding InSplitMode, Source={StaticResource Model}}">
+						<StackPanel Orientation="Horizontal">
+							<ContentControl Content="{StaticResource Icon.Split}" Focusable="False"/>
+							<TextBlock Margin="2,0,0,0">Split</TextBlock>
+						</StackPanel>
+					</ToggleButton>
+					<Separator/>
+					<ToggleButton Content="i" Style="{StaticResource ToolbarToggleButton}" ToolTip="Ignore Case (?i-i)" IsChecked="{Binding UseIgnoreCase, Source={StaticResource Model}}"/>
+					<ToggleButton Content="m" Style="{StaticResource ToolbarToggleButton}" ToolTip="Multiline (?m-m)" IsChecked="{Binding UseMultiline, Source={StaticResource Model}}"/>
+					<ToggleButton Content="s" Style="{StaticResource ToolbarToggleButton}" ToolTip="Singleline (?s-s)" IsChecked="{Binding UseSingleline, Source={StaticResource Model}}"/>
+					<ToggleButton Content="n" Style="{StaticResource ToolbarToggleButton}" ToolTip="Explicit Capture (?n-n)" IsChecked="{Binding UseExplicitCapture, Source={StaticResource Model}}"/>
+					<ToggleButton Content="x" Style="{StaticResource ToolbarToggleButton}" ToolTip="Ignore Pattern Whitespace (?x-x)" IsChecked="{Binding UseIgnorePatternWhitespace, Source={StaticResource Model}}"/>
+					<ToggleButton Content="r" Style="{StaticResource ToolbarToggleButton}" ToolTip="Right To Left" IsChecked="{Binding UseRightToLeft, Source={StaticResource Model}}"/>
+					<ToggleButton Content="e" Style="{StaticResource ToolbarToggleButton}" ToolTip="ECMAScript" IsChecked="{Binding UseECMAScript, Source={StaticResource Model}}"/>
+					<ToggleButton Content="c" Style="{StaticResource ToolbarToggleButton}" ToolTip="Culture Invariant" IsChecked="{Binding UseCultureInvariant, Source={StaticResource Model}}"/>
+				</ToolBar>
+			</ToolBarPanel>
+		</DockPanel>
 
-        <DockPanel Grid.Row="2" Margin="3,0,3,3">
-            <Label Content="_Pattern:" DockPanel.Dock="Top" Padding="2,0" Target="{Binding ElementName=pattern}"/>
-            <local:Editor x:Name="pattern" MaxHeight="100" TextChanged="EditorTextChanged" SyntaxHighlighting="Pattern"/>
-        </DockPanel>
+		<DockPanel Grid.Row="2" Margin="3,0,3,3">
+			<Label Content="_Pattern:" DockPanel.Dock="Top" Padding="2,0" Target="{Binding ElementName=pattern}"/>
+			<local:Editor x:Name="pattern" MaxHeight="100" TextChanged="EditorTextChanged" SyntaxHighlighting="Pattern"/>
+		</DockPanel>
 
-        <DockPanel Grid.Row="3" Margin="3,3,3,3"
+		<DockPanel Grid.Row="3" Margin="3,3,3,3"
 					Visibility="{Binding InReplaceMode, Source={StaticResource Model}, Converter={StaticResource BoolToVisibility}}">
-            <Label Content="_Replacement:" DockPanel.Dock="Top" Padding="2,0" Target="{Binding ElementName=replacement}"/>
-            <local:Editor x:Name="replacement" MaxHeight="100" TextChanged="EditorTextChanged" SyntaxHighlighting="Replacement"/>
-        </DockPanel>
+			<Label Content="_Replacement:" DockPanel.Dock="Top" Padding="2,0" Target="{Binding ElementName=replacement}"/>
+			<local:Editor x:Name="replacement" MaxHeight="100" TextChanged="EditorTextChanged" SyntaxHighlighting="Replacement"/>
+		</DockPanel>
 
-        <DockPanel Grid.Row="4" Margin="3,3,3,0">
-            <Label Content="_Input:" DockPanel.Dock="Top" Padding="2,0" Target="{Binding ElementName=input}"/>
-            <local:Editor x:Name="input"  TextChanged="EditorTextChanged"/>
-        </DockPanel>
+		<DockPanel Grid.Row="4" Margin="3,3,3,0">
+			<Label Content="_Input:" DockPanel.Dock="Top" Padding="2,0" Target="{Binding ElementName=input}"/>
+			<local:Editor x:Name="input"  TextChanged="EditorTextChanged"/>
+		</DockPanel>
 
-        <GridSplitter x:Name="splitter" Grid.Row="5" HorizontalAlignment="Stretch" VerticalAlignment="Center" ShowsPreview="True" Height="4" />
+		<GridSplitter x:Name="splitter" Grid.Row="5" HorizontalAlignment="Stretch" VerticalAlignment="Center" ShowsPreview="True" Height="4" />
 
-        <TabControl x:Name="bottomTabs" Grid.Row="6">
-            <TabItem Header="Matches">
-                <DataGrid x:Name="matchGrid">
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="Match" Binding="{Binding Match, Mode=OneWay}"/>
-                        <DataGridTextColumn x:Name="groupColumn" Header="Group" Binding="{Binding Group, Mode=OneWay}" Visibility="Collapsed"/>
-                        <DataGridTextColumn Header="Value" Binding="{Binding Value, Mode=OneWay}"/>
-                        <DataGridTextColumn Header="Index" Binding="{Binding Index, Mode=OneWay}"/>
-                        <DataGridTextColumn Header="Length" Binding="{Binding Length, Mode=OneWay}"/>
-                    </DataGrid.Columns>
-                </DataGrid>
-            </TabItem>
-            <TabItem Header="Output"
+		<TabControl x:Name="bottomTabs" Grid.Row="6">
+			<TabItem Header="Matches">
+				<DataGrid x:Name="matchGrid">
+					<DataGrid.Columns>
+						<DataGridTextColumn Header="Match" Binding="{Binding Match, Mode=OneWay}"/>
+						<DataGridTextColumn x:Name="groupColumn" Header="Group" Binding="{Binding Group, Mode=OneWay}" Visibility="Collapsed"/>
+						<DataGridTextColumn Header="Value" Binding="{Binding Value, Mode=OneWay}"/>
+						<DataGridTextColumn Header="Index" Binding="{Binding Index, Mode=OneWay}"/>
+						<DataGridTextColumn Header="Length" Binding="{Binding Length, Mode=OneWay}"/>
+					</DataGrid.Columns>
+				</DataGrid>
+			</TabItem>
+			<TabItem Header="Output"
 					 Visibility="{Binding InReplaceMode, Converter={StaticResource BoolToVisibility}, Source={StaticResource Model}}"
 					 IsVisibleChanged="OutputTabIsVisibleChanged">
-                <local:Editor x:Name="replaced" IsReadOnly="True"
+				<local:Editor x:Name="replaced" IsReadOnly="True"
 							   Visibility="{Binding InReplaceMode, Converter={StaticResource BoolToVisibility}, Source={StaticResource Model}}"
 							   Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" />
-            </TabItem>
-            <TabItem Header="Output"
+			</TabItem>
+			<TabItem Header="Output"
 					 Visibility="{Binding InSplitMode, Converter={StaticResource BoolToVisibility}, Source={StaticResource Model}}"
 					 IsVisibleChanged="OutputTabIsVisibleChanged">
-                <DataGrid x:Name="splitGrid"
+				<DataGrid x:Name="splitGrid"
 						Visibility="{Binding InSplitMode, Converter={StaticResource BoolToVisibility}, Source={StaticResource Model}}">
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="#" Binding="{Binding Index, Mode=OneWay}"/>
-                        <DataGridTextColumn Header="Value" Binding="{Binding Value, Mode=OneWay}"/>
-                        <DataGridTextColumn Header="Length" Binding="{Binding Length, Mode=OneWay}"/>
-                        <DataGridTextColumn x:Name="splitCommentColumn" Header="Comment" Binding="{Binding Comment, Mode=OneWay}" Visibility="Collapsed"/>
-                    </DataGrid.Columns>
-                </DataGrid>
-            </TabItem>
-        </TabControl>
+					<DataGrid.Columns>
+						<DataGridTextColumn Header="#" Binding="{Binding Index, Mode=OneWay}"/>
+						<DataGridTextColumn Header="Value" Binding="{Binding Value, Mode=OneWay}"/>
+						<DataGridTextColumn Header="Length" Binding="{Binding Length, Mode=OneWay}"/>
+						<DataGridTextColumn x:Name="splitCommentColumn" Header="Comment" Binding="{Binding Comment, Mode=OneWay}" Visibility="Collapsed"/>
+					</DataGrid.Columns>
+				</DataGrid>
+			</TabItem>
+		</TabControl>
 
-        <StatusBar Grid.Row="7">
-            <StatusBarItem x:Name="timing" Content="0.0 ms"/>
-            <Separator/>
-            <StatusBarItem x:Name="message" MouseDoubleClick="MessageDoubleClick">
-                <StatusBarItem.Style>
-                    <Style TargetType="StatusBarItem">
-                        <Style.Triggers>
-                            <Trigger Property="HasContent" Value="true">
-                                <Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.InfoBrushKey}}"/>
-                            </Trigger>
-                        </Style.Triggers>
-                    </Style>
-                </StatusBarItem.Style>
-            </StatusBarItem>
-        </StatusBar>
-    </Grid>
+		<StatusBar Grid.Row="7">
+			<StatusBar.ItemsPanel>
+				<ItemsPanelTemplate>
+					<Grid>
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition Width="*"/>
+							<ColumnDefinition Width="Auto"/>
+							<ColumnDefinition Width="Auto"/>
+							<ColumnDefinition Width="Auto"/>
+							<ColumnDefinition Width="Auto"/>
+						</Grid.ColumnDefinitions>
+					</Grid>
+				</ItemsPanelTemplate>
+			</StatusBar.ItemsPanel>
+			<StatusBarItem x:Name="message" Grid.Column="0" MouseDoubleClick="MessageDoubleClick">
+				<StatusBarItem.Style>
+					<Style TargetType="StatusBarItem">
+						<Style.Triggers>
+							<Trigger Property="HasContent" Value="true">
+								<Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.InfoBrushKey}}"/>
+							</Trigger>
+						</Style.Triggers>
+					</Style>
+				</StatusBarItem.Style>
+			</StatusBarItem>
+			<Separator Grid.Column="1"/>
+			<StatusBarItem x:Name="newlineDisplay" Grid.Column="2" Content="\r\n" MouseDoubleClick="NewlineDisplayDoubleClick"/>
+			<Separator Grid.Column="3"/>
+			<StatusBarItem x:Name="timing" Grid.Column="4" Content="0.0 ms" HorizontalContentAlignment="Right" Margin="0,0,14,0"/>
+		</StatusBar>
+	</Grid>
 </m:ExtendedWindow>
