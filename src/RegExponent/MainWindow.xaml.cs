@@ -54,6 +54,7 @@
 		private readonly ContextMenu recentDropDownMenu;
 		private readonly RecentItemList<string> recentFiles;
 		private readonly RichTextModel inputHighlight;
+		private readonly HighlightingColor noHighlight = new();
 		private string currentFileName;
 
 		private int updateLevel;
@@ -70,6 +71,9 @@
 
 		internal MainWindow(string[] commandLineArgs)
 		{
+			// TODO: Show selection start and selection length. [Bill, 5/10/2022]
+			// TODO: Click on match grid cell should select text in input editor. [Bill, 5/10/2022]
+			// TODO: Change Match grid row background to yellow or orange to match input highlight. [Bill, 5/10/2022]
 			// TODO: Add good icon. [Bill, 4/9/2022]
 			this.InitializeComponent();
 			this.commandLineArgs = commandLineArgs;
@@ -440,15 +444,19 @@
 			}
 		}
 
+		private void ClearInputHighlight()
+		{
+			// Reset beyond the current document's text length in case the previous
+			// document was longer than the current document.
+			this.inputHighlight.SetHighlighting(0, int.MaxValue, this.noHighlight);
+		}
+
 		private void UpdateInputHighlight(IReadOnlyList<Match> matches)
 		{
-			// https://github.com/icsharpcode/AvalonEdit/issues/244#issuecomment-725214919
-			int textLength = this.input.Document.TextLength;
-
 			// First, remove any prior colors because the pattern or the input could have changed.
-			HighlightingColor noColor = new();
-			this.inputHighlight.SetHighlighting(0, textLength, noColor);
+			this.ClearInputHighlight();
 
+			// https://github.com/icsharpcode/AvalonEdit/issues/244#issuecomment-725214919
 			// Next, apply highlights for the new matches.
 			SimpleHighlightingBrush yellow = new(Colors.LemonChiffon);
 			SimpleHighlightingBrush orange = new(Colors.NavajoWhite);
@@ -817,6 +825,7 @@
 					break;
 
 				case nameof(Model.Input):
+					this.ClearInputHighlight();
 					if (!this.dirtyText.Contains(this.input))
 					{
 						this.TryQueueUpdate();
