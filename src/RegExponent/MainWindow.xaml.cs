@@ -87,8 +87,11 @@
 				this.splitGrid,
 			};
 
-			this.recentDropDownMenu = new ContextMenu { Placement = PlacementMode.Bottom };
-			this.recentDropDownMenu.PlacementTarget = this.openButton;
+			this.recentDropDownMenu = new ContextMenu
+			{
+				Placement = PlacementMode.Bottom,
+				PlacementTarget = this.openButton,
+			};
 
 			this.model = (Model)this.FindResource(nameof(Model));
 			this.model.PropertyChanged += this.ModelPropertyChanged;
@@ -303,10 +306,13 @@
 			string fileName = this.CurrentFileName;
 			if (forceSaveDialog || fileName.IsEmpty())
 			{
-				SaveFileDialog dialog = new();
-				dialog.FileName = fileName;
-				dialog.DefaultExt = FileDialogDefaultExt;
-				dialog.Filter = FileDialogFilter;
+				SaveFileDialog dialog = new()
+				{
+					FileName = fileName,
+					DefaultExt = FileDialogDefaultExt,
+					Filter = FileDialogFilter,
+				};
+
 				trySave = dialog.ShowDialog(this) ?? false;
 				if (trySave)
 				{
@@ -503,7 +509,7 @@
 				string html;
 				if (editor == this.input)
 				{
-					// TODO: This causes a StackOverflowException for Geometry and others! [Bill, 5/10/2022]
+					// LONG-TERM-TODO: Use AvalonEdit NuGet package after https://github.com/icsharpcode/AvalonEdit/pull/342 released. [Bill, 5/10/2022]
 					RichText richText = new(editor.Text, this.inputHighlight);
 					html = richText.ToHtml(options);
 				}
@@ -513,7 +519,7 @@
 					html = HtmlClipboard.CreateHtmlFragment(editor.Document, highlighter, null, options);
 				}
 
-				DataObject dataObject = new DataObject(html);
+				DataObject dataObject = new(html);
 				HtmlClipboard.SetHtml(dataObject, html);
 				Clipboard.SetDataObject(dataObject);
 			}
@@ -653,10 +659,13 @@
 		{
 			if (this.CanClear())
 			{
-				OpenFileDialog dialog = new();
-				dialog.FileName = this.CurrentFileName;
-				dialog.DefaultExt = FileDialogDefaultExt;
-				dialog.Filter = FileDialogFilter;
+				OpenFileDialog dialog = new()
+				{
+					FileName = this.CurrentFileName,
+					DefaultExt = FileDialogDefaultExt,
+					Filter = FileDialogFilter,
+				};
+
 				if (dialog.ShowDialog(this) ?? false)
 				{
 					this.Load(dialog.FileName, checkCanClear: false);
@@ -869,7 +878,9 @@
 			}
 		}
 
+#pragma warning disable CC0068 // Unused Method. Event handler referenced in XAML.
 		private void EditorTextChanged(object sender, EventArgs e)
+#pragma warning restore CC0068 // Unused Method
 		{
 			if (!this.updating
 				&& sender is TextEditor editor
