@@ -1,0 +1,6 @@
+{
+  "Version": 1,
+  "Mode": "Split",
+  "Pattern": "x",
+  "Input": "ab x \r\nte fyfoj x\r\n  \t\r\n\r\nx\r\n x The end."
+}

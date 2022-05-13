@@ -438,10 +438,8 @@
 								Value = line,
 								line?.Length,
 								Comment = line == null ? "null"
-									: line.Length == 0 ? "empty"
-									: line.IsWhiteSpace() ? "whitespace" // TODO: Show C# escaped string: \r\n\t. [Bill, 5/9/2022]
-									: double.TryParse(line, out _) || decimal.TryParse(line, out _) ? "numeric"
-									: string.Empty,
+									: line.Length == 0 ? "Empty"
+									: CodeGenerator.ToLiteral(line), // TODO: Only show interesting literals. [Bill, 5/13/2022]
 							});
 						this.splitCommentColumn.Visibility = splits.Any(s => s.Comment.IsNotEmpty()) ? Visibility.Visible : Visibility.Collapsed;
 						this.splitGrid.ItemsSource = splits;
@@ -487,15 +485,8 @@
 			this.bottomTabs.SelectedIndex = lastItem != null ? this.bottomTabs.Items.IndexOf(lastItem) : 0;
 		}
 
-		private void GenerateCSharp(Code code)
-		{
-			// TODO: Generate: Pattern, Replacement, Input, Code block,  [Bill, 3/31/2022]
-			GC.KeepAlive(this);
-		}
-
-		private void GenerateHtml(Code code)
-		{
-			Editor? editor = code switch
+		private Editor? GetCodeEditor(Code code)
+			=> code switch
 			{
 				Code.Pattern => this.pattern,
 				Code.Replacement => this.replacement,
@@ -503,6 +494,20 @@
 				_ => null,
 			};
 
+		private void GenerateCSharp(Code code)
+		{
+			Editor? editor = this.GetCodeEditor(code);
+
+			string text = editor != null
+				? CodeGenerator.ToVerbatim(editor.Text)
+				: CodeGenerator.GenerateBlock(this.model);
+
+			Clipboard.SetText(text, TextDataFormat.UnicodeText);
+		}
+
+		private void GenerateHtml(Code code)
+		{
+			Editor? editor = this.GetCodeEditor(code);
 			if (editor != null)
 			{
 				HtmlOptions options = new();
