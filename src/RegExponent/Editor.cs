@@ -117,8 +117,11 @@
 
 		private void OnPaste(object sender, DataObjectPastingEventArgs e)
 		{
-			// https://stackoverflow.com/a/11306145/1882616
-			bool hasText = e.SourceDataObject.GetDataPresent(typeof(string));
+			// It's better to explicitly request DataFormats.UnicodeText here than typeof(string).
+			// Using typeof(string) seems to only use the current Windows code page, so higher
+			// characters get lossy converted to '?'. With DataFormats.UnicodeText no loss occurs.
+			// https://stackoverflow.com/a/7617087/1882616
+			bool hasText = e.SourceDataObject.GetDataPresent(DataFormats.UnicodeText, true);
 			if (!hasText)
 			{
 				e.CancelCommand();
@@ -127,7 +130,7 @@
 			{
 				// TextEditor's default paste will normalize to Environment.NewLine if the editor is empty.
 				// We'll override that behavior so we know our Newline is always used.
-				string text = e.SourceDataObject.GetData(typeof(string)) as string ?? string.Empty;
+				string text = e.SourceDataObject.GetData(DataFormats.UnicodeText, true) as string ?? string.Empty;
 				text = this.NormalizeNewlines(text);
 
 				TextArea area = editor.TextArea;
