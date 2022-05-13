@@ -13,6 +13,12 @@
 
 	internal static class CodeGenerator
 	{
+		#region Private Data Members
+
+		private const char Indent = '\t';
+
+		#endregion
+
 		#region Public Methods
 
 		public static string ToLiteral(string value)
@@ -55,32 +61,89 @@
 			return result;
 		}
 
-		public static string ToVerbatim(string value)
+		public static string ToVerbatimLines(string value, string newline)
 		{
 			StringBuilder sb = new(value.Length * 2);
-			sb.Append("@\"");
-			foreach (char ch in value)
+
+			string[] lines = value.Split(newline);
+			foreach (string line in lines)
 			{
-				switch (ch)
+				if (sb.Length > 0)
 				{
-					case '"':
-						sb.Append("\"\"");
-						break;
-					default:
-						sb.Append(ch);
-						break;
+					sb.AppendLine().Append(Indent).Append(" + ").Append(ToLiteral(newline)).Append(" + ");
 				}
+
+				sb.Append("@\"");
+				foreach (char ch in line)
+				{
+					switch (ch)
+					{
+						case '"':
+							sb.Append("\"\"");
+							break;
+						default:
+							sb.Append(ch);
+							break;
+					}
+				}
+
+				sb.Append('"');
 			}
 
-			sb.Append('"');
 			string result = sb.ToString();
 			return result;
 		}
 
 		public static string GenerateBlock(Model model)
 		{
-			// TODO: Finish GenerateBlock. [Bill, 5/12/2022]
-			return string.Empty;
+			StringBuilder sb = new();
+
+			void AppendLineTerminator()
+				=> sb.AppendLine(";").AppendLine();
+
+			void AppendConst(string name, string value)
+			{
+				sb.Append("const string ").Append(name).Append(" = ").Append(ToVerbatimLines(value, model.Newline));
+				AppendLineTerminator();
+			}
+
+			AppendConst("Pattern", model.Pattern);
+
+			sb.Append("Regex regex = new(Pattern, ");
+			sb.Append("RegexOptions.").Append(model.Options.ToString().Replace(", ", " | RegexOptions.")).Append(')');
+			AppendLineTerminator();
+
+			AppendConst("Input", model.Input);
+
+			switch (model.Mode)
+			{
+				case Mode.Match:
+					sb.AppendLine("foreach (Match match in regex.Matches(Input).Cast<Match>().Where(m => m.Success))");
+					sb.AppendLine("{");
+					sb.Append(Indent).AppendLine("foreach (Group group in match.Groups.Cast<Group>().Skip(1).Where(g => g.Success))");
+					sb.Append(Indent).AppendLine("{");
+					sb.Append(Indent, 2).AppendLine("Console.WriteLine(group.Value);");
+					sb.Append(Indent).AppendLine("}");
+					sb.AppendLine("}");
+					break;
+
+				case Mode.Replace:
+					AppendConst("Replacement", model.Replacement);
+					sb.AppendLine("string replaced = regex.Replace(Input, Replacement);");
+					sb.AppendLine("Console.WriteLine(replaced);");
+					break;
+
+				case Mode.Split:
+					sb.AppendLine("string[] splits = regex.Split(Input);");
+					sb.AppendLine("foreach (string split in splits)");
+					sb.AppendLine("{");
+					sb.Append(Indent).AppendLine("Console.WriteLine(split);");
+					sb.AppendLine("}");
+					break;
+			}
+
+			string result = sb.ToString();
+			return result;
 		}
 
 		#endregion

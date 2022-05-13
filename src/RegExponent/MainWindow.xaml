@@ -111,6 +111,17 @@
 			<Setter Property="AlternationCount" Value="2" />
 			<Setter Property="AlternatingRowBackground" Value="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" />
 		</Style>
+
+		<Style x:Key="CodeGeneratorMenuItem" TargetType="MenuItem">
+			<Setter Property="IsEnabled" Value="True"/>
+			<Style.Triggers>
+				<!-- Disable code generation if there's an error message about anything. -->
+				<!-- https://stackoverflow.com/a/2520594/1882616 -->
+				<DataTrigger Binding="{Binding HasContent, ElementName=message}" Value="True">
+					<Setter Property="IsEnabled" Value="False"/>
+				</DataTrigger>
+			</Style.Triggers>
+		</Style>
 	</Window.Resources>
 
 	<Grid>
@@ -182,19 +193,29 @@
 							  Command="local:Commands.Option8" />
 					<Separator/>
 					<MenuItem Header="Insert Inline Options" Command="local:Commands.InsertInlineOptions" Icon="{StaticResource Icon.InsertSpan}"/>
+				</MenuItem>
+				<MenuItem Header="_Tools">
 					<MenuItem Header="Generate C# To Clipboard" Icon="{StaticResource Icon.CSFileNode}">
-						<MenuItem Header="_Pattern" Command="local:Commands.GenerateCodeToClipboard" CommandParameter="C#/Pattern"/>
+						<MenuItem Header="_Pattern" Command="local:Commands.GenerateCodeToClipboard" CommandParameter="C#/Pattern"
+								  Style="{StaticResource CodeGeneratorMenuItem}"/>
 						<MenuItem Header="_Replacement" Command="local:Commands.GenerateCodeToClipboard" CommandParameter="C#/Replacement"
-								  Visibility="{Binding InReplaceMode, Converter={StaticResource BoolToVisibility}, Source={StaticResource Model}}"/>
-						<MenuItem Header="_Input" Command="local:Commands.GenerateCodeToClipboard" CommandParameter="C#/Input"/>
-						<MenuItem Header="_Code Block" Command="local:Commands.GenerateCodeToClipboard" CommandParameter="C#/Block"/>
+								  Visibility="{Binding InReplaceMode, Converter={StaticResource BoolToVisibility}, Source={StaticResource Model}}"
+								  Style="{StaticResource CodeGeneratorMenuItem}"/>
+						<MenuItem Header="_Input" Command="local:Commands.GenerateCodeToClipboard" CommandParameter="C#/Input"
+								  Style="{StaticResource CodeGeneratorMenuItem}"/>
+						<MenuItem Header="_Code Block" Command="local:Commands.GenerateCodeToClipboard" CommandParameter="C#/Block"
+								  Style="{StaticResource CodeGeneratorMenuItem}"/>
 					</MenuItem>
 					<MenuItem Header="Generate HTML To Clipboard" Icon="{StaticResource Icon.Html}">
-						<MenuItem Header="_Pattern" Command="local:Commands.GenerateCodeToClipboard" CommandParameter="HTML/Pattern"/>
+						<MenuItem Header="_Pattern" Command="local:Commands.GenerateCodeToClipboard" CommandParameter="HTML/Pattern"
+								  Style="{StaticResource CodeGeneratorMenuItem}"/>
 						<MenuItem Header="_Replacement" Command="local:Commands.GenerateCodeToClipboard" CommandParameter="HTML/Replacement"
-								  Visibility="{Binding InReplaceMode, Converter={StaticResource BoolToVisibility}, Source={StaticResource Model}}"/>
-						<MenuItem Header="_Input" Command="local:Commands.GenerateCodeToClipboard" CommandParameter="HTML/Input"/>
+								  Visibility="{Binding InReplaceMode, Converter={StaticResource BoolToVisibility}, Source={StaticResource Model}}"
+								  Style="{StaticResource CodeGeneratorMenuItem}"/>
+						<MenuItem Header="_Input" Command="local:Commands.GenerateCodeToClipboard" CommandParameter="HTML/Input"
+								  Style="{StaticResource CodeGeneratorMenuItem}"/>
 					</MenuItem>
+					<!-- TODO: Add Benchmark: IsMatch, Matches, Replace [InReplaceMode], Split [InSplitMode] [Bill, 5/13/2022] -->
 				</MenuItem>
 				<MenuItem Header="_Help">
 					<MenuItem Header=".NET Regex _Quick Reference" Command="Help" Icon="{StaticResource Icon.F1Help}"/>

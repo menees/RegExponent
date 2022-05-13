@@ -505,7 +505,7 @@
 			Editor? editor = this.GetCodeEditor(code);
 
 			string text = editor != null
-				? CodeGenerator.ToVerbatim(editor.Text)
+				? CodeGenerator.ToVerbatimLines(editor.Text, this.model.Newline)
 				: CodeGenerator.GenerateBlock(this.model);
 
 			Clipboard.SetText(text, TextDataFormat.UnicodeText);
