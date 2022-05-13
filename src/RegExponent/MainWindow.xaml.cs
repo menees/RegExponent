@@ -431,6 +431,12 @@
 					}
 					else if (this.model.InSplitMode)
 					{
+						static string GetInterestingLiteral(string text)
+						{
+							string literal = CodeGenerator.ToLiteral(text);
+							return literal == '"' + text.Trim() + '"' ? string.Empty : literal;
+						}
+
 						var splits = evaluator.Splits
 							.Select((line, index) => new
 							{
@@ -439,7 +445,7 @@
 								line?.Length,
 								Comment = line == null ? "null"
 									: line.Length == 0 ? "Empty"
-									: CodeGenerator.ToLiteral(line), // TODO: Only show interesting literals. [Bill, 5/13/2022]
+									: GetInterestingLiteral(line),
 							});
 						this.splitCommentColumn.Visibility = splits.Any(s => s.Comment.IsNotEmpty()) ? Visibility.Visible : Visibility.Collapsed;
 						this.splitGrid.ItemsSource = splits;
