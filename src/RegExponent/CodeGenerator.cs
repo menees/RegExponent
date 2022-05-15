@@ -30,7 +30,6 @@
 			{
 				switch (ch)
 				{
-					case '\'': sb.Append(@"\'"); break;
 					case '"': sb.Append(@"\"""); break;
 					case '\\': sb.Append(@"\\"); break;
 					case '\0': sb.Append(@"\0"); break;
