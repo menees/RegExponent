@@ -36,7 +36,7 @@
 		</When>
 		<Otherwise>
 			<ItemGroup>
-				<PackageReference Include="Menees.Windows.Presentation" Version="5.0.7" />
+				<PackageReference Include="Menees.Windows.Presentation" Version="5.1.0" />
 			</ItemGroup>
 		</Otherwise>
 	</Choose>
