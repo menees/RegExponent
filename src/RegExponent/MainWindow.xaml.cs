@@ -689,6 +689,8 @@
 			}
 
 			settings.SetValue(nameof(this.CurrentFileName), saveFileName);
+
+			// TODO: Save and load the splitter position. [Bill, 5/15/2022]
 		}
 
 		private void OutputTabIsVisibleChanged(object? sender, DependencyPropertyChangedEventArgs e)
