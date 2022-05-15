@@ -13,6 +13,7 @@
 		<LocalAvalonEditSrc>$(RepoSrcFolder)..\..\ThirdParty\AvalonEdit\</LocalAvalonEditSrc>
 		<UseLocalAvalonEdit>false</UseLocalAvalonEdit>
 		<UseLocalAvalonEdit Condition="exists($(LocalAvalonEditSrc))">true</UseLocalAvalonEdit>
+		<ApplicationIcon>..\..\images\RegExponent.ico</ApplicationIcon>
 	</PropertyGroup>
 
 	<Choose>
@@ -39,6 +40,10 @@
 			</ItemGroup>
 		</Otherwise>
 	</Choose>
+
+	<ItemGroup>
+	  <Content Include="..\..\images\RegExponent.ico" Link="Resources\RegExponent.ico" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<EmbeddedResource Include="Highlights\Pattern.xshd" />
