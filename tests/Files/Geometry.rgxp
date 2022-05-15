@@ -3,5 +3,5 @@
   "Mode": "Replace",
   "Pattern": "(?n)\u0022geometry\u0022:{\u0022x\u0022:(?\u003CLong\u003E-?\\d\u002B(\\.\\d\u002B)?),\u0022y\u0022:(?\u003CLat\u003E-?\\d\u002B(\\.\\d\u002B)?)(,\u0022z\u0022:(?\u003CAlt\u003E-?\\d\u002B(\\.\\d\u002B)?))?}",
   "Replacement": "${Long} is the longitude. ${Lat} is the latitude. ${Alt} is the altitude.",
-  "Input": "\u0022geometry\u0022:{\u0022x\u0022:-234,\u0022y\u0022:-34,\u0022z\u0022:26}\r\n\u0022geometry\u0022:{\u0022x\u0022:-567.89,\u0022y\u0022:-56.78}"
+  "Input": "\u0022geometry\u0022:{\u0022x\u0022:-234,\u0022y\u0022:-34,\u0022z\u0022:26}\r\nI like \u0022geometry\u0022, but I don\u0027t like \u0022history\u0022.\r\n\u0022geometry\u0022:{\u0022x\u0022:-567.89,\u0022y\u0022:-56.78}"
 }

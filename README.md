@@ -14,6 +14,13 @@ RegExponent is a .NET regular expression tester for Windows written in WPF. It's
 I wanted a modern Windows app that had all the features I used from Regex Hero, and I wanted a UI more streamlined for how I work.
 
 RegExponent uses the awesome, free [AvalonEdit](http://avalonedit.net/) WPF text editor for custom syntax highlighting of regex patterns, replacements, and input matches.
-<!--
-TODO: Screenshot.
--->
+
+# Screenshots
+## Match
+![](images/Screenshots/Match.png)
+
+## Replace
+![](images/Screenshots/Replace.png)
+
+## Split
+![](images/Screenshots/Split.png)
