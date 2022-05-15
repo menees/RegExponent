@@ -307,7 +307,22 @@
 					<DataGrid.Columns>
 						<DataGridTextColumn Header="Match" Binding="{Binding Match, Mode=OneWay}"/>
 						<DataGridTextColumn x:Name="groupColumn" Header="Group" Binding="{Binding Group, Mode=OneWay}" Visibility="Collapsed"/>
-						<DataGridTextColumn Header="Value" Binding="{Binding Value, Mode=OneWay}"/>
+						<DataGridTextColumn Header="Value" Binding="{Binding Value, Mode=OneWay}">
+							<DataGridTextColumn.CellStyle>
+								<Style TargetType="DataGridCell">
+									<Style.Triggers>
+										<MultiDataTrigger>
+											<MultiDataTrigger.Conditions>
+												<Condition Binding="{Binding UseMatchBrush}" Value="True"/>
+												<Condition Binding="{Binding IsSelected, RelativeSource={x:Static RelativeSource.Self}}" Value="False"/>
+											</MultiDataTrigger.Conditions>
+											<Setter Property="Background" Value="{Binding MatchBrush}"/>
+											<Setter Property="BorderBrush" Value="{Binding MatchBrush}"/>
+										</MultiDataTrigger>
+									</Style.Triggers>
+								</Style>
+							</DataGridTextColumn.CellStyle>
+						</DataGridTextColumn>
 						<DataGridTextColumn Header="Index" Binding="{Binding Index, Mode=OneWay}"/>
 						<DataGridTextColumn Header="Length" Binding="{Binding Length, Mode=OneWay}"/>
 					</DataGrid.Columns>

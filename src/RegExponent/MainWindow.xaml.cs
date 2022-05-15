@@ -72,7 +72,6 @@
 		internal MainWindow(string[] commandLineArgs)
 		{
 			// TODO: Show selection start and selection length. [Bill, 5/10/2022]
-			// TODO: Change Match grid row background to yellow or orange to match input highlight. [Bill, 5/10/2022]
 			this.InitializeComponent();
 			this.commandLineArgs = commandLineArgs;
 			this.customFontControls = new Control[]
@@ -997,6 +996,12 @@
 
 		private sealed record MatchModel(int? Match, string? Group, int Index, int Length, string Value, Color? Color)
 		{
+			// This property is used by XAML since triggers can't match "not null".
+			public bool UseMatchBrush => this.Match != null && this.Color != null;
+
+			// Return a brush instead of a color to prevent WPF data binding warnings with creating a brush in XAML.
+			// https://stackoverflow.com/a/7926385/1882616
+			public Brush MatchBrush { get; } = new SolidColorBrush(Color != null ? Color.Value : Colors.Transparent);
 		}
 
 		#endregion
