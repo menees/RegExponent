@@ -371,7 +371,6 @@
 					<Style TargetType="StatusBarItem">
 						<Style.Triggers>
 							<Trigger Property="HasContent" Value="true">
-								<!-- TODO: Wrap status message if necessary. [Bill, 5/15/2022] -->
 								<Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.InfoBrushKey}}"/>
 							</Trigger>
 						</Style.Triggers>

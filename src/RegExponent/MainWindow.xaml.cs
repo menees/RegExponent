@@ -420,7 +420,8 @@
 					Dictionary<Match, Color> matchColors = this.UpdateInputHighlight(evaluator.Matches);
 
 					this.timing.Content = $"{evaluator.Elapsed.TotalMilliseconds} ms";
-					this.message.Content = evaluator.Exception?.Message;
+					string? message = evaluator.Exception?.Message;
+					this.message.Content = message.IsEmpty() ? null : new TextBlock(new Run(message)) { TextWrapping = TextWrapping.Wrap };
 
 					List<MatchModel> matches = evaluator.Matches
 						.SelectMany((match, matchNum) => match.Groups.Cast<Group>()
