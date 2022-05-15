@@ -360,6 +360,8 @@
 							<ColumnDefinition Width="Auto"/>
 							<ColumnDefinition Width="Auto"/>
 							<ColumnDefinition Width="Auto"/>
+							<ColumnDefinition Width="Auto"/>
+							<ColumnDefinition Width="Auto"/>
 						</Grid.ColumnDefinitions>
 					</Grid>
 				</ItemsPanelTemplate>
@@ -376,9 +378,11 @@
 				</StatusBarItem.Style>
 			</StatusBarItem>
 			<Separator Grid.Column="1"/>
-			<StatusBarItem x:Name="newlineDisplay" Grid.Column="2" Content="\r\n" MouseDoubleClick="NewlineDisplayDoubleClick"/>
+			<StatusBarItem x:Name="selectionDisplay" Grid.Column="2" Content="@ 0"/>
 			<Separator Grid.Column="3"/>
-			<StatusBarItem x:Name="timing" Grid.Column="4" Content="0.0 ms" HorizontalContentAlignment="Right" Margin="0,0,14,0"/>
+			<StatusBarItem x:Name="newlineDisplay" Grid.Column="4" Content="\r\n" MouseDoubleClick="NewlineDisplayDoubleClick"/>
+			<Separator Grid.Column="5"/>
+			<StatusBarItem x:Name="timing" Grid.Column="6" Content="0.0 ms" HorizontalContentAlignment="Right" Margin="0,0,14,0"/>
 		</StatusBar>
 	</Grid>
 </m:ExtendedWindow>

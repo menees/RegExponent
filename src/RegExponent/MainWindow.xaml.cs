@@ -71,7 +71,6 @@
 
 		internal MainWindow(string[] commandLineArgs)
 		{
-			// TODO: Show selection start and selection length. [Bill, 5/10/2022]
 			this.InitializeComponent();
 			this.commandLineArgs = commandLineArgs;
 			this.customFontControls = new Control[]
@@ -89,6 +88,12 @@
 				Placement = PlacementMode.Bottom,
 				PlacementTarget = this.openButton,
 			};
+
+			foreach (Editor editor in this.customFontControls.OfType<Editor>())
+			{
+				editor.TextArea.GotFocus += (s, e) => this.UpdateSelectionDisplay(editor);
+				editor.TextArea.Caret.PositionChanged += (s, e) => this.UpdateSelectionDisplay(editor);
+			}
 
 			this.model = (Model)this.FindResource(nameof(Model));
 			this.model.PropertyChanged += this.ModelPropertyChanged;
@@ -157,6 +162,18 @@
 			this.CurrentFileName.IsNotEmpty()
 			? IO.Path.GetFileNameWithoutExtension(this.CurrentFileName)
 			: "<Untitled>";
+
+		private Editor CurrentEditor
+		{
+			get
+			{
+				Editor result = this.replaced.TextArea.IsFocused ? this.replaced
+					: this.replacement.TextArea.IsFocused ? this.replacement
+					: this.pattern.TextArea.IsFocused ? this.pattern
+					: this.input;
+				return result;
+			}
+		}
 
 		#endregion
 
@@ -535,6 +552,27 @@
 				DataObject dataObject = new(html);
 				HtmlClipboard.SetHtml(dataObject, html);
 				Clipboard.SetDataObject(dataObject);
+			}
+		}
+
+		private void UpdateSelectionDisplay(Editor editor)
+		{
+			if (editor == this.CurrentEditor)
+			{
+				// We can't trust editor.SelectionStart or editor.SelectionLength here when this method is called from the
+				// Caret.PositionChanged event since those properties are only updated after that event is raised.
+				// So, we'll post a message to update after all the caret and selection properties are up-to-date.
+				this.Dispatcher.BeginInvoke(new Action(() =>
+				{
+					if (editor.SelectionLength == 0)
+					{
+						this.selectionDisplay.Content = $"@ {editor.TextArea.Caret.Offset}";
+					}
+					else
+					{
+						this.selectionDisplay.Content = $"S {editor.SelectionStart} L {editor.SelectionLength}";
+					}
+				}));
 			}
 		}
 
