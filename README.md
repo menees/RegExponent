@@ -4,8 +4,7 @@
 >
 >*[Exponent](https://www.wordnik.com/words/exponent): noun. 1. One that expounds or interprets. 2. One that speaks for, represents, or advocates. 3. Some mathy stuff.*
 
-
-![](images/RegExponent.svg){width=256,height=256}
+<img src="images/RegExponent.svg" alt="logo" width="256" height="256"/>
 
 RegExponent is a .NET regular expression tester for Windows written in WPF. It's inspired by a few other regex testers I've used over the years:
 
