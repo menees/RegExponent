@@ -303,7 +303,7 @@
 
 		<TabControl x:Name="bottomTabs" Grid.Row="6">
 			<TabItem Header="Matches">
-				<DataGrid x:Name="matchGrid">
+				<DataGrid x:Name="matchGrid" CurrentCellChanged="MatchGridCurrentCellChanged">
 					<DataGrid.Columns>
 						<DataGridTextColumn Header="Match" Binding="{Binding Match, Mode=OneWay}"/>
 						<DataGridTextColumn x:Name="groupColumn" Header="Group" Binding="{Binding Group, Mode=OneWay}" Visibility="Collapsed"/>

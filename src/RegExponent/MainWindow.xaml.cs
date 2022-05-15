@@ -72,7 +72,6 @@
 		internal MainWindow(string[] commandLineArgs)
 		{
 			// TODO: Show selection start and selection length. [Bill, 5/10/2022]
-			// TODO: Click on match grid cell should select text in input editor. [Bill, 5/10/2022]
 			// TODO: Change Match grid row background to yellow or orange to match input highlight. [Bill, 5/10/2022]
 			this.InitializeComponent();
 			this.commandLineArgs = commandLineArgs;
@@ -402,23 +401,22 @@
 				{
 					this.pattern.SetText(this.model.Pattern);
 					this.input.SetText(this.model.Input);
-					this.UpdateInputHighlight(evaluator.Matches);
+					Dictionary<Match, Color> matchColors = this.UpdateInputHighlight(evaluator.Matches);
 
 					this.timing.Content = $"{evaluator.Elapsed.TotalMilliseconds} ms";
 					this.message.Content = evaluator.Exception?.Message;
 
-					var matches = evaluator.Matches
+					List<MatchModel> matches = evaluator.Matches
 						.SelectMany((match, matchNum) => match.Groups.Cast<Group>()
-							.Select((group, groupNum) => (matchNum, groupNum, group))
+							.Select((group, groupNum) => (matchNum, match, groupNum, group))
 							.Where(tuple => tuple.group.Success))
-						.Select(pair => new
-						{
-							Match = pair.groupNum == 0 ? pair.matchNum : (int?)null,
-							Group = pair.groupNum != 0 ? pair.group.Name : null,
-							pair.group.Index,
-							pair.group.Length,
-							pair.group.Value,
-						})
+						.Select(tuple => new MatchModel(
+							tuple.groupNum == 0 ? tuple.matchNum : null,
+							tuple.groupNum != 0 ? tuple.group.Name : null,
+							tuple.group.Index,
+							tuple.group.Length,
+							tuple.group.Value,
+							matchColors.TryGetValue(tuple.match, out Color color) ? color : null))
 						.ToList();
 					this.groupColumn.Visibility = matches.Any(m => m.Group.IsNotEmpty()) ? Visibility.Visible : Visibility.Collapsed;
 					this.matchGrid.ItemsSource = matches;
@@ -460,20 +458,25 @@
 			this.inputHighlight.SetHighlighting(0, int.MaxValue, this.noHighlight);
 		}
 
-		private void UpdateInputHighlight(IReadOnlyList<Match> matches)
+		private Dictionary<Match, Color> UpdateInputHighlight(IReadOnlyList<Match> matches)
 		{
 			// First, remove any prior colors because the pattern or the input could have changed.
 			this.ClearInputHighlight();
 
 			// https://github.com/icsharpcode/AvalonEdit/issues/244#issuecomment-725214919
 			// Next, apply highlights for the new matches.
-			SimpleHighlightingBrush yellow = new(Colors.LemonChiffon);
-			SimpleHighlightingBrush orange = new(Colors.NavajoWhite);
-			SimpleHighlightingBrush background = yellow;
+			Color yellow = Colors.LemonChiffon;
+			Color orange = Colors.NavajoWhite;
+			SimpleHighlightingBrush yellowBrush = new(yellow);
+			SimpleHighlightingBrush orangeBrush = new(orange);
+			SimpleHighlightingBrush backgroundBrush = yellowBrush;
+
+			Dictionary<Match, Color> result = new(matches.Count);
 			foreach (Match match in matches.Where(m => m.Success))
 			{
-				this.inputHighlight.SetBackground(match.Index, match.Length, background);
-				background = background == yellow ? orange : yellow;
+				result.Add(match, backgroundBrush == yellowBrush ? yellow : orange);
+				this.inputHighlight.SetBackground(match.Index, match.Length, backgroundBrush);
+				backgroundBrush = backgroundBrush == yellowBrush ? orangeBrush : yellowBrush;
 
 				foreach (Group group in match.Groups.Cast<Group>().Skip(1).Where(g => g.Success))
 				{
@@ -482,6 +485,7 @@
 			}
 
 			this.input.TextArea.TextView.Redraw(DispatcherPriority.Render);
+			return result;
 		}
 
 		private void SelectLastVisibleBottomTab()
@@ -976,6 +980,23 @@
 			{
 				this.model.UnixNewline = true;
 			}
+		}
+
+		private void MatchGridCurrentCellChanged(object sender, EventArgs e)
+		{
+			if (this.matchGrid.CurrentCell.Item is MatchModel matchModel
+				&& matchModel.Index >= 0 && (matchModel.Index + matchModel.Length) <= this.input.Document.TextLength)
+			{
+				this.input.Select(matchModel.Index, matchModel.Length);
+			}
+		}
+
+		#endregion
+
+		#region Private Types
+
+		private sealed record MatchModel(int? Match, string? Group, int Index, int Length, string Value, Color? Color)
+		{
 		}
 
 		#endregion
