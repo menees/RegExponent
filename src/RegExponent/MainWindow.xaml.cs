@@ -74,7 +74,6 @@
 			// TODO: Show selection start and selection length. [Bill, 5/10/2022]
 			// TODO: Click on match grid cell should select text in input editor. [Bill, 5/10/2022]
 			// TODO: Change Match grid row background to yellow or orange to match input highlight. [Bill, 5/10/2022]
-			// TODO: Add good icon. [Bill, 4/9/2022]
 			this.InitializeComponent();
 			this.commandLineArgs = commandLineArgs;
 			this.customFontControls = new Control[]
