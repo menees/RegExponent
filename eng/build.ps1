@@ -63,6 +63,10 @@ if ($publish)
 					msbuild $slnPath /t:Publish /p:PublishProfile=$profileName /p:TargetFramework=$targetFramework /v:$msBuildVerbosity /nologo /p:Configuration=$configuration
 
 					Remove-Item "$artifactsPath\$profileName\*.pdb"
+					Remove-Item "$artifactsPath\$profileName\ICSharpCode.AvalonEdit.xml"
+
+					Copy-Item "$repoPath\tests\Files\" "$artifactsPath\$profileName\" -Recurse
+					Rename-Item "$artifactsPath\$profileName\Files" "$artifactsPath\$profileName\Samples"
 
 					Compress-Archive -Path "$artifactsPath\$profileName\*" -DestinationPath "$artifactsPath\$productName-Portable-$version-$profileName.zip"
 					$published = $true
