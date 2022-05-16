@@ -1,3 +1,6 @@
+ [![Latest Release](https://img.shields.io/github/v/release/menees/RegExponent)](https://github.com/menees/RegExponent/releases)
+![windows build](https://github.com/menees/RegExponent/workflows/windows%20build/badge.svg)
+
 <img src="images/RegExponent.svg" alt="logo" width="128" height="128"/>
 
 # RegExponent = Reg<sup>X</sup>
