@@ -103,8 +103,8 @@
 			this.CurrentFileName = string.Empty;
 
 			this.saver = new WindowSaver(this);
-			this.saver.LoadSettings += this.FormSaverLoadSettings;
-			this.saver.SaveSettings += this.FormSaverSaveSettings;
+			this.saver.LoadSettings += this.WindowSaverLoadSettings;
+			this.saver.SaveSettings += this.WindowSaverSaveSettings;
 
 			// Only paste plain text and not rich text.
 			DataObject.AddPastingHandler(this.pattern, OnPaste);
@@ -620,7 +620,7 @@
 			}
 		}
 
-		private void FormSaverLoadSettings(object? sender, SettingsEventArgs e)
+		private void WindowSaverLoadSettings(object? sender, SettingsEventArgs e)
 		{
 			ISettingsNode settings = e.SettingsNode;
 
@@ -636,6 +636,8 @@
 			this.ApplyFont(fontFamily, fontSize, fontStyle, fontWeight);
 
 			this.recentFiles.Load(settings, RecentItemList<string>.LoadString);
+			SplitSaver splitSaver = new(this.splitter);
+			splitSaver.Load(settings);
 
 			string loadFileName = settings.GetValue(nameof(this.CurrentFileName), string.Empty);
 			if (this.commandLineArgs.Length == 1)
@@ -665,7 +667,7 @@
 			}
 		}
 
-		private void FormSaverSaveSettings(object? sender, SettingsEventArgs e)
+		private void WindowSaverSaveSettings(object? sender, SettingsEventArgs e)
 		{
 			ISettingsNode settings = e.SettingsNode;
 
@@ -676,6 +678,8 @@
 			settings.SetValue("Font.Weight", control.FontWeight);
 
 			this.recentFiles.Save(settings, RecentItemList<string>.SaveString);
+			SplitSaver splitSaver = new(this.splitter);
+			splitSaver.Save(settings);
 
 			string saveFileName = this.CurrentFileName;
 
@@ -690,8 +694,6 @@
 			}
 
 			settings.SetValue(nameof(this.CurrentFileName), saveFileName);
-
-			// TODO: Save and load the splitter position. [Bill, 5/15/2022]
 		}
 
 		private void OutputTabIsVisibleChanged(object? sender, DependencyPropertyChangedEventArgs e)
