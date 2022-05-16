@@ -18,8 +18,8 @@ jobs:
 
     - name: Build everything
       run: |
-        & .\eng\build.ps1 -build $true
+        & .\eng\build.ps1 -build $true -slnName eng\RegExponentOnly.sln
       
     - name: Test artifact publishing
       run: |
-        & .\eng\build.ps1 -build $false -publish $true
+        & .\eng\build.ps1 -build $false -publish $true -slnName eng\RegExponentOnly.sln
