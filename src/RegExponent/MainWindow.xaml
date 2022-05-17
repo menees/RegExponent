@@ -8,8 +8,9 @@
 		xmlns:ae="http://icsharpcode.net/sharpdevelop/avalonedit"
 		mc:Ignorable="d"
 		Title="RegExponent" Height="450" Width="800"
-				   ResizeMode="CanResizeWithGrip" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"
-				  FocusManager.FocusedElement="{Binding ElementName=pattern}" Closing="WindowClosing" SourceInitialized="WindowSourceInitialized">
+		ResizeMode="CanResizeWithGrip" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"
+		FocusManager.FocusedElement="{Binding ElementName=pattern}" Closing="WindowClosing" SourceInitialized="WindowSourceInitialized"
+		Drop="WindowDrop" AllowDrop="True">
 
 	<Window.CommandBindings>
 		<CommandBinding Command="New" Executed="NewExecuted"/>

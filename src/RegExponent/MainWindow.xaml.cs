@@ -636,8 +636,7 @@
 			this.ApplyFont(fontFamily, fontSize, fontStyle, fontWeight);
 
 			this.recentFiles.Load(settings, RecentItemList<string>.LoadString);
-			SplitSaver splitSaver = new(this.splitter);
-			splitSaver.Load(settings);
+			WindowSaver.LoadSplits(settings, this.splitter);
 
 			string loadFileName = settings.GetValue(nameof(this.CurrentFileName), string.Empty);
 			if (this.commandLineArgs.Length == 1)
@@ -678,8 +677,7 @@
 			settings.SetValue("Font.Weight", control.FontWeight);
 
 			this.recentFiles.Save(settings, RecentItemList<string>.SaveString);
-			SplitSaver splitSaver = new(this.splitter);
-			splitSaver.Save(settings);
+			WindowSaver.SaveSplits(settings, this.splitter);
 
 			string saveFileName = this.CurrentFileName;
 
@@ -1030,6 +1028,21 @@
 				&& matchModel.Index >= 0 && (matchModel.Index + matchModel.Length) <= this.input.Document.TextLength)
 			{
 				this.input.Select(matchModel.Index, matchModel.Length);
+			}
+		}
+
+		private void WindowDrop(object sender, DragEventArgs e)
+		{
+			// https://stackoverflow.com/a/5663329/1882616
+			if (e.Data.GetDataPresent(DataFormats.FileDrop))
+			{
+				string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+				if (files.Length == 1)
+				{
+					// Post a message to try the file open so the OLE drop call can finish first.
+					// We never want a modal "CanClear" dialog to block the OLE drag-drop handler.
+					this.Dispatcher.BeginInvoke(new Action(() => this.Load(files[0])));
+				}
 			}
 		}
 
