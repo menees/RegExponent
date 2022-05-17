@@ -27,6 +27,8 @@
 		public static readonly RoutedUICommand GenerateCodeToClipboard
 			= new(nameof(GenerateCodeToClipboard), nameof(GenerateCodeToClipboard), typeof(Commands));
 
+		public static readonly RoutedUICommand RunBenchmark = new(nameof(RunBenchmark), nameof(RunBenchmark), typeof(Commands));
+
 		public static readonly RoutedUICommand ShellExecute = new(nameof(ShellExecute), nameof(ShellExecute), typeof(Commands));
 
 		public static readonly RoutedUICommand InsertPattern = new(nameof(InsertPattern), nameof(InsertPattern), typeof(Commands));

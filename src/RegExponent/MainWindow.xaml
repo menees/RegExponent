@@ -25,6 +25,7 @@
 		<CommandBinding Command="local:Commands.ShellExecute" Executed="ShellExecuteExecuted" />
 		<CommandBinding Command="local:Commands.InsertPattern" Executed="InsertPatternExecuted" />
 		<CommandBinding Command="local:Commands.About" Executed="AboutExecuted" />
+		<CommandBinding Command="local:Commands.RunBenchmark" Executed="RunBenchmarkExecuted" />
 
 		<CommandBinding Command="local:Commands.Match" Executed="ToggleMenuItemExecuted" />
 		<CommandBinding Command="local:Commands.Replace" Executed="ToggleMenuItemExecuted" />
@@ -196,7 +197,7 @@
 					<MenuItem Header="Insert Inline Options" Command="local:Commands.InsertInlineOptions" Icon="{StaticResource Icon.InsertSpan}"/>
 				</MenuItem>
 				<MenuItem Header="_Tools">
-					<MenuItem Header="Generate C# To Clipboard" Icon="{StaticResource Icon.CSFileNode}">
+					<MenuItem Header="Generate _C# To Clipboard" Icon="{StaticResource Icon.CSFileNode}">
 						<MenuItem Header="_Pattern" Command="local:Commands.GenerateCodeToClipboard" CommandParameter="C#/Pattern"
 								  Style="{StaticResource CodeGeneratorMenuItem}"/>
 						<MenuItem Header="_Replacement" Command="local:Commands.GenerateCodeToClipboard" CommandParameter="C#/Replacement"
@@ -207,7 +208,7 @@
 						<MenuItem Header="_Code Block" Command="local:Commands.GenerateCodeToClipboard" CommandParameter="C#/Block"
 								  Style="{StaticResource CodeGeneratorMenuItem}"/>
 					</MenuItem>
-					<MenuItem Header="Generate HTML To Clipboard" Icon="{StaticResource Icon.Html}">
+					<MenuItem Header="Generate _HTML To Clipboard" Icon="{StaticResource Icon.Html}">
 						<MenuItem Header="_Pattern" Command="local:Commands.GenerateCodeToClipboard" CommandParameter="HTML/Pattern"
 								  Style="{StaticResource CodeGeneratorMenuItem}"/>
 						<MenuItem Header="_Replacement" Command="local:Commands.GenerateCodeToClipboard" CommandParameter="HTML/Replacement"
@@ -216,7 +217,7 @@
 						<MenuItem Header="_Input" Command="local:Commands.GenerateCodeToClipboard" CommandParameter="HTML/Input"
 								  Style="{StaticResource CodeGeneratorMenuItem}"/>
 					</MenuItem>
-					<!-- TODO: Add Benchmark: IsMatch, Matches, Replace [InReplaceMode], Split [InSplitMode] [Bill, 5/13/2022] -->
+					<MenuItem Header="Run _Benchmarks" Command="local:Commands.RunBenchmark"/>
 				</MenuItem>
 				<MenuItem Header="_Help">
 					<MenuItem Header=".NET Regex _Quick Reference" Command="Help" Icon="{StaticResource Icon.F1Help}"/>

@@ -372,6 +372,14 @@
 			}
 		}
 
+		private Evaluator CreateEvaluator()
+		{
+			int currentUpdateLevel = Interlocked.Increment(ref this.updateLevel);
+			const int TimeoutSeconds = 5;
+			Evaluator evaluator = new(this.model, TimeSpan.FromSeconds(TimeoutSeconds), currentUpdateLevel);
+			return evaluator;
+		}
+
 		private void BeginForegroundUpdate()
 		{
 			// Note: We can't call bool Remove(...) first because we need the control to
@@ -394,9 +402,7 @@
 				this.dirtyText.Remove(this.input);
 			}
 
-			int currentUpdateLevel = Interlocked.Increment(ref this.updateLevel);
-			const int TimeoutSeconds = 5;
-			Evaluator evaluator = new(this.model, TimeSpan.FromSeconds(TimeoutSeconds), currentUpdateLevel);
+			Evaluator evaluator = this.CreateEvaluator();
 
 			// In .NET Core, we need to use a Task to run in the background. Otherwise, the async-await
 			// viral nature will muddy up every method in this class.
@@ -575,6 +581,49 @@
 					}
 				}));
 			}
+		}
+
+		private void BeginRunBenchmark()
+		{
+			Evaluator evaluator = this.CreateEvaluator();
+
+			// See comments in this.BeginForegroundUpdate() for why we use Task.Run.
+			Task.Run(() =>
+			{
+				evaluator.RunBenchmark(() => this.updateLevel);
+				this.Dispatcher.BeginInvoke(new Action<Evaluator>(this.EndRunBenchmark), DispatcherPriority.ApplicationIdle, evaluator);
+			});
+		}
+
+		private void EndRunBenchmark(Evaluator evaluator)
+		{
+			StringBuilder sb = new();
+			if (evaluator.Exception != null)
+			{
+				sb.Append(evaluator.Exception);
+			}
+			else if (evaluator.Benchmark != null)
+			{
+				Benchmark benchmark = evaluator.Benchmark;
+				double seconds = benchmark.Timeout.TotalSeconds;
+				sb.AppendLine($"Number of iterations completed in {seconds} second{(seconds == 1 ? string.Empty : "s")}:");
+				sb.AppendLine();
+				sb.AppendLine($"IsMatch: {benchmark.IsMatchCount:N0}");
+				sb.AppendLine($"Matches: {benchmark.MatchesCount:N0}");
+				if (benchmark.ReplaceCount != null)
+				{
+					sb.AppendLine($"Replace: {benchmark.ReplaceCount:N0}");
+				}
+
+				if (benchmark.SplitCount != null)
+				{
+					sb.AppendLine($"Split: {benchmark.SplitCount:N0}");
+				}
+			}
+
+			// TODO: Create better UI for benchmark results. [Bill, 5/17/2022]
+			string message = sb.ToString();
+			WindowsUtility.ShowInfo(this, message, "Benchmark Results");
 		}
 
 		#endregion
@@ -1045,6 +1094,9 @@
 				}
 			}
 		}
+
+		private void RunBenchmarkExecuted(object sender, ExecutedRoutedEventArgs e)
+			=> this.BeginRunBenchmark();
 
 		#endregion
 
