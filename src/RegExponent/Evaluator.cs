@@ -104,23 +104,24 @@
 
 				List<Task> tasks = new()
 				{
-					// TODO: Why is Matches so much faster than IsMatch? [Bill, 5/17/2022]
-					Run(() => benchmark.IsMatchCount = RunBenchmark(() => expression.IsMatch(this.input))),
-					Run(() => benchmark.MatchesCount = RunBenchmark(() => expression.Matches(this.input))),
+					Run(() => benchmark.IsMatchCount = RunIterations(() => expression.IsMatch(this.input))),
+
+					// Matches is lazily evaluated, so we'll pull the Count to force the collection to be fully populated.
+					Run(() => benchmark.MatchesCount = RunIterations(() => expression.Matches(this.input).Count.GetHashCode())),
 				};
 
 				if (this.mode == Mode.Replace)
 				{
 					if (this.UpdateLevel == getLatestUpdateLevel())
 					{
-						tasks.Add(Run(() => benchmark.ReplaceCount = RunBenchmark(() => expression.Replace(this.input, this.replacement))));
+						tasks.Add(Run(() => benchmark.ReplaceCount = RunIterations(() => expression.Replace(this.input, this.replacement))));
 					}
 				}
 				else if (this.mode == Mode.Split)
 				{
 					if (this.UpdateLevel == getLatestUpdateLevel())
 					{
-						tasks.Add(Run(() => benchmark.SplitCount = RunBenchmark(() => expression.Split(this.input))));
+						tasks.Add(Run(() => benchmark.SplitCount = RunIterations(() => expression.Split(this.input))));
 					}
 				}
 
@@ -167,7 +168,7 @@
 			}
 		}
 
-		private static int RunBenchmark(Action runOneIteration)
+		private static int RunIterations(Action runOneIteration)
 		{
 			int iterations = 0;
 			Stopwatch stopwatch = Stopwatch.StartNew();
