@@ -325,8 +325,8 @@
 								</Style>
 							</DataGridTextColumn.CellStyle>
 						</DataGridTextColumn>
-						<DataGridTextColumn Header="Index" Binding="{Binding Index, Mode=OneWay}"/>
-						<DataGridTextColumn Header="Length" Binding="{Binding Length, Mode=OneWay}"/>
+						<DataGridTextColumn Header="Index" Binding="{Binding Index, Mode=OneWay, StringFormat=\{0:N0\}}"/>
+						<DataGridTextColumn Header="Length" Binding="{Binding Length, Mode=OneWay, StringFormat=\{0:N0\}}"/>
 					</DataGrid.Columns>
 				</DataGrid>
 			</TabItem>
@@ -343,12 +343,57 @@
 				<DataGrid x:Name="splitGrid"
 						Visibility="{Binding InSplitMode, Converter={StaticResource BoolToVisibility}, Source={StaticResource Model}}">
 					<DataGrid.Columns>
-						<DataGridTextColumn Header="#" Binding="{Binding Index, Mode=OneWay}"/>
+						<DataGridTextColumn Header="#" Binding="{Binding Index, Mode=OneWay, StringFormat=\{0:N0\}}"/>
 						<DataGridTextColumn Header="Value" Binding="{Binding Value, Mode=OneWay}"/>
-						<DataGridTextColumn Header="Length" Binding="{Binding Length, Mode=OneWay}"/>
+						<DataGridTextColumn Header="Length" Binding="{Binding Length, Mode=OneWay, StringFormat=\{0:N0\}}"/>
 						<DataGridTextColumn x:Name="splitCommentColumn" Header="Comment" Binding="{Binding Comment, Mode=OneWay}" Visibility="Collapsed"/>
 					</DataGrid.Columns>
 				</DataGrid>
+			</TabItem>
+			<TabItem x:Name="benchmarksTab" IsVisibleChanged="OutputTabIsVisibleChanged">
+				<!-- https://stackoverflow.com/a/47331069/1882616 -->
+				<TabItem.Header>
+					<Grid>
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition Width="*" />
+							<ColumnDefinition Width="Auto" />
+						</Grid.ColumnDefinitions>
+						<TextBlock Grid.Column="0">Benchmarks</TextBlock>
+						<Button Grid.Column="1" x:Name="closeBenchmarks" Click="CloseBenchmarksClick">
+							<Button.Template>
+								<ControlTemplate TargetType="Button">
+									<Path Data="M0,0 L8,8 M8,0 L0,8" StrokeThickness="3" VerticalAlignment="Center" Margin="5,4,0,2">
+										<Path.Style>
+											<Style TargetType="{x:Type Path}">
+												<Style.Triggers>
+													<Trigger Property="IsMouseOver" Value="False">
+														<Setter Property="Stroke" Value="LightGray" />
+													</Trigger>
+													<Trigger Property="IsMouseOver" Value="True">
+														<Setter Property="Stroke" Value="Black" />
+													</Trigger>
+												</Style.Triggers>
+											</Style>
+										</Path.Style>
+									</Path>
+								</ControlTemplate>
+							</Button.Template>
+						</Button>
+					</Grid>
+				</TabItem.Header>
+				<TabItem.Content>
+					<DataGrid x:Name="benchmarkGrid">
+						<DataGrid.Columns>
+							<!-- Note: Setting SortDirection here only affects the visual indicator in the header. We must programmatically set a SortDescription too. -->
+							<DataGridTextColumn Header="#" Binding="{Binding Index, Mode=OneWay, StringFormat=\{0:N0\}}" SortDirection="Descending"/>
+							<DataGridTextColumn Header="IsMatch" Binding="{Binding IsMatchCount, Mode=OneWay, StringFormat=\{0:N0\}}"/>
+							<DataGridTextColumn Header="Matches" Binding="{Binding MatchesCount, Mode=OneWay, StringFormat=\{0:N0\}}"/>
+							<DataGridTextColumn x:Name="benchmarkReplace" Header="Replace" Binding="{Binding ReplaceCount, Mode=OneWay, StringFormat=\{0:N0\}}" Visibility="Collapsed"/>
+							<DataGridTextColumn x:Name="benchmarkSplit" Header="Split" Binding="{Binding SplitCount, Mode=OneWay, StringFormat=\{0:N0\}}" Visibility="Collapsed"/>
+							<DataGridTextColumn Header="Comment" Binding="{Binding Comment, Mode=OneWay}"/>
+						</DataGrid.Columns>
+					</DataGrid>
+				</TabItem.Content>
 			</TabItem>
 		</TabControl>
 

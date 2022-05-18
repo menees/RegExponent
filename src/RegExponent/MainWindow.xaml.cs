@@ -4,6 +4,7 @@
 
 	using System;
 	using System.Collections.Generic;
+	using System.Collections.ObjectModel;
 	using System.ComponentModel;
 	using System.Globalization;
 	using System.IO;
@@ -55,6 +56,7 @@
 		private readonly RecentItemList<string> recentFiles;
 		private readonly RichTextModel inputHighlight;
 		private readonly HighlightingColor noHighlight = new();
+		private readonly ObservableCollection<Benchmark> benchmarks = new();
 		private string currentFileName;
 
 		private int updateLevel;
@@ -81,6 +83,7 @@
 				this.replaced,
 				this.matchGrid,
 				this.splitGrid,
+				this.benchmarkGrid,
 			};
 
 			this.recentDropDownMenu = new ContextMenu
@@ -118,6 +121,13 @@
 			this.input.TextArea.TextView.LineTransformers.Add(new RichTextColorizer(this.inputHighlight));
 
 			SystemEvents.SessionEnding += this.SystemEventsSessionEnding;
+
+			// We can easily set the sort direction indicator in XAML, but that doesn't actually sort.
+			// This sets the initial sort. https://stackoverflow.com/a/9168101/1882616
+			this.benchmarkGrid.ItemsSource = this.benchmarks;
+			ICollectionView benchmarkView = CollectionViewSource.GetDefaultView(this.benchmarkGrid.ItemsSource);
+			benchmarkView.SortDescriptions.Add(new SortDescription(nameof(Benchmark.Index), ListSortDirection.Descending));
+			this.benchmarksTab.Visibility = Visibility.Collapsed;
 		}
 
 		#endregion
@@ -232,6 +242,11 @@
 			return result;
 		}
 
+		private static void SetColumnVisibility<T>(DataGridColumn column, IEnumerable<T> items, Predicate<T> isVisible)
+		{
+			column.Visibility = items.Any(item => isVisible(item)) ? Visibility.Visible : Visibility.Collapsed;
+		}
+
 		private void ApplyFont(string familyName, double size, FontStyle style, FontWeight weight)
 		{
 			FontFamily fontFamily = new(familyName);
@@ -284,6 +299,7 @@
 			if (this.CanClear())
 			{
 				this.CurrentFileName = string.Empty;
+				this.benchmarks.Clear();
 				using (this.BeginUpdate())
 				{
 					this.model.Clear();
@@ -441,7 +457,7 @@
 							tuple.group.Value,
 							matchColors.TryGetValue(tuple.match, out Color color) ? color : null))
 						.ToList();
-					this.groupColumn.Visibility = matches.Any(m => m.Group.IsNotEmpty()) ? Visibility.Visible : Visibility.Collapsed;
+					SetColumnVisibility(this.groupColumn, matches, m => m.Group.IsNotEmpty());
 					this.matchGrid.ItemsSource = matches;
 
 					if (this.model.InReplaceMode)
@@ -467,7 +483,7 @@
 									: line.Length == 0 ? "Empty"
 									: GetInterestingLiteral(line),
 							});
-						this.splitCommentColumn.Visibility = splits.Any(s => s.Comment.IsNotEmpty()) ? Visibility.Visible : Visibility.Collapsed;
+						SetColumnVisibility(this.splitCommentColumn, splits, s => s.Comment.IsNotEmpty());
 						this.splitGrid.ItemsSource = splits;
 					}
 				}
@@ -585,45 +601,57 @@
 
 		private void BeginRunBenchmark()
 		{
+			// Use a temporary begin benchmark for displaying a status. This won't be touched
+			// by any worker threads, and it will be replaced by EndRunBenchmark.
+			Benchmark benchmark = new();
+			benchmark.Index = this.benchmarks.Count + 1;
+			benchmark.Comment = $"Running for {benchmark.FormattedTimeout}...";
+			this.benchmarks.Add(benchmark);
+			this.ShowBenchmarks();
+
 			Evaluator evaluator = this.CreateEvaluator();
 
 			// See comments in this.BeginForegroundUpdate() for why we use Task.Run.
 			Task.Run(() =>
 			{
 				evaluator.RunBenchmark(() => this.updateLevel);
-				this.Dispatcher.BeginInvoke(new Action<Evaluator>(this.EndRunBenchmark), DispatcherPriority.ApplicationIdle, evaluator);
+				this.Dispatcher.BeginInvoke(
+					new Action<Evaluator, Benchmark>(this.EndRunBenchmark), DispatcherPriority.ApplicationIdle, evaluator, benchmark);
 			});
 		}
 
-		private void EndRunBenchmark(Evaluator evaluator)
+		private void EndRunBenchmark(Evaluator evaluator, Benchmark beginBenchmark)
 		{
-			StringBuilder sb = new();
+			Benchmark endBenchmark;
 			if (evaluator.Exception != null)
 			{
-				sb.Append(evaluator.Exception);
+				endBenchmark = new() { Comment = evaluator.Exception.Message };
 			}
-			else if (evaluator.Benchmark != null)
+			else if (evaluator.Benchmark == null)
 			{
-				Benchmark benchmark = evaluator.Benchmark;
-				double seconds = benchmark.Timeout.TotalSeconds;
-				sb.AppendLine($"Number of iterations completed in {seconds} second{(seconds == 1 ? string.Empty : "s")}:");
-				sb.AppendLine();
-				sb.AppendLine($"IsMatch: {benchmark.IsMatchCount:N0}");
-				sb.AppendLine($"Matches: {benchmark.MatchesCount:N0}");
-				if (benchmark.ReplaceCount != null)
-				{
-					sb.AppendLine($"Replace: {benchmark.ReplaceCount:N0}");
-				}
-
-				if (benchmark.SplitCount != null)
-				{
-					sb.AppendLine($"Split: {benchmark.SplitCount:N0}");
-				}
+				endBenchmark = new() { Comment = "Run benchmark requires a pattern." };
+			}
+			else
+			{
+				endBenchmark = evaluator.Benchmark;
 			}
 
-			// TODO: Create better UI for benchmark results. [Bill, 5/17/2022]
-			string message = sb.ToString();
-			WindowsUtility.ShowInfo(this, message, "Benchmark Results");
+			// Replace beginBenchmark with endBenchmark so the grid knows to update.
+			int index = this.benchmarks.IndexOf(beginBenchmark);
+			if (index >= 0)
+			{
+				endBenchmark.Index = beginBenchmark.Index;
+				this.benchmarks[index] = endBenchmark;
+				SetColumnVisibility(this.benchmarkReplace, this.benchmarks, b => b.ReplaceCount != null);
+				SetColumnVisibility(this.benchmarkSplit, this.benchmarks, b => b.SplitCount != null);
+				this.ShowBenchmarks();
+			}
+		}
+
+		private void ShowBenchmarks()
+		{
+			this.benchmarksTab.Visibility = Visibility.Visible;
+			this.bottomTabs.SelectedItem = this.benchmarksTab;
 		}
 
 		#endregion
@@ -1097,6 +1125,11 @@
 
 		private void RunBenchmarkExecuted(object sender, ExecutedRoutedEventArgs e)
 			=> this.BeginRunBenchmark();
+
+		private void CloseBenchmarksClick(object sender, RoutedEventArgs e)
+		{
+			this.benchmarksTab.Visibility = Visibility.Collapsed;
+		}
 
 		#endregion
 

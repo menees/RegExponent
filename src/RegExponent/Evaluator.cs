@@ -16,8 +16,6 @@
 	{
 		#region Private Data Members
 
-		private static readonly TimeSpan BenchmarkTimeout = TimeSpan.FromSeconds(1);
-
 		private readonly string pattern;
 		private readonly string replacement;
 		private readonly string input;
@@ -95,7 +93,7 @@
 
 		public void RunBenchmark(Func<int> getLatestUpdateLevel)
 		{
-			Benchmark benchmark = new(BenchmarkTimeout);
+			Benchmark benchmark = new();
 
 			bool executed = this.Execute(getLatestUpdateLevel, expression =>
 			{
@@ -104,24 +102,24 @@
 
 				List<Task> tasks = new()
 				{
-					Run(() => benchmark.IsMatchCount = RunIterations(() => expression.IsMatch(this.input))),
+					Run(() => benchmark.IsMatchCount = RunIterations(benchmark, () => expression.IsMatch(this.input))),
 
 					// Matches is lazily evaluated, so we'll pull the Count to force the collection to be fully populated.
-					Run(() => benchmark.MatchesCount = RunIterations(() => expression.Matches(this.input).Count.GetHashCode())),
+					Run(() => benchmark.MatchesCount = RunIterations(benchmark, () => expression.Matches(this.input).Count.GetHashCode())),
 				};
 
 				if (this.mode == Mode.Replace)
 				{
 					if (this.UpdateLevel == getLatestUpdateLevel())
 					{
-						tasks.Add(Run(() => benchmark.ReplaceCount = RunIterations(() => expression.Replace(this.input, this.replacement))));
+						tasks.Add(Run(() => benchmark.ReplaceCount = RunIterations(benchmark, () => expression.Replace(this.input, this.replacement))));
 					}
 				}
 				else if (this.mode == Mode.Split)
 				{
 					if (this.UpdateLevel == getLatestUpdateLevel())
 					{
-						tasks.Add(Run(() => benchmark.SplitCount = RunIterations(() => expression.Split(this.input))));
+						tasks.Add(Run(() => benchmark.SplitCount = RunIterations(benchmark, () => expression.Split(this.input))));
 					}
 				}
 
@@ -130,6 +128,7 @@
 
 			if (executed)
 			{
+				benchmark.Comment = "Iter/sec for: " + this.pattern;
 				this.Benchmark = benchmark;
 			}
 		}
@@ -168,11 +167,11 @@
 			}
 		}
 
-		private static int RunIterations(Action runOneIteration)
+		private static int RunIterations(Benchmark benchmark, Action runOneIteration)
 		{
 			int iterations = 0;
 			Stopwatch stopwatch = Stopwatch.StartNew();
-			while (stopwatch.ElapsedTicks < BenchmarkTimeout.Ticks)
+			while (stopwatch.ElapsedTicks < benchmark.Timeout.Ticks)
 			{
 				runOneIteration();
 				iterations++;
