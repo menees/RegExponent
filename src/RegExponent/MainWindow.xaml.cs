@@ -1131,6 +1131,11 @@
 			this.benchmarksTab.Visibility = Visibility.Collapsed;
 		}
 
+		private void ViewBenchmarksExecuted(object sender, ExecutedRoutedEventArgs e)
+		{
+			this.ShowBenchmarks();
+		}
+
 		#endregion
 
 		#region Private Types

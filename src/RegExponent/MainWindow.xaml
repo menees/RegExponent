@@ -26,6 +26,7 @@
 		<CommandBinding Command="local:Commands.InsertPattern" Executed="InsertPatternExecuted" />
 		<CommandBinding Command="local:Commands.About" Executed="AboutExecuted" />
 		<CommandBinding Command="local:Commands.RunBenchmark" Executed="RunBenchmarkExecuted" />
+		<CommandBinding Command="local:Commands.ViewBenchmarks" Executed="ViewBenchmarksExecuted" />
 
 		<CommandBinding Command="local:Commands.Match" Executed="ToggleMenuItemExecuted" />
 		<CommandBinding Command="local:Commands.Replace" Executed="ToggleMenuItemExecuted" />
@@ -217,7 +218,10 @@
 						<MenuItem Header="_Input" Command="local:Commands.GenerateCodeToClipboard" CommandParameter="HTML/Input"
 								  Style="{StaticResource CodeGeneratorMenuItem}"/>
 					</MenuItem>
-					<MenuItem Header="Run _Benchmarks" Command="local:Commands.RunBenchmark"/>
+					<MenuItem Header="_Benchmarks" Icon="{StaticResource Icon.TxRowCount}">
+						<MenuItem Header="_Run" Command="local:Commands.RunBenchmark"/>
+						<MenuItem Header="_View" Command="local:Commands.ViewBenchmarks"/>
+					</MenuItem>
 				</MenuItem>
 				<MenuItem Header="_Help">
 					<MenuItem Header=".NET Regex _Quick Reference" Command="Help" Icon="{StaticResource Icon.F1Help}"/>
