@@ -19,6 +19,7 @@
 	using System.Windows.Data;
 	using System.Windows.Documents;
 	using System.Windows.Input;
+	using System.Windows.Interop;
 	using System.Windows.Media;
 	using System.Windows.Media.Imaging;
 	using System.Windows.Navigation;
@@ -603,8 +604,7 @@
 		{
 			// Use a temporary begin benchmark for displaying a status. This won't be touched
 			// by any worker threads, and it will be replaced by EndRunBenchmark.
-			Benchmark benchmark = new();
-			benchmark.Index = this.benchmarks.Count + 1;
+			Benchmark benchmark = new() { Index = this.benchmarks.Count + 1 };
 			benchmark.Comment = $"Running for {benchmark.FormattedTimeout}...";
 			this.benchmarks.Add(benchmark);
 			this.ShowBenchmarks();
@@ -851,7 +851,11 @@
 
 			using Drawing.Font priorFont = new(familyName, (float)control.FontSize, fontStyle, Drawing.GraphicsUnit.Pixel);
 			dialog.Font = priorFont;
-			if (dialog.ShowDialog() == WinForms.DialogResult.OK)
+
+			// https://stackoverflow.com/a/10296513/1882616
+			WinForms.NativeWindow nativeWindow = new();
+			nativeWindow.AssignHandle(new WindowInteropHelper(this).Handle);
+			if (dialog.ShowDialog(nativeWindow) == WinForms.DialogResult.OK)
 			{
 				// From https://stackoverflow.com/a/37578593/1882616
 				Drawing.Font font = dialog.Font;
