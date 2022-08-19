@@ -1,0 +1,7 @@
+{
+  "Version": 1,
+  "UnixNewline": true,
+  "RegexOptions": "Multiline, IgnorePatternWhitespace",
+  "Pattern": "(?nx-i)^\u003Csee(also)?\\s\u002Bhref=( # Begin tag and href=\n(\u0022(?\u003Curl\u003E[^\u0022\\n]\u002B)\u0022) # Double-quoted URL\n|(\u0027(?\u003Curl\u003E[^\u0027\\n]\u002B)\u0027) # Single-quoted URL\n)\\s*/\u003E$ # End tag",
+  "Input": "\u003Csee href=\u0022Test\u0022 /\u003E\n\u003Cseealso  href=\u0022Test\u0022  /\u003E\n\u003Csee href=\u0027Test\u0027 /\u003E\n\u003Cseealso  href=\u0027Test\u0027  /\u003E\n\u003Csee href=\u0022http://menees.com\u0022 /\u003E\n\u003Cseealso  href=\u0022http://menees.com\u0022  /\u003E\n\u003Csee href=\u0022https://www.microsoft.com\u0022 /\u003E\n\u003Cseealso  href=\u0022https://www.microsoft.com\u0022  /\u003E\n\u003Cseen href=\u0022Test\u0022 /\u003E\n\u003Cseealso cref=\u0022Test\u0022 /\u003E\n\u003Csee href=\u0022DifferentQuoteChars\u0027 /\u003E\n\u003Cseealso  href=\u0027DifferentQuoteChars\u0022  /\u003E\n"
+}
