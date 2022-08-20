@@ -1,0 +1,9 @@
+{
+  "Version": 1,
+  "UnixNewline": true,
+  "Mode": "Replace",
+  "RegexOptions": "Multiline, ExplicitCapture",
+  "Pattern": "(?mn-isx)using Menees(?\u003Cbefore\u003E\\..\u002B)?\\.Tests(?\u003Cafter\u003E.*);",
+  "Replacement": "using Menees${before}${after};",
+  "Input": "using Menees.Tests;\nusing Menees.Data.Tests;\n#nullable enable\nusing Menees.Common.Tests.Reflection;\nusing Menees.Tests.Reflection;\n{\nusing Menees.Tests;\n}\nusing Menees.IO.Tests.Sip;\nusing Menees.Core.Web.Tests.Common;\nusing Menees.Mvc.Common.Criteria.Tests;\nusing Menees.Mvc.Common.Tests;"
+}

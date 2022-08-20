@@ -1,0 +1,5 @@
+{
+  "Version": 1,
+  "Pattern": "(?\u002Bxxxxxmisn---x-ixmsixx-x)test # what?",
+  "Input": "test # what? Change the pattern\u0027s last -x to \u002Bx to force x-mode on via inline options."
+}

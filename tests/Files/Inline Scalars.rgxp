@@ -1,0 +1,6 @@
+{
+  "Version": 1,
+  "RegexOptions": "Multiline",
+  "Pattern": "(?nx)(?\u003C=\\W|^) # Non-word char or start of line.\r\n(\r\n(?\u003CSingleQuoted\u003E\u0027[^\u0027]*?\u0027) # Single-quoted string\r\n|(?\u003CDoubleQuoted\u003E\u0022[^\u0022]*?\u0022) # Double-quoted string\r\n|(?\u003CDateSlash\u003E\\d{1,2}/\\d{1,2}/(\\d{2}|\\d{4})) # m/d/yy or m/d/yyyy\r\n|(?\u003CDateDash\u003E\\d{4}-\\d{2}-\\d{2}) # yyyy-mm-dd\r\n|(?\u003CTimeOfDay\u003E\\d{1,2}:\\d{1,2}:(\\d{1,2}(\\.\\d{1,7})?)?\\s*((?i)[ap]m?)) # Time of day (before TimeSpan to match AM/PM)\r\n|(?\u003CTimeSpan\u003E(\\d\u002B\\.)?\\d{1,2}:\\d{1,2}:(\\d{1,2}(\\.\\d{1,7})?)?) # TimeSpan\r\n|(?\u003CNumber\u003E[\u002B\\-]?\\d\u002B(\\.\\d\u002B)?) # Integer or decimal number (ignore scientific notation)\r\n)\r\n(?=\\W|$)  # Non-word char or end of line",
+  "Input": "123.3\r\nR4343 \u003C-- This is not a number.\r\nUh... \u0022This has \u0027some\u0027 content embedded.\u0022, he \u0027said\u0027.\r\nFrom 1/1/2022 8:24:34 AM for 837.43:34:34.4343 to 2024-74-93. \u003C-- Invalid dates and times are allowed by Regex. Parse required.\r\n234T\r\nThis has 1 number or -12.\r\nNo numbers.\r\n12/20/70! \u003C-- 20 is matched because the \u0027/\u0027 are NOT consumed due to lookbehind and lookahead for bounds.\r\nFor -134.4\r\nNot 11\r\nSkip123LikeThis\r\nSkip2 and 4this\r\n"
+}

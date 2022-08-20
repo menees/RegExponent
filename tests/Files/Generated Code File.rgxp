@@ -1,0 +1,7 @@
+{
+  "Version": 1,
+  "UnixNewline": true,
+  "RegexOptions": "IgnoreCase, Multiline, ExplicitCapture",
+  "Pattern": "\\.(designer|generated|codegen)\\.cs$",
+  "Input": "Code.cs\nCode.generated.cs\nCode.Generated.cs\nCode.designer.cs\nCode.Designer.cs\nCode.codegen.cs\nCode.CodeGen.cs\nMoreCode.cs"
+}
