@@ -291,13 +291,13 @@
 
 		<DockPanel Grid.Row="2" Margin="3,0,3,3">
 			<Label Content="_Pattern:" DockPanel.Dock="Top" Padding="2,0" Target="{Binding ElementName=pattern}"/>
-			<local:Editor x:Name="pattern" MaxHeight="100" TextChanged="EditorTextChanged" SyntaxHighlighting="Pattern"/>
+			<local:Editor x:Name="pattern" MaxHeight="300" TextChanged="EditorTextChanged" SyntaxHighlighting="Pattern"/>
 		</DockPanel>
 
 		<DockPanel Grid.Row="3" Margin="3,3,3,3"
 					Visibility="{Binding InReplaceMode, Source={StaticResource Model}, Converter={StaticResource BoolToVisibility}}">
 			<Label Content="_Replacement:" DockPanel.Dock="Top" Padding="2,0" Target="{Binding ElementName=replacement}"/>
-			<local:Editor x:Name="replacement" MaxHeight="100" TextChanged="EditorTextChanged" SyntaxHighlighting="Replacement"/>
+			<local:Editor x:Name="replacement" MaxHeight="300" TextChanged="EditorTextChanged" SyntaxHighlighting="Replacement"/>
 		</DockPanel>
 
 		<DockPanel Grid.Row="4" Margin="3,3,3,0">
