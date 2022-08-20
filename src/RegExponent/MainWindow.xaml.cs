@@ -48,6 +48,8 @@
 		private const string FileDialogFilter = nameof(RegExponent) + " Files (*" + FileDialogDefaultExt + ")|*" + FileDialogDefaultExt;
 		private const string TempExt = ".rgxtmp";
 
+		private static readonly Regex InitialOptions = new(@"^(?n)\s*\(\?(?<options>([+\-]*[imnsx]*)+)[\:\)]", RegexOptions.Compiled);
+
 		private readonly string[] commandLineArgs;
 		private readonly Model model;
 		private readonly WindowSaver saver;
@@ -369,9 +371,10 @@
 
 		private void UpdateTitle()
 		{
-			StringBuilder sb = new(nameof(RegExponent));
+			// Put the model display name first so it's easier to distinguish multiple instances on the taskbar (like Word and Excel do).
+			StringBuilder sb = new(this.ModelDisplayName);
 			sb.Append(" - ");
-			sb.Append(this.ModelDisplayName);
+			sb.Append(nameof(RegExponent));
 			if (this.model.IsModified)
 			{
 				sb.Append(" - ");
@@ -652,6 +655,53 @@
 		{
 			this.benchmarksTab.Visibility = Visibility.Visible;
 			this.bottomTabs.SelectedItem = this.benchmarksTab;
+		}
+
+		private bool SetPatternHighligher()
+		{
+			// If the pattern toggles x-mode on or off, then that has precedence over RegexOptions.
+			// We only support one highlighting mode for the whole pattern, so we'll only look for x-mode
+			// options at the start of the pattern. The mode can change mid-pattern with inline options,
+			// but we won't try to handle that for syntax highlighting.
+			bool? useXMode = null;
+			Match match = InitialOptions.Match(this.model.Pattern);
+			if (match.Success && match.Groups.Count == 2)
+			{
+				// For options the last referenced state wins, e.g., (?+xxxxxmisn---x-ixmsixx-x) ends with x-mode off.
+				string options = match.Groups[1].Value;
+				bool enable = true; // Assume '+' until we see a '-'.
+				foreach (char ch in options)
+				{
+					switch (ch)
+					{
+						case 'x':
+							useXMode = enable;
+							break;
+
+						case '+':
+							enable = true;
+							break;
+
+						case '-':
+							enable = false;
+							break;
+					}
+				}
+			}
+
+			// If initial options didn't explicitly set x-mode on or off, then fall back to the model's RegexOptions.
+			useXMode ??= this.model.UseIgnorePatternWhitespace;
+
+			IHighlightingDefinition highlighting = HighlightingManager.Instance.GetDefinition(useXMode.Value ? "PatternXMode" : "Pattern");
+
+			bool changed = false;
+			if (this.pattern.SyntaxHighlighting != highlighting)
+			{
+				this.pattern.SyntaxHighlighting = highlighting;
+				changed = true;
+			}
+
+			return changed;
 		}
 
 		#endregion
@@ -953,7 +1003,8 @@
 					break;
 
 				case nameof(Model.Pattern):
-					if (!this.dirtyText.Contains(this.pattern))
+					// Editing the pattern can change the inline x-mode state.
+					if (this.SetPatternHighligher() || !this.dirtyText.Contains(this.pattern))
 					{
 						this.TryQueueUpdate();
 					}
@@ -998,17 +1049,16 @@
 					goto default;
 
 				case nameof(Model.UseIgnorePatternWhitespace):
-					this.pattern.SyntaxHighlighting = HighlightingManager.Instance.GetDefinition(
-						this.model.UseIgnorePatternWhitespace ? "PatternXMode" : "Pattern");
-					goto default;
+					if (this.SetPatternHighligher())
+					{
+						goto default;
+					}
+
+					break;
 
 				default:
 					// An option or a mode changed.
-					if (!this.updating)
-					{
-						this.TryQueueUpdate();
-					}
-
+					this.TryQueueUpdate();
 					break;
 			}
 		}
