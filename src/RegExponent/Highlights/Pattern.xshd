@@ -35,7 +35,7 @@
 				|	\\ [AzZGbB]		# At other string boundaries (start, end, before \n, previous match end, word, not word)
 			)
 		</Rule>
-		
+
 		<Rule color="Backreference">
 			\\
 			(
@@ -43,7 +43,7 @@
 				|	k \&lt;([a-zA-Z_][a-zA-Z0-9_]*?|\d+?)\&gt;		# Named group
 			)
 		</Rule>
-		
+
 		<Rule color="Escape">
 			\\
 			(
@@ -59,15 +59,15 @@
 
 		<Span color="CharSet" begin="\[" end="\]">
 			<RuleSet>
-				<!-- Handle escaped end bracket. -->
-				<Span begin="\\" end="\]"/>
+				<!-- Handle escaped char. -->
+				<Span begin="\\" end="."/>
 			</RuleSet>
 		</Span>
 
 		<Span color="Comment" begin="\(\?\#" end="\)">
 			<RuleSet>
-				<!-- Handle escaped end parenthesis. -->
-				<Span begin="\\" end="\)"/>
+				<!-- Handle escaped char. -->
+				<Span begin="\\" end="."/>
 			</RuleSet>
 		</Span>
 
@@ -79,20 +79,22 @@
 		-->
 		<Rule color="Group">
 			\(		# Group start
-			\??	# Group with special behavior
-			(
-					\&lt;([a-zA-Z_][a-zA-Z0-9_]*?|\d+?)&gt;													# Named group
-				|	\&lt;([a-zA-Z_][a-zA-Z0-9_]*?|\d+?)\-([a-zA-Z_][a-zA-Z0-9_]*?|\d+?)&gt;		# Balancing group
-				|	\:							# Non-capturing group
-				|	\=							# Zero-width positive lookahead
-				|	\!							# Zero-width negative lookahead
-				|	\&lt;\=					# Zero-width positive lookbehind
-				|	\&lt;\!					# Zero-width negative lookbehind
-				|	\&gt;						# Non-backtracking (greedy)
-				|	[imnsx]{0,5}(\-[imnsx]{1,5})?\:?	# Inline options for case-insensitive, multiline, explicit named captures, singleline, ignore whitespace
-			)
+			(		# Special behavior is optional, but if '?' is next, then one of the subsequent behavior expressions must be present.
+				\?	# Group with special behavior
+				(
+						\&lt;([a-zA-Z_][a-zA-Z0-9_]*?|\d+?)&gt;													# Named group
+					|	\&lt;([a-zA-Z_][a-zA-Z0-9_]*?|\d+?)\-([a-zA-Z_][a-zA-Z0-9_]*?|\d+?)&gt;		# Balancing group
+					|	\:								# Non-capturing group
+					|	\=								# Zero-width positive lookahead
+					|	\!								# Zero-width negative lookahead
+					|	\&lt;\=						# Zero-width positive lookbehind
+					|	\&lt;\!						# Zero-width negative lookbehind
+					|	\&gt;							# Non-backtracking (greedy)
+					|	([+\-]*[imnsx]*)+\:?	# Inline options for case-insensitive, multiline, explicit named captures, singleline, ignore whitespace
+				)
+			)?
 		</Rule>
-		
+
 		<Rule color="Group">
 			\)	# Group end
 		</Rule>
@@ -110,7 +112,7 @@
 		<Rule color="Alternation">
 			\|	# The OR operator
 		</Rule>
-		
+
 		<Rule color="Dot">
 			\.	# Any char except \n (unless in multiline mode).
 		</Rule>
