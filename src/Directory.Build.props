@@ -24,7 +24,7 @@
 		<ProduceReferenceAssembly>false</ProduceReferenceAssembly>
 
 		<!-- Make the assembly, file, and NuGet package versions the same. -->
-		<Version>1.0.4</Version>
+		<Version>1.0.5</Version>
 		<UseLocaMeneesLibraries>false</UseLocaMeneesLibraries>
 		<LocaMeneesLibrariesSrc/>
 		<BuildingInsideVisualStudio Condition="'$(BuildingInsideVisualStudio)' == ''">false</BuildingInsideVisualStudio>
@@ -61,7 +61,7 @@
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Menees.Analyzers" Version="3.0.5">
+		<PackageReference Include="Menees.Analyzers" Version="3.0.10">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
