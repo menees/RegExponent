@@ -39,6 +39,7 @@
 
 		// LONG-TERM-TODO: Add support for RegexOptions.NonBacktracking in .NET 7. [Bill, 5/20/2022]
 		// https://devblogs.microsoft.com/dotnet/regular-expression-improvements-in-dotnet-7/#backtracking-and-regexoptions-nonbacktracking
+		// https://devblogs.microsoft.com/dotnet/performance_improvements_in_net_7/#regexoptions-nonbacktracking
 		private RegexOptions regexOptions;
 		private Mode mode;
 		private bool unixNewline;
