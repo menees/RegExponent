@@ -308,7 +308,7 @@
 		<GridSplitter x:Name="splitter" Grid.Row="5" HorizontalAlignment="Stretch" VerticalAlignment="Center" ShowsPreview="True" Height="4" />
 
 		<TabControl x:Name="bottomTabs" Grid.Row="6">
-			<TabItem Header="Matches">
+			<TabItem x:Name="matchTab" Header="Matches">
 				<DataGrid x:Name="matchGrid" CurrentCellChanged="MatchGridCurrentCellChanged">
 					<DataGrid.Columns>
 						<DataGridTextColumn Header="Match" Binding="{Binding Match, Mode=OneWay}"/>
@@ -341,7 +341,7 @@
 							   Visibility="{Binding InReplaceMode, Converter={StaticResource BoolToVisibility}, Source={StaticResource Model}}"
 							   Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" />
 			</TabItem>
-			<TabItem Header="Output"
+			<TabItem x:Name="splitTab" Header="Output"
 					 Visibility="{Binding InSplitMode, Converter={StaticResource BoolToVisibility}, Source={StaticResource Model}}"
 					 IsVisibleChanged="OutputTabIsVisibleChanged">
 				<DataGrid x:Name="splitGrid"

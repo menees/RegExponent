@@ -69,7 +69,7 @@
 			{
 				if (sb.Length > 0)
 				{
-					sb.AppendLine().Append(Indent).Append(" + ").Append(ToLiteral(newline)).Append(" + ");
+					sb.AppendLine().Append(Indent).Append("+ ").Append(ToLiteral(newline)).Append(" + ");
 				}
 
 				sb.Append("@\"");

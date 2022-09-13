@@ -463,6 +463,7 @@
 						.ToList();
 					SetColumnVisibility(this.groupColumn, matches, m => m.Group.IsNotEmpty());
 					this.matchGrid.ItemsSource = matches;
+					this.matchTab.Header = $"Matches ({evaluator.Matches.Count})";
 
 					if (this.model.InReplaceMode)
 					{
@@ -486,9 +487,10 @@
 								Comment = line == null ? "null"
 									: line.Length == 0 ? "Empty"
 									: GetInterestingLiteral(line),
-							});
+							}).ToList();
 						SetColumnVisibility(this.splitCommentColumn, splits, s => s.Comment.IsNotEmpty());
 						this.splitGrid.ItemsSource = splits;
+						this.splitTab.Header = $"Output ({splits.Count})";
 					}
 				}
 			}
