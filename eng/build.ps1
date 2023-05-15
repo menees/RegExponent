@@ -3,7 +3,7 @@ param(
 	[string[]] $configurations = @('Debug', 'Release'),
 	[bool] $publish = $false,
 	[string] $msBuildVerbosity = 'minimal',
-	[string] $slnName = $null # Pass 'eng\RegExponentOnly.sln' in GitHub build.yml
+	[string] $slnName = $null
 )
 
 Set-StrictMode -Version Latest
