@@ -1,0 +1,6 @@
+{
+  "Version": 1,
+  "RegexOptions": "IgnoreCase, Multiline, ExplicitCapture, IgnorePatternWhitespace, RightToLeft",
+  "Pattern": "(?imnx) # Apply this with RegexOptions.RightToLeft\r\n^.* # Ignore anything to the beginning of the line\r\n(((?\u003Cparencomment\u003E\\(.*?\\))|(?\u003Cstarcomment\u003E\\*\\*.*?\\*\\*)) # EOL comments can be surrounded by ( ) or ** **\r\n|(\\s\u002B(?\u003Crepeatcomment\u003E(\\d{1,2}x|x(\\d{1,2})))) # EOL comment can be xN or Nx repeats.\r\n|((?\u003Cchord\u003E[A-GIV1-79][a-z1-79#\\-\\\u002B\\^/]*[*~\u2190\u2191\u2193\u2192]?)\\s*=?\\s*)?(?\u003Cdefinition\u003E[\\d_x](\\-?[\\d_x]){3,})(\\s*[,;]\\s*)?) # [Chord [=]] x or digit...\r\n\\s*$ # Ignore trailing whitespace",
+  "Input": "This (a) has (comment) \r\nThis doesn\u0027t. )\r\nThis (also) has one ** here **\r\nThis has (a) \r\nThis has (a) Cmaj7/F=1-3-2-0-0-0\r\nHigh chord: Dm x-x-12-10-10-10\r\nI play Em7 several ways: Em7\u2191 020000\r\nI play Em7 several ways: Em7 = 022030;\r\nI play Em7 several ways: Em7 020003, Em7* = 020030,\r\nA Bm C Db F# 3x\r\nA Bm C Db F#   x2\r\nA Bm C Db F#   x232\r\nI also love this unnamed D chord ... x54030"
+}
