@@ -449,19 +449,24 @@
 					string? message = evaluator.Exception?.Message;
 					this.message.Content = message.IsEmpty() ? null : new TextBlock(new Run(message)) { TextWrapping = TextWrapping.Wrap };
 
+					// Show repeated group captures too, e.g., https://stackoverflow.com/a/11051948/1882616.
 					List<MatchModel> matches = evaluator.Matches
 						.SelectMany((match, matchNum) => match.Groups.Cast<Group>()
-							.Select((group, groupNum) => (matchNum, match, groupNum, group))
+							.SelectMany((group, groupNum) => group.Captures.Cast<Capture>()
+								.Select((capture, captureNum) => (group, groupNum, capture, captureNum)))
+							.Select(tuple => (matchNum, match, tuple.groupNum, tuple.group, tuple.captureNum, tuple.capture))
 							.Where(tuple => tuple.group.Success))
 						.Select(tuple => new MatchModel(
 							tuple.groupNum == 0 ? tuple.matchNum : null,
 							tuple.groupNum != 0 ? tuple.group.Name : null,
-							tuple.group.Index,
-							tuple.group.Length,
-							tuple.group.Value,
+							tuple.groupNum != 0 ? tuple.captureNum : null,
+							tuple.capture.Index,
+							tuple.capture.Length,
+							tuple.capture.Value,
 							matchColors.TryGetValue(tuple.match, out Color color) ? color : null))
 						.ToList();
 					SetColumnVisibility(this.groupColumn, matches, m => m.Group.IsNotEmpty());
+					SetColumnVisibility(this.captureColumn, matches, m => m.Capture > 0);
 					this.matchGrid.ItemsSource = matches;
 					this.matchTab.Header = $"Matches ({evaluator.Matches.Count})";
 
@@ -1196,7 +1201,7 @@
 
 		#region Private Types
 
-		private sealed record MatchModel(int? Match, string? Group, int Index, int Length, string Value, Color? Color)
+		private sealed record MatchModel(int? Match, string? Group, int? Capture, int Index, int Length, string Value, Color? Color)
 		{
 			// This property is used by XAML since triggers can't match "not null".
 			public bool UseMatchBrush => this.Match != null && this.Color != null;

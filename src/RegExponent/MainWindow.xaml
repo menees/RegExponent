@@ -313,6 +313,7 @@
 					<DataGrid.Columns>
 						<DataGridTextColumn Header="Match" Binding="{Binding Match, Mode=OneWay}"/>
 						<DataGridTextColumn x:Name="groupColumn" Header="Group" Binding="{Binding Group, Mode=OneWay}" Visibility="Collapsed"/>
+						<DataGridTextColumn x:Name="captureColumn" Header="Capture" Binding="{Binding Capture, Mode=OneWay}" Visibility="Collapsed"/>
 						<DataGridTextColumn Header="Value" Binding="{Binding Value, Mode=OneWay}">
 							<DataGridTextColumn.CellStyle>
 								<Style TargetType="DataGridCell">

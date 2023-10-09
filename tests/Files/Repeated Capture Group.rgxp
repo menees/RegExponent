@@ -1,0 +1,6 @@
+{
+  "Version": 1,
+  "RegexOptions": "IgnorePatternWhitespace",
+  "Pattern": "(?\u003Carg\u003E-\\S*\\W?)\u002B # The arg group will capture three substrings.",
+  "Input": "-group1 -group2 -group3 // https://stackoverflow.com/a/11051948/1882616"
+}
