@@ -48,6 +48,7 @@
 		public static readonly RoutedUICommand Option6 = new(nameof(Option6), nameof(Option6), typeof(Commands));
 		public static readonly RoutedUICommand Option7 = new(nameof(Option7), nameof(Option7), typeof(Commands));
 		public static readonly RoutedUICommand Option8 = new(nameof(Option8), nameof(Option8), typeof(Commands));
+		public static readonly RoutedUICommand Option9 = new(nameof(Option9), nameof(Option9), typeof(Commands));
 
 		#endregion
 	}

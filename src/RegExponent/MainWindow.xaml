@@ -42,6 +42,7 @@
 		<CommandBinding Command="local:Commands.Option6" Executed="ToggleMenuItemExecuted" />
 		<CommandBinding Command="local:Commands.Option7" Executed="ToggleMenuItemExecuted" />
 		<CommandBinding Command="local:Commands.Option8" Executed="ToggleMenuItemExecuted" />
+		<CommandBinding Command="local:Commands.Option9" Executed="ToggleMenuItemExecuted" />
 	</Window.CommandBindings>
 
 	<Window.InputBindings>
@@ -67,6 +68,7 @@
 		<KeyBinding Command="local:Commands.Option6" Gesture="Ctrl+6" CommandParameter="{Binding ElementName=rightToLeftMenu}" />
 		<KeyBinding Command="local:Commands.Option7" Gesture="Ctrl+7" CommandParameter="{Binding ElementName=ecmaScriptMenu}" />
 		<KeyBinding Command="local:Commands.Option8" Gesture="Ctrl+8" CommandParameter="{Binding ElementName=cultureInvariantMenu}" />
+		<KeyBinding Command="local:Commands.Option9" Gesture="Ctrl+9" CommandParameter="{Binding ElementName=nonBacktrackingMenu}" />
 	</Window.InputBindings>
 
 	<Window.Resources>
@@ -194,6 +196,9 @@
 					<MenuItem x:Name="cultureInvariantMenu" Header="Culture Invariant" IsCheckable="True" IsChecked="{Binding UseCultureInvariant, Source={StaticResource Model}}"
 							  ToolTip="Ignore cultural differences in language."
 							  Command="local:Commands.Option8" />
+					<MenuItem x:Name="nonBacktrackingMenu" Header="Non-Backtracking" IsCheckable="True" IsChecked="{Binding UseNonBacktracking, Source={StaticResource Model}}"
+							  ToolTip="Match by avoiding backtracking and with linear-time processing based on input length."
+							  Command="local:Commands.Option9" />
 					<Separator/>
 					<MenuItem Header="Insert Inline Options" Command="local:Commands.InsertInlineOptions" Icon="{StaticResource Icon.InsertSpan}"/>
 				</MenuItem>
@@ -285,6 +290,7 @@
 					<ToggleButton Content="r" Style="{StaticResource ToolbarToggleButton}" ToolTip="Right To Left" IsChecked="{Binding UseRightToLeft, Source={StaticResource Model}}"/>
 					<ToggleButton Content="e" Style="{StaticResource ToolbarToggleButton}" ToolTip="ECMAScript" IsChecked="{Binding UseECMAScript, Source={StaticResource Model}}"/>
 					<ToggleButton Content="c" Style="{StaticResource ToolbarToggleButton}" ToolTip="Culture Invariant" IsChecked="{Binding UseCultureInvariant, Source={StaticResource Model}}"/>
+					<ToggleButton Content="t" Style="{StaticResource ToolbarToggleButton}" ToolTip="Non-Backtracking" IsChecked="{Binding UseNonBacktracking, Source={StaticResource Model}}"/>
 				</ToolBar>
 			</ToolBarPanel>
 		</DockPanel>

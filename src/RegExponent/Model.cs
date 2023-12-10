@@ -36,10 +36,6 @@
 		private string pattern = string.Empty;
 		private string replacement = string.Empty;
 		private string input = string.Empty;
-
-		// LONG-TERM-TODO: Add support for RegexOptions.NonBacktracking in .NET 7. [Bill, 5/20/2022]
-		// https://devblogs.microsoft.com/dotnet/regular-expression-improvements-in-dotnet-7/#backtracking-and-regexoptions-nonbacktracking
-		// https://devblogs.microsoft.com/dotnet/performance_improvements_in_net_7/#regexoptions-nonbacktracking
 		private RegexOptions regexOptions;
 		private Mode mode;
 		private bool unixNewline;
@@ -84,6 +80,10 @@
 		public bool UseECMAScript { get => this.GetOption(RegexOptions.ECMAScript); set => this.SetOption(RegexOptions.ECMAScript, value); }
 
 		public bool UseCultureInvariant { get => this.GetOption(RegexOptions.CultureInvariant); set => this.SetOption(RegexOptions.CultureInvariant, value); }
+
+		// https://devblogs.microsoft.com/dotnet/regular-expression-improvements-in-dotnet-7/#backtracking-and-regexoptions-nonbacktracking
+		// https://devblogs.microsoft.com/dotnet/performance_improvements_in_net_7/#regexoptions-nonbacktracking
+		public bool UseNonBacktracking { get => this.GetOption(RegexOptions.NonBacktracking); set => this.SetOption(RegexOptions.NonBacktracking, value); }
 
 		public bool InMatchMode
 		{
@@ -179,6 +179,7 @@
 			this.UseRightToLeft = default;
 			this.UseECMAScript = default;
 			this.UseCultureInvariant = default;
+			this.UseNonBacktracking = default;
 
 			this.WindowsNewline = !default(bool);
 			this.UnixNewline = default;
@@ -231,6 +232,7 @@
 				this.UseRightToLeft = regexOptions.HasFlag(RegexOptions.RightToLeft);
 				this.UseECMAScript = regexOptions.HasFlag(RegexOptions.ECMAScript);
 				this.UseCultureInvariant = regexOptions.HasFlag(RegexOptions.CultureInvariant);
+				this.UseNonBacktracking = regexOptions.HasFlag(RegexOptions.NonBacktracking);
 			}
 
 			// Load the text properties last so all the desired settings are configured first.

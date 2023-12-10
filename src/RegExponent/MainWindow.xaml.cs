@@ -573,7 +573,6 @@
 				string html;
 				if (editor == this.input)
 				{
-					// LONG-TERM-TODO: Use AvalonEdit NuGet package after https://github.com/icsharpcode/AvalonEdit/pull/342 released. [Bill, 5/10/2022]
 					RichText richText = new(editor.Text, this.inputHighlight);
 					html = richText.ToHtml(options);
 				}

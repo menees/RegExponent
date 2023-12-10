@@ -14,8 +14,8 @@
 		<Copyright Condition="$(CurrentYear) == '2022'">Copyright © 2022 Bill Menees</Copyright>
 
 		<!-- When TargetFrameworks changes, also update the app's Properties\PublishProfiles\*.pubxml files. -->
-		<TargetFrameworks>net6.0-windows</TargetFrameworks>
-		<TargetFrameworkCoreBase>net6.0</TargetFrameworkCoreBase>
+		<TargetFrameworkCoreBase>net8.0</TargetFrameworkCoreBase>
+		<TargetFramework>$(TargetFrameworkCoreBase)-windows</TargetFramework>
 
 		<RepoSrcFolder>$(MSBuildThisFileDirectory)</RepoSrcFolder>
 		<UseCustomCodeAnalyzers>true</UseCustomCodeAnalyzers>
@@ -25,7 +25,7 @@
 		<_SkipUpgradeNetAnalyzersNuGetWarning>true</_SkipUpgradeNetAnalyzersNuGetWarning>
 
 		<!-- Make the assembly, file, and NuGet package versions the same. -->
-		<Version>1.1.0</Version>
+		<Version>1.2.0</Version>
 		<UseLocaMeneesLibraries>false</UseLocaMeneesLibraries>
 		<LocaMeneesLibrariesSrc/>
 		<BuildingInsideVisualStudio Condition="'$(BuildingInsideVisualStudio)' == ''">false</BuildingInsideVisualStudio>
@@ -43,6 +43,7 @@
 		<!-- https://docs.microsoft.com/en-us/visualstudio/msbuild/visual-studio-integration-msbuild#build-solutions -->
 		<LocaMeneesLibrariesSrc>$(RepoSrcFolder)..\..\Libraries\src\</LocaMeneesLibrariesSrc>
 		<UseLocaMeneesLibraries Condition="$(BuildingInsideVisualStudio) and exists($(LocaMeneesLibrariesSrc))">true</UseLocaMeneesLibraries>
+		<LocalMeneesLibrariesFrameworkCoreBase>net6.0</LocalMeneesLibrariesFrameworkCoreBase>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)'=='Release'">
