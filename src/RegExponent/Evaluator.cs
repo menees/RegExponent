@@ -139,31 +139,44 @@
 
 		private static void ValidateOptions(RegexOptions options)
 		{
-			// We can throw an exception with a much better message than .NET does for incompatible options.
-			// The ECMAScript option is only compatible with IgnoreCase and Multiline per MSDN, but in modern
-			// .NET it also works with CultureInvariant.
-			// https://docs.microsoft.com/en-us/dotnet/standard/base-types/regular-expression-options#ecmascript-matching-behavior
+			List<string> incompatible = new();
+			void Check(RegexOptions flag, string? name = null)
+			{
+				if (options.HasFlag(flag))
+				{
+					incompatible.Add(name ?? flag.ToString());
+				}
+			}
+
+			void Validate(string optionName)
+			{
+				if (incompatible.Count > 0)
+				{
+					string message = $"The {optionName} option cannot be combined with {string.Join(", ", incompatible)}.";
+					throw new ArgumentException(message);
+				}
+			}
+
+			// We can throw exceptions with much better messages than .NET does for incompatible options.
 			if (options.HasFlag(RegexOptions.ECMAScript))
 			{
-				List<string> incompatible = new();
-				void Check(RegexOptions flag, string? name = null)
-				{
-					if (options.HasFlag(flag))
-					{
-						incompatible.Add(name ?? flag.ToString());
-					}
-				}
-
+				// The ECMAScript option is only compatible with IgnoreCase and Multiline per MSDN, but in modern
+				// .NET it also works with CultureInvariant.
+				// https://docs.microsoft.com/en-us/dotnet/standard/base-types/regular-expression-options#ecmascript-matching-behavior
 				Check(RegexOptions.Singleline);
 				Check(RegexOptions.ExplicitCapture, "Explicit Capture");
 				Check(RegexOptions.IgnorePatternWhitespace, "Ignore Pattern Whitespace");
 				Check(RegexOptions.RightToLeft, "Right To Left");
-
-				if (incompatible.Count > 0)
-				{
-					string message = $"The ECMAScript option cannot be combined with {string.Join(", ", incompatible)}.";
-					throw new ArgumentException(message);
-				}
+				Check(RegexOptions.NonBacktracking, "Non-Backtracking");
+				Validate("ECMAScript");
+			}
+			else if (options.HasFlag(RegexOptions.NonBacktracking))
+			{
+				// NonBacktracking can't be used with RightToLeft or ECMAScript per
+				// https://devblogs.microsoft.com/dotnet/regular-expression-improvements-in-dotnet-7/#backtracking-and-regexoptions-nonbacktracking
+				Check(RegexOptions.RightToLeft, "Right To Left");
+				Check(RegexOptions.ECMAScript, "ECMAScript"); // Redundant because it's checked above.
+				Validate("Non-Backtracking");
 			}
 		}
 
