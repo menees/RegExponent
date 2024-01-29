@@ -297,18 +297,52 @@
 
 		<DockPanel Grid.Row="2" Margin="3,0,3,3">
 			<Label Content="_Pattern:" DockPanel.Dock="Top" Padding="2,0" Target="{Binding ElementName=pattern}"/>
-			<local:Editor x:Name="pattern" MaxHeight="300" TextChanged="EditorTextChanged" SyntaxHighlighting="Pattern"/>
+			<local:Editor x:Name="pattern" MaxHeight="300" TextChanged="EditorTextChanged" SyntaxHighlighting="Pattern">
+				<local:Editor.ContextMenu>
+					<ContextMenu>
+						<!-- https://stackoverflow.com/a/77112366/1882616 -->
+						<MenuItem Header="_Undo" Command="Undo" CommandTarget="{Binding ElementName=pattern, Path=TextArea}" />
+						<MenuItem Header="_Redo" Command="Redo" CommandTarget="{Binding ElementName=pattern, Path=TextArea}" />
+						<Separator/>
+						<MenuItem Header="_Cut" Command="Cut" CommandTarget="{Binding ElementName=pattern, Path=TextArea}" />
+						<MenuItem Header="C_opy" Command="Copy" CommandTarget="{Binding ElementName=pattern, Path=TextArea}" />
+						<MenuItem Header="_Paste" Command="Paste" CommandTarget="{Binding ElementName=pattern, Path=TextArea}" />
+					</ContextMenu>
+				</local:Editor.ContextMenu>
+			</local:Editor>
 		</DockPanel>
 
 		<DockPanel Grid.Row="3" Margin="3,3,3,3"
 					Visibility="{Binding InReplaceMode, Source={StaticResource Model}, Converter={StaticResource BoolToVisibility}}">
 			<Label Content="_Replacement:" DockPanel.Dock="Top" Padding="2,0" Target="{Binding ElementName=replacement}"/>
-			<local:Editor x:Name="replacement" MaxHeight="300" TextChanged="EditorTextChanged" SyntaxHighlighting="Replacement"/>
+			<local:Editor x:Name="replacement" MaxHeight="300" TextChanged="EditorTextChanged" SyntaxHighlighting="Replacement">
+				<local:Editor.ContextMenu>
+					<ContextMenu>
+						<MenuItem Header="_Undo" Command="Undo" CommandTarget="{Binding ElementName=replacement, Path=TextArea}" />
+						<MenuItem Header="_Redo" Command="Redo" CommandTarget="{Binding ElementName=replacement, Path=TextArea}" />
+						<Separator/>
+						<MenuItem Header="_Cut" Command="Cut" CommandTarget="{Binding ElementName=replacement, Path=TextArea}" />
+						<MenuItem Header="C_opy" Command="Copy" CommandTarget="{Binding ElementName=replacement, Path=TextArea}" />
+						<MenuItem Header="_Paste" Command="Paste" CommandTarget="{Binding ElementName=replacement, Path=TextArea}" />
+					</ContextMenu>
+				</local:Editor.ContextMenu>
+			</local:Editor>
 		</DockPanel>
 
 		<DockPanel Grid.Row="4" Margin="3,3,3,0">
 			<Label Content="_Input:" DockPanel.Dock="Top" Padding="2,0" Target="{Binding ElementName=input}"/>
-			<local:Editor x:Name="input"  TextChanged="EditorTextChanged"/>
+			<local:Editor x:Name="input"  TextChanged="EditorTextChanged">
+				<local:Editor.ContextMenu>
+					<ContextMenu>
+						<MenuItem Header="_Undo" Command="Undo" CommandTarget="{Binding ElementName=input, Path=TextArea}" />
+						<MenuItem Header="_Redo" Command="Redo" CommandTarget="{Binding ElementName=input, Path=TextArea}" />
+						<Separator/>
+						<MenuItem Header="_Cut" Command="Cut" CommandTarget="{Binding ElementName=input, Path=TextArea}" />
+						<MenuItem Header="C_opy" Command="Copy" CommandTarget="{Binding ElementName=input, Path=TextArea}" />
+						<MenuItem Header="_Paste" Command="Paste" CommandTarget="{Binding ElementName=input, Path=TextArea}" />
+					</ContextMenu>
+				</local:Editor.ContextMenu>
+			</local:Editor>
 		</DockPanel>
 
 		<GridSplitter x:Name="splitter" Grid.Row="5" HorizontalAlignment="Stretch" VerticalAlignment="Center" ShowsPreview="True" Height="4" />
