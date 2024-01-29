@@ -380,7 +380,13 @@
 					 IsVisibleChanged="OutputTabIsVisibleChanged">
 				<local:Editor x:Name="replaced" IsReadOnly="True"
 							   Visibility="{Binding InReplaceMode, Converter={StaticResource BoolToVisibility}, Source={StaticResource Model}}"
-							   Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" />
+							   Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
+					<local:Editor.ContextMenu>
+						<ContextMenu>
+							<MenuItem Header="C_opy" Command="Copy" CommandTarget="{Binding ElementName=replaced, Path=TextArea}" />
+						</ContextMenu>
+					</local:Editor.ContextMenu>
+				</local:Editor>
 			</TabItem>
 			<TabItem x:Name="splitTab" Header="Output"
 					 Visibility="{Binding InSplitMode, Converter={StaticResource BoolToVisibility}, Source={StaticResource Model}}"
