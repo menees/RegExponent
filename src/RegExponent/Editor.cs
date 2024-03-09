@@ -17,7 +17,7 @@
 	{
 		#region Private Data Members
 
-		private static readonly string[] SupportedNewlines = new[] { "\n", "\r\n" };
+		private static readonly string[] SupportedNewlines = ["\n", "\r\n"];
 
 		private Model? model;
 

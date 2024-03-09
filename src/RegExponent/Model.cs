@@ -23,13 +23,13 @@
 
 		private const short CurrentVersion = 1;
 
-		private static readonly HashSet<string> UpdateSkipIsModified = new()
-		{
+		private static readonly HashSet<string> UpdateSkipIsModified =
+		[
 			nameof(IsModified),
 			nameof(InMatchMode),
 			nameof(InReplaceMode),
 			nameof(InSplitMode),
-		};
+		];
 
 		private readonly bool inDesignMode;
 		private bool isModified;

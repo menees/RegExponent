@@ -14,7 +14,8 @@
 		<Copyright Condition="$(CurrentYear) == '2022'">Copyright © 2022 Bill Menees</Copyright>
 
 		<!-- When TargetFrameworks changes, also update the app's Properties\PublishProfiles\*.pubxml files. -->
-		<TargetFrameworkCoreBase>net8.0</TargetFrameworkCoreBase>
+		<BaseNetVersion>8.0</BaseNetVersion>
+		<TargetFrameworkCoreBase>net$(BaseNetVersion)</TargetFrameworkCoreBase>
 		<TargetFramework>$(TargetFrameworkCoreBase)-windows</TargetFramework>
 
 		<RepoSrcFolder>$(MSBuildThisFileDirectory)</RepoSrcFolder>
@@ -63,15 +64,15 @@
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Menees.Analyzers" Version="3.0.11">
+		<PackageReference Include="Menees.Analyzers" Version="3.0.12">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="6.0.0">
+		<PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="$(BaseNetVersion).0">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.507">
+		<PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.556">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>

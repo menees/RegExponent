@@ -43,7 +43,7 @@
 
 			this.Matches = Array.Empty<Match>();
 			this.Replaced = string.Empty;
-			this.Splits = Array.Empty<string>();
+			this.Splits = [];
 		}
 
 		#endregion
@@ -100,13 +100,13 @@
 				static Task Run(Action action) => Task.Factory.StartNew(
 					action, TaskCreationOptions.LongRunning | TaskCreationOptions.PreferFairness);
 
-				List<Task> tasks = new()
-				{
+				List<Task> tasks =
+				[
 					Run(() => benchmark.IsMatchCount = RunIterations(benchmark, () => expression.IsMatch(this.input))),
 
 					// Matches is lazily evaluated, so we'll pull the Count to force the collection to be fully populated.
 					Run(() => benchmark.MatchesCount = RunIterations(benchmark, () => expression.Matches(this.input).Count.GetHashCode())),
-				};
+				];
 
 				if (this.mode == Mode.Replace)
 				{
@@ -139,7 +139,7 @@
 
 		private static void ValidateOptions(RegexOptions options)
 		{
-			List<string> incompatible = new();
+			List<string> incompatible = [];
 			void Check(RegexOptions flag, string? name = null)
 			{
 				if (options.HasFlag(flag))

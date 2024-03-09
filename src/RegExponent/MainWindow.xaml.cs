@@ -48,18 +48,16 @@
 		private const string FileDialogFilter = nameof(RegExponent) + " Files (*" + FileDialogDefaultExt + ")|*" + FileDialogDefaultExt;
 		private const string TempExt = ".rgxtmp";
 
-		private static readonly Regex InitialOptions = new(@"^(?n)\s*\(\?(?<options>([+\-]*[imnsx]*)+)[\:\)]", RegexOptions.Compiled);
-
 		private readonly string[] commandLineArgs;
 		private readonly Model model;
 		private readonly WindowSaver saver;
-		private readonly HashSet<TextEditor> dirtyText = new();
+		private readonly HashSet<TextEditor> dirtyText = [];
 		private readonly Control[] customFontControls;
 		private readonly ContextMenu recentDropDownMenu;
 		private readonly RecentItemList<string> recentFiles;
 		private readonly RichTextModel inputHighlight;
 		private readonly HighlightingColor noHighlight = new();
-		private readonly ObservableCollection<Benchmark> benchmarks = new();
+		private readonly ObservableCollection<Benchmark> benchmarks = [];
 		private string currentFileName;
 
 		private int updateLevel;
@@ -70,7 +68,7 @@
 		#region Constructors
 
 		public MainWindow()
-			: this(Array.Empty<string>())
+			: this([])
 		{
 		}
 
@@ -78,8 +76,8 @@
 		{
 			this.InitializeComponent();
 			this.commandLineArgs = commandLineArgs;
-			this.customFontControls = new Control[]
-			{
+			this.customFontControls =
+			[
 				this.pattern,
 				this.replacement,
 				this.input,
@@ -87,7 +85,7 @@
 				this.matchGrid,
 				this.splitGrid,
 				this.benchmarkGrid,
-			};
+			];
 
 			this.recentDropDownMenu = new ContextMenu
 			{
@@ -192,6 +190,12 @@
 
 		#region Private Methods
 
+		[GeneratedRegex(@"(?n)at offset (?<offset>\d+)[^\d]")]
+		private static partial Regex AtOffset();
+
+		[GeneratedRegex(@"^(?n)\s*\(\?(?<options>([+\-]*[imnsx]*)+)[\:\)]", RegexOptions.Compiled)]
+		private static partial Regex InitialOptions();
+
 		private static bool IsTempFile(string fileName)
 		{
 			bool result = fileName.IsNotEmpty()
@@ -290,7 +294,7 @@
 			return allowClear;
 		}
 
-		private IDisposable BeginUpdate()
+		private Disposer BeginUpdate()
 		{
 			bool previous = this.updating;
 			this.updating = true;
@@ -670,7 +674,7 @@
 			// options at the start of the pattern. The mode can change mid-pattern with inline options,
 			// but we won't try to handle that for syntax highlighting.
 			bool? useXMode = null;
-			Match match = InitialOptions.Match(this.model.Pattern);
+			Match match = InitialOptions().Match(this.model.Pattern);
 			if (match.Success && match.Groups.Count == 2)
 			{
 				// For options the last referenced state wins, e.g., (?+xxxxxmisn---x-ixmsixx-x) ends with x-mode off.
@@ -1123,7 +1127,7 @@
 		{
 			if (sender is ContentControl contentControl && contentControl.Content is string text)
 			{
-				Match match = Regex.Match(text, @"(?n)at offset (?<offset>\d+)[^\d]");
+				Match match = AtOffset().Match(text);
 				if (match.Success
 					&& match.Groups.Count == 2
 					&& int.TryParse(match.Groups[1].Value, out int offset)

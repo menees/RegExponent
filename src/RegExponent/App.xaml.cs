@@ -56,7 +56,7 @@
 				// Based on https://stackoverflow.com/a/46512591/1882616
 				HighlightingManager highlighters = HighlightingManager.Instance;
 				IHighlightingDefinition definition = HighlightingLoader.Load(reader, highlighters);
-				highlighters.RegisterHighlighting(highlightName, Array.Empty<string>(), definition);
+				highlighters.RegisterHighlighting(highlightName, [], definition);
 			}
 		}
 
