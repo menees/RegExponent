@@ -138,6 +138,7 @@
 		private enum Code
 		{
 			Pattern,
+			GeneratedRegex,
 			Replacement,
 			Input,
 			Block,
@@ -551,7 +552,7 @@
 		private Editor? GetCodeEditor(Code code)
 			=> code switch
 			{
-				Code.Pattern => this.pattern,
+				Code.Pattern or Code.GeneratedRegex => this.pattern,
 				Code.Replacement => this.replacement,
 				Code.Input => this.input,
 				_ => null,
@@ -561,9 +562,25 @@
 		{
 			Editor? editor = this.GetCodeEditor(code);
 
-			string text = editor != null
-				? CodeGenerator.ToVerbatimLines(editor.Text, this.model.Newline)
-				: CodeGenerator.GenerateBlock(this.model);
+			string text;
+			if (editor == null)
+			{
+				text = CodeGenerator.GenerateBlock(this.model);
+			}
+			else if (code == Code.GeneratedRegex)
+			{
+				string methodName = new([.. IO.Path.GetFileNameWithoutExtension(this.CurrentFileName).Where(ch => char.IsLetterOrDigit(ch) || ch == '_')]);
+				if (methodName.IsEmpty())
+				{
+					methodName = "MyRegex"; // Use same default value as VS 2022.
+				}
+
+				text = CodeGenerator.ToGeneratedRegex(this.model, methodName);
+			}
+			else
+			{
+				text = CodeGenerator.ToRawLines(editor.Text, this.model.Newline);
+			}
 
 			Clipboard.SetText(text, TextDataFormat.UnicodeText);
 		}

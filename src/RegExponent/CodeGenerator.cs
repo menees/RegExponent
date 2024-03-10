@@ -7,7 +7,9 @@
 	using System.Globalization;
 	using System.Linq;
 	using System.Text;
+	using System.Text.RegularExpressions;
 	using System.Threading.Tasks;
+	using Menees;
 
 	#endregion
 
@@ -60,34 +62,68 @@
 			return result;
 		}
 
-		public static string ToVerbatimLines(string value, string newline)
+		public static string ToRawLines(string value, string newline)
 		{
 			StringBuilder sb = new(value.Length * 2);
 
+			// Use C# 11's raw string literals since their design motivation was to make embedding regexes easier.
+			// https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/proposals/csharp-11.0/raw-string-literal#motivation
+			const int MinQuotes = 3;
+			const int MaxQuotes = 100;
+			sb.Append('"', MinQuotes);
+			while (sb.Length <= MaxQuotes)
+			{
+				if (!value.Contains(sb.ToString()))
+				{
+					break;
+				}
+
+				sb.Append('"');
+			}
+
+			if (sb.Length >= MaxQuotes)
+			{
+				throw Exceptions.NewArgumentException("Input value contains too long of a sequence of double quotes to generate readable code.");
+			}
+
+			string delimiter = sb.ToString();
+			sb.Clear();
 			string[] lines = value.Split(newline);
 			foreach (string line in lines)
 			{
 				if (sb.Length > 0)
 				{
+					// Since Git changes newlines by default to match the OS, we need to encode
+					// the exact newline the model requires for this pattern.
 					sb.AppendLine().Append(Indent).Append("+ ").Append(ToLiteral(newline)).Append(" + ");
 				}
 
-				sb.Append("@\"");
-				foreach (char ch in line)
-				{
-					switch (ch)
-					{
-						case '"':
-							sb.Append("\"\"");
-							break;
-						default:
-							sb.Append(ch);
-							break;
-					}
-				}
-
-				sb.Append('"');
+				sb.Append(delimiter);
+				sb.Append(line);
+				sb.Append(delimiter);
 			}
+
+			string result = sb.ToString();
+			return result;
+		}
+
+		public static string ToGeneratedRegex(Model model, string methodName)
+		{
+			StringBuilder sb = new();
+			sb.Append("[GeneratedRegex(");
+			sb.Append(ToRawLines(model.Pattern, model.Newline));
+
+			if (model.Options != RegexOptions.None)
+			{
+				sb.Append(", ");
+				AppendOptions(sb, model);
+			}
+
+			sb.Append(")]");
+			sb.AppendLine();
+			sb.Append("private static partial Regex ");
+			sb.Append(methodName);
+			sb.Append("();");
 
 			string result = sb.ToString();
 			return result;
@@ -102,14 +138,15 @@
 
 			void AppendConst(string name, string value)
 			{
-				sb.Append("const string ").Append(name).Append(" = ").Append(ToVerbatimLines(value, model.Newline));
+				sb.Append("const string ").Append(name).Append(" = ").Append(ToRawLines(value, model.Newline));
 				AppendLineTerminator();
 			}
 
 			AppendConst("Pattern", model.Pattern);
 
 			sb.Append("Regex regex = new(Pattern, ");
-			sb.Append("RegexOptions.").Append(model.Options.ToString().Replace(", ", " | RegexOptions.")).Append(')');
+			AppendOptions(sb, model);
+			sb.Append(')');
 			AppendLineTerminator();
 
 			AppendConst("Input", model.Input);
@@ -144,6 +181,13 @@
 			string result = sb.ToString();
 			return result;
 		}
+
+		#endregion
+
+		#region Private Methods
+
+		private static void AppendOptions(StringBuilder sb, Model model)
+			=> sb.Append("RegexOptions.").Append(model.Options.ToString().Replace(", ", " | RegexOptions."));
 
 		#endregion
 	}

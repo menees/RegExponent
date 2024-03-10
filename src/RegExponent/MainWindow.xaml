@@ -204,7 +204,9 @@
 				</MenuItem>
 				<MenuItem Header="_Tools">
 					<MenuItem Header="Generate _C# To Clipboard" Icon="{StaticResource Icon.CSFileNode}">
-						<MenuItem Header="_Pattern" Command="local:Commands.GenerateCodeToClipboard" CommandParameter="C#/Pattern"
+						<MenuItem Header="_Pattern As String" Command="local:Commands.GenerateCodeToClipboard" CommandParameter="C#/Pattern"
+								  Style="{StaticResource CodeGeneratorMenuItem}"/>
+						<MenuItem Header="Pattern As _GeneratedRegex" Command="local:Commands.GenerateCodeToClipboard" CommandParameter="C#/GeneratedRegex"
 								  Style="{StaticResource CodeGeneratorMenuItem}"/>
 						<MenuItem Header="_Replacement" Command="local:Commands.GenerateCodeToClipboard" CommandParameter="C#/Replacement"
 								  Visibility="{Binding InReplaceMode, Converter={StaticResource BoolToVisibility}, Source={StaticResource Model}}"
