@@ -19,7 +19,6 @@
 		private readonly string pattern;
 		private readonly string replacement;
 		private readonly string input;
-		private readonly string newline;
 		private readonly RegexOptions options;
 		private readonly Mode mode;
 		private readonly TimeSpan timeout;
@@ -36,12 +35,11 @@
 			this.input = model.Input;
 			this.options = model.Options;
 			this.mode = model.Mode;
-			this.newline = model.Newline;
 
 			this.timeout = timeout;
 			this.UpdateLevel = updateLevel;
 
-			this.Matches = Array.Empty<Match>();
+			this.Matches = [];
 			this.Replaced = string.Empty;
 			this.Splits = [];
 		}
@@ -123,7 +121,7 @@
 					}
 				}
 
-				Task.WaitAll(tasks.ToArray());
+				Task.WaitAll([.. tasks]);
 			});
 
 			if (executed)
