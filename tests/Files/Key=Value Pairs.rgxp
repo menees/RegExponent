@@ -1,0 +1,7 @@
+{
+  "Version": 1,
+  "UnixNewline": true,
+  "RegexOptions": "Multiline, Singleline",
+  "Pattern": "(?in)^\\s*(((?\u003Ckey\u003E\\w\u002B?)\\s*=\\s*((\u0022(?\u003Cvalue\u003E[^\u0022]*?)\u0022)|(\u0027(?\u003Cvalue\u003E[^\u0027]*?)\u0027)))\\s*)\u002B$",
+  "Input": "name=\u0027composer\u0027  value=\u0027Andrew Lloyd Webber\u0027\nSolo\nChoir Music\nkey=\u0027value\u0027 loose\n key=\u0022value\u0022 key2 = \u0027value2\u0027\n loose= key=\u0022value\u0022\nkey=\u0022value\u0022 key2=\u0027value2\u0027 key3=\u0027\u0027\n"
+}

@@ -1,0 +1,7 @@
+{
+  "Version": 1,
+  "UnixNewline": true,
+  "RegexOptions": "Multiline",
+  "Pattern": "(?in)^MegaBuild\\.Set[ \\t]\u002B(?\u003Cname\u003E\\S([^\\r\\n]*\\S)?)[ \\t]*=[ \\t]*(?\u003Cvalue\u003E\\S([^\\r\\n]*\\S)?)\\s*$",
+  "Input": "MegaBuild.Set A=1\nMegaBuild Set B=2\nMegaBuild.Set MB.Target=Rebuild\nHow do I use MegaBuild.Set name=value?\nMEGABUILD.SET %zipname%=c:\\xyz\\foo.zip\nMegaBuild.Set Z=\nMegaBuild.Set =1\nMegaBuild.Set Space = \nMegaBuild.Set Space = NotAllowed\nMegaBuild.Set Name Has Spaces 1=Value Has Spaces Too 1\nMegaBuild.Set Name Has Spaces 2 = Value Has Spaces Too 2\n\n"
+}

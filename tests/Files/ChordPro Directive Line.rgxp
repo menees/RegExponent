@@ -1,0 +1,7 @@
+{
+  "Version": 1,
+  "UnixNewline": true,
+  "RegexOptions": "Multiline",
+  "Pattern": "(?inx)^\\s*\\{\\s* # Opening brace with optional ws\n(?\u003Cname\u003E\\w\u002B?) # meta docs say, \u0022name must be a single word but may include underscores\u0022.\n(\\-(?\u003Cnot\u003E\\!)?(?\u003Cselector\u003E\\w\u002B))? # Operator and selector for conditional directive\n((\\s*:\\s*|\\s\u002B) # Colon or ws separator is required if args are present\n(?\u003Cargument\u003E.\u002B) # Single argument\n)?\\s*}\\s*$ # Closing brace with optional ws",
+  "Input": "{}\n{:arg}\n{name:}\n{name }\n{eot}\n{name: argument}\n{name:argument}\n { name : argument } \n{name argument}\n { name  argument } \n{start_of_tab: Solo}\n{section: Choir Music}\n{mixed: key=\u0027value\u0027 loose}\n{ test key=\u0022value\u0022 key2 = \u0027value2\u0027 }\n{test: key=\u0022value\u0022 key2=\u0027value2\u0027}\n{meta: artist The Beatles}\n{comment-alto:  Very softly!}\n{comment-tenor: Sing this with power}\n{define-guitar:  Am base-fret 1 frets 0 2 2 1 0 0}\n{define-!ukulele: Am base-fret 1 frets 2 0 0 0}\n{start_of_verse-soprano}\n{start_of_verse-!alto}"
+}
