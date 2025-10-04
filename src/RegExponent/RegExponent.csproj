@@ -6,6 +6,14 @@
 		<UseWindowsForms>true</UseWindowsForms>
 		<ApplicationIcon>..\..\images\RegExponent.ico</ApplicationIcon>
 	</PropertyGroup>
+	
+	<PropertyGroup Label="WinForms.ApplicationConfiguration.Initialize">
+		<!-- https://learn.microsoft.com/en-us/dotnet/desktop/winforms/whats-new/net60#new-application-bootstrap -->
+		<ApplicationVisualStyles>true</ApplicationVisualStyles>
+		<ApplicationUseCompatibleTextRendering>false</ApplicationUseCompatibleTextRendering>
+		<ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
+		<ApplicationDefaultFont>Segoe UI, 9pt</ApplicationDefaultFont>
+	</PropertyGroup>
 
 	<Choose>
 		<When Condition="$(UseLocaMeneesLibraries)">
