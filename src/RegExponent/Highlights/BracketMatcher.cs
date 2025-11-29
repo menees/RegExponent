@@ -10,8 +10,18 @@ internal class BracketMatcher
 {
 	#region Private Data Members
 
-	private static readonly string OpeningBrackets = "([{<";
-	private static readonly string ClosingBrackets = ")]}>";
+	private readonly string openingBrackets;
+	private readonly string closingBrackets;
+
+	#endregion
+
+	#region Constructors
+
+	public BracketMatcher(string openingBrackets = "([{<", string closingBrackets = ")]}>")
+	{
+		this.openingBrackets = openingBrackets;
+		this.closingBrackets = closingBrackets;
+	}
 
 	#endregion
 
@@ -29,10 +39,10 @@ internal class BracketMatcher
 		{
 			char ch = document.GetCharAt(offset);
 
-			int index = ClosingBrackets.IndexOf(ch);
+			int index = this.closingBrackets.IndexOf(ch);
 			if (index >= 0)
 			{
-				int openingOffset = this.SearchBackward(document, offset - 1, OpeningBrackets[index], ClosingBrackets[index]);
+				int openingOffset = this.SearchBackward(document, offset, this.openingBrackets[index], this.closingBrackets[index]);
 				if (openingOffset >= 0)
 				{
 					result = new()
@@ -44,10 +54,10 @@ internal class BracketMatcher
 			}
 			else
 			{
-				index = OpeningBrackets.IndexOf(ch);
+				index = this.openingBrackets.IndexOf(ch);
 				if (index >= 0)
 				{
-					int closingOffset = this.SearchForward(document, offset + 1, OpeningBrackets[index], ClosingBrackets[index]);
+					int closingOffset = this.SearchForward(document, offset, this.openingBrackets[index], this.closingBrackets[index]);
 					if (closingOffset >= 0)
 					{
 						result = new()
@@ -71,17 +81,17 @@ internal class BracketMatcher
 	{
 		int result = -1;
 		int openBracketDepth = 1;
+		offset++;
 
-		// LONG-TERM-TODO: Make this aware of the regex grammar, e.g. [...], escapes, #-comments, etc. [Bill, 11/28/2025]
 		int length = document.TextLength;
 		for (int index = offset; index < length; index++)
 		{
 			char ch = document.GetCharAt(index);
-			if (ch == openBracket)
+			if (ch == openBracket && !this.IsEscaped(document, index))
 			{
 				openBracketDepth++;
 			}
-			else if (ch == closingBracket)
+			else if (ch == closingBracket && !this.IsEscaped(document, index))
 			{
 				openBracketDepth--;
 				if (openBracketDepth == 0)
@@ -99,12 +109,12 @@ internal class BracketMatcher
 	{
 		int result = -1;
 		int closingBracketDepth = 1;
+		offset--;
 
-		// LONG-TERM-TODO: Make this aware of the regex grammar, e.g. [...], escapes, #-comments, etc. [Bill, 11/28/2025]
-		for (int index = offset; index >= 0; --index)
+		for (int index = offset; index >= 0; index--)
 		{
 			char ch = document.GetCharAt(index);
-			if (ch == openBracket)
+			if (ch == openBracket && !this.IsEscaped(document, index))
 			{
 				closingBracketDepth--;
 				if (closingBracketDepth == 0)
@@ -113,7 +123,7 @@ internal class BracketMatcher
 					break;
 				}
 			}
-			else if (ch == closingBracket)
+			else if (ch == closingBracket && !this.IsEscaped(document, index))
 			{
 				closingBracketDepth++;
 			}
@@ -121,6 +131,8 @@ internal class BracketMatcher
 
 		return result;
 	}
+
+	protected virtual bool IsEscaped(IDocument document, int offset) => false;
 
 	#endregion
 }

@@ -55,6 +55,7 @@ public partial class MainWindow
 	private readonly RichTextModel inputHighlight;
 	private readonly HighlightingColor noHighlight = new();
 	private readonly ObservableCollection<Benchmark> benchmarks = [];
+	private readonly PatternBracketMatcher patternBracketMatcher;
 	private string currentFileName;
 
 	private int updateLevel;
@@ -127,7 +128,8 @@ public partial class MainWindow
 		benchmarkView.SortDescriptions.Add(new SortDescription(nameof(Benchmark.Index), ListSortDirection.Descending));
 		this.benchmarksTab.Visibility = Visibility.Collapsed;
 
-		this.pattern.SetBracketMatcher(new BracketMatcher());
+		this.patternBracketMatcher = new();
+		this.pattern.SetBracketMatcher(this.patternBracketMatcher);
 	}
 
 	#endregion
@@ -718,6 +720,7 @@ public partial class MainWindow
 
 		// If initial options didn't explicitly set x-mode on or off, then fall back to the model's RegexOptions.
 		useXMode ??= this.model.UseIgnorePatternWhitespace;
+		this.patternBracketMatcher.XMode = useXMode.Value;
 
 		IHighlightingDefinition highlighting = HighlightingManager.Instance.GetDefinition(useXMode.Value ? "PatternXMode" : "Pattern");
 
