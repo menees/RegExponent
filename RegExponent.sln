@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.1.32228.430
+# Visual Studio Version 18
+VisualStudioVersion = 18.0.11222.15 d18.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RegExponent", "src\RegExponent\RegExponent.csproj", "{4F43DF2A-A68C-4A50-B333-1748074AEEEA}"
 EndProject
@@ -18,6 +18,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Build.cmd = Build.cmd
 		LICENSE = LICENSE
 		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{A633B12A-17A7-471E-AD55-2E744375B526}"
+	ProjectSection(SolutionItems) = preProject
+		docs\AvalonEdit Rendering.pdf = docs\AvalonEdit Rendering.pdf
+		docs\MS Regex Quick Reference.docx = docs\MS Regex Quick Reference.docx
+		docs\Using AvalonEdit (WPF Text Editor) - CodeProject.pdf = docs\Using AvalonEdit (WPF Text Editor) - CodeProject.pdf
 	EndProjectSection
 EndProject
 Global

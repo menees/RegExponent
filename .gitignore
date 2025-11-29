@@ -342,3 +342,6 @@ healthchecksdb
 # Binary image scraps
 /images/Scraps/*.png
 /images/Scraps/*.pdn
+
+# Document code scraps
+/docs/Scraps/*.cs
