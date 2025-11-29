@@ -10,6 +10,7 @@
 	using ICSharpCode.AvalonEdit.Document;
 	using ICSharpCode.AvalonEdit.Editing;
 	using ICSharpCode.AvalonEdit.Search;
+	using RegExponent.Highlights;
 
 	#endregion
 
@@ -20,6 +21,8 @@
 		private static readonly string[] SupportedNewlines = ["\n", "\r\n"];
 
 		private Model? model;
+		private BracketMatcher? bracketMatcher;
+		private BracketHighlighter? bracketHighlighter;
 
 		#endregion
 
@@ -102,6 +105,29 @@
 				}
 
 				caret.BringCaretToView();
+			}
+		}
+
+		public void HighlightBrackets()
+		{
+			BracketMatch? match = this.bracketMatcher?.MatchBracket(this.Document, this.TextArea.Caret.Offset);
+			this.bracketHighlighter?.SetMatch(match);
+		}
+
+		public void SetBracketMatcher(BracketMatcher? matcher)
+		{
+			if (this.bracketMatcher != matcher)
+			{
+				this.bracketMatcher = matcher;
+
+				if (this.bracketMatcher != null)
+				{
+					this.bracketHighlighter = new(this.TextArea.TextView);
+				}
+				else
+				{
+					this.bracketHighlighter = null;
+				}
 			}
 		}
 

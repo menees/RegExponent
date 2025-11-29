@@ -31,6 +31,7 @@
 	using Menees;
 	using Menees.Windows.Presentation;
 	using Microsoft.Win32;
+	using RegExponent.Highlights;
 	using Drawing = System.Drawing;
 	using IO = System.IO;
 	using WinForms = System.Windows.Forms;
@@ -129,6 +130,8 @@
 			ICollectionView benchmarkView = CollectionViewSource.GetDefaultView(this.benchmarkGrid.ItemsSource);
 			benchmarkView.SortDescriptions.Add(new SortDescription(nameof(Benchmark.Index), ListSortDirection.Descending));
 			this.benchmarksTab.Visibility = Visibility.Collapsed;
+
+			this.pattern.SetBracketMatcher(new BracketMatcher());
 		}
 
 		#endregion
@@ -455,7 +458,7 @@
 					this.message.Content = message.IsEmpty() ? null : new TextBlock(new Run(message)) { TextWrapping = TextWrapping.Wrap };
 
 					// Show repeated group captures too, e.g., https://stackoverflow.com/a/11051948/1882616.
-					List<MatchModel> matches = evaluator.Matches
+					List<MatchModel> matches = [.. evaluator.Matches
 						.SelectMany((match, matchNum) => match.Groups.Cast<Group>()
 							.SelectMany((group, groupNum) => group.Captures.Cast<Capture>()
 								.Select((capture, captureNum) => (group, groupNum, capture, captureNum)))
@@ -468,8 +471,7 @@
 							tuple.capture.Index,
 							tuple.capture.Length,
 							tuple.capture.Value,
-							matchColors.TryGetValue(tuple.match, out Color color) ? color : null))
-						.ToList();
+							matchColors.TryGetValue(tuple.match, out Color color) ? color : null))];
 					SetColumnVisibility(this.groupColumn, matches, m => m.Group.IsNotEmpty());
 					SetColumnVisibility(this.captureColumn, matches, m => m.Capture > 0);
 					this.matchGrid.ItemsSource = matches;
@@ -626,6 +628,8 @@
 					{
 						this.selectionDisplay.Content = $"S {editor.SelectionStart} L {editor.SelectionLength}";
 					}
+
+					editor.HighlightBrackets();
 				}));
 			}
 		}
