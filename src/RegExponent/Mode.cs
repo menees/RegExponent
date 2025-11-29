@@ -1,9 +1,8 @@
-﻿namespace RegExponent
+﻿namespace RegExponent;
+
+internal enum Mode
 {
-	internal enum Mode
-	{
-		Match,
-		Replace,
-		Split,
-	}
+	Match,
+	Replace,
+	Split,
 }
