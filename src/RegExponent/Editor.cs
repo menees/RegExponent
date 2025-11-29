@@ -213,6 +213,30 @@ internal sealed class Editor : TextEditor
 				e.Handled = true;
 			}
 		}
+		else if (e.Key == Key.OemCloseBrackets && this.bracketMatcher != null)
+		{
+			ModifierKeys modifiers = Keyboard.Modifiers;
+			if (modifiers == ModifierKeys.Control || modifiers == (ModifierKeys.Control | ModifierKeys.Shift))
+			{
+				int offset = this.TextArea.Caret.Offset;
+				BracketMatch? match = this.bracketMatcher.MatchBracket(this.Document, offset);
+				if (match != null)
+				{
+					if (modifiers.HasFlag(ModifierKeys.Shift))
+					{
+						this.Select(match.OpeningOffset, match.ClosingOffset + match.ClosingLength - match.OpeningOffset);
+					}
+					else if (offset == (match.OpeningOffset + match.OpeningLength))
+					{
+						this.Select(match.ClosingOffset + match.ClosingLength, 0);
+					}
+					else
+					{
+						this.Select(match.OpeningOffset + match.OpeningLength, 0);
+					}
+				}
+			}
+		}
 	}
 
 	#endregion
