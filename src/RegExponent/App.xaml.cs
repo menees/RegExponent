@@ -21,7 +21,6 @@ public partial class App : Application
 
 	public App()
 	{
-		ApplicationConfiguration.Initialize();
 		WindowsUtility.InitializeApplication(nameof(RegExponent), null, this.GetType().Assembly);
 
 		RegisterHighlighting("Pattern");

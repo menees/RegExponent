@@ -30,7 +30,6 @@ using Microsoft.Win32;
 using RegExponent.Highlights;
 using Drawing = System.Drawing;
 using IO = System.IO;
-using WinForms = System.Windows.Forms;
 
 #endregion
 
@@ -256,12 +255,11 @@ public partial class MainWindow
 		column.Visibility = items.Any(item => isVisible(item)) ? Visibility.Visible : Visibility.Collapsed;
 	}
 
-	private void ApplyFont(string familyName, double size, FontStyle style, FontWeight weight)
+	private void ApplyFont(FontFamily family, double size, FontStyle style, FontWeight weight)
 	{
-		FontFamily fontFamily = new(familyName);
 		foreach (Control control in this.customFontControls)
 		{
-			control.FontFamily = fontFamily;
+			control.FontFamily = family;
 			control.FontSize = size;
 			control.FontStyle = style;
 			control.FontWeight = weight;
@@ -782,7 +780,7 @@ public partial class MainWindow
 		ISettingsNode settings = e.SettingsNode;
 
 		Control control = this.customFontControls[0];
-		string fontFamily = settings.GetValue("Font.Family", control.FontFamily.Source);
+		FontFamily fontFamily = new(settings.GetValue("Font.Family", control.FontFamily.Source));
 		if (!double.TryParse(settings.GetValue("Font.Size", control.FontSize.ToString()), out double fontSize))
 		{
 			fontSize = control.FontSize;
@@ -896,68 +894,33 @@ public partial class MainWindow
 
 	private void FontExecuted(object? sender, ExecutedRoutedEventArgs e)
 	{
-		// WPF doesn't provide a common font dialog. The WinForms dialog is ugly but available.
-		// https://stackoverflow.com/a/37578593/1882616
-		using WinForms.FontDialog dialog = new()
+		FontDialog dialog = new()
 		{
-			AllowScriptChange = false,
-			AllowSimulations = false,
-			AllowVectorFonts = false,
-			AllowVerticalFonts = false,
-			FontMustExist = true,
-#pragma warning disable MEN010 // Avoid magic numbers. Font point sizes are clear in context.
-			MinSize = 8,
-			MaxSize = 20,
-#pragma warning restore MEN010 // Avoid magic numbers
-			ScriptsOnly = true,
-			ShowApply = false,
-			ShowColor = false,
-			ShowEffects = false,
-			ShowHelp = false,
+			Owner = this,
+			FontStyles = [FontStyles.Normal],
+			FontWeights = [FontWeights.ExtraLight, FontWeights.Light, FontWeights.Regular, FontWeights.Medium, FontWeights.SemiBold],
 		};
 
+		const int MaxFontSize = 20;
+		dialog.FontSizes = [.. dialog.FontSizes.Where(size => size <= MaxFontSize)];
+
 		Control control = this.customFontControls[0];
-		string familyName = control.FontFamily.Source;
-		Drawing.FontStyle fontStyle = Drawing.FontStyle.Regular;
-		if (control.FontWeight == FontWeights.Bold)
+		dialog.SelectedFontFamily = control.FontFamily;
+		dialog.SelectedFontStyle = control.FontStyle;
+		dialog.SelectedFontWeight = control.FontWeight;
+
+		// https://stackoverflow.com/a/5954005/1882616
+		double fontSize = control.FontSize;
+		double closestSelectableSize = dialog.FontSizes.Aggregate((x, y) => Math.Abs(x - fontSize) < Math.Abs(y - fontSize) ? x : y);
+		dialog.SelectedFontSize = closestSelectableSize;
+
+		if (dialog.ShowDialog() ?? false)
 		{
-			fontStyle |= Drawing.FontStyle.Bold;
-		}
-
-		if (control.FontStyle == FontStyles.Italic)
-		{
-			fontStyle |= Drawing.FontStyle.Italic;
-		}
-
-		using Drawing.Font priorFont = new(familyName, (float)control.FontSize, fontStyle, Drawing.GraphicsUnit.Pixel);
-		dialog.Font = priorFont;
-
-		// https://stackoverflow.com/a/10296513/1882616
-		WinForms.NativeWindow nativeWindow = new();
-		nativeWindow.AssignHandle(new WindowInteropHelper(this).Handle);
-		if (dialog.ShowDialog(nativeWindow) == WinForms.DialogResult.OK)
-		{
-			// From https://stackoverflow.com/a/37578593/1882616
-			Drawing.Font font = dialog.Font;
-			double fontSize = control.FontSize;
-			switch (font.Unit)
-			{
-				case Drawing.GraphicsUnit.Point:
-					const double XamlPixelsPerInch = 96.0;
-					const double DrawingPointsPerInch = 72.0;
-					fontSize = font.Size * XamlPixelsPerInch / DrawingPointsPerInch;
-					break;
-
-				case Drawing.GraphicsUnit.Pixel:
-					fontSize = font.Size;
-					break;
-			}
-
 			this.ApplyFont(
-				font.Name,
-				fontSize,
-				font.Italic ? FontStyles.Italic : FontStyles.Normal,
-				font.Bold ? FontWeights.Bold : FontWeights.Regular);
+				dialog.SelectedFontFamily,
+				dialog.SelectedFontSize,
+				dialog.SelectedFontStyle,
+				dialog.SelectedFontWeight);
 		}
 	}
 
