@@ -210,21 +210,28 @@ public partial class FontDialog : Window
 		return result;
 	}
 
+	private static ListBoxItem? FocusSelectedItem(ListBox listBox)
+	{
+		ListBoxItem? result = null;
+
+		if (listBox.SelectedItem is object selectedItem)
+		{
+			listBox.UpdateLayout();
+			if (listBox.ItemContainerGenerator.ContainerFromItem(selectedItem) is ListBoxItem container)
+			{
+				container.Focus();
+				result = container;
+			}
+		}
+
+		return result;
+	}
+
 	private void SelectListItem(ListBox listBox, object value)
 	{
 		listBox.SelectedItem = value;
-		listBox.ScrollIntoView(value);
-
-		// TODO: Don't do this here. Do it when the listbox is focused. [Bill, 12/1/2025]
-		this.Dispatcher.BeginInvoke(
-			new Action(() =>
-			{
-				if (listBox.ItemContainerGenerator.ContainerFromItem(value) is ListBoxItem container)
-				{
-					container.Focus();
-				}
-			}),
-			DispatcherPriority.Loaded);
+		listBox.ScrollIntoView(listBox.SelectedItem);
+		this.Dispatcher.BeginInvoke(new Action(() => FocusSelectedItem(listBox)), DispatcherPriority.Loaded);
 	}
 
 	#endregion
@@ -272,14 +279,15 @@ public partial class FontDialog : Window
 
 	private void Window_Loaded(object sender, RoutedEventArgs e)
 	{
-		// TODO: Explain this need. [Bill, 11/30/2025]
 		this.Dispatcher.BeginInvoke(
 			new Action(() =>
 			{
 				this.fontFamilyListBox.Focus();
-
-				// TODO: Fix keyboard focus. [Bill, 11/30/2025]
 				Keyboard.Focus(this.fontFamilyListBox);
+				if (FocusSelectedItem(this.fontFamilyListBox) is ListBoxItem item)
+				{
+					Keyboard.Focus(item);
+				}
 			}),
 			DispatcherPriority.Loaded);
 	}
