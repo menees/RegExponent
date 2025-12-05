@@ -253,18 +253,32 @@ public partial class FontDialog : Window
 
 	private void SetFontFamiliesListBoxItems()
 	{
-		object? selected = this.fontFamilyListBox.SelectedItem;
+		// Preserve the selected font's Source (stable identifier) instead of the object reference.
+		string? selectedSource = (this.fontFamilyListBox.SelectedItem as FontFamily)?.Source;
 
-		this.fontFamilyListBox.ItemsSource = this.MonospaceOnly
-			? this.fontFamilies.Where(family => family.IsMonospace())
-			: this.fontFamilies;
+		// Materialize the sequence so matching is done against concrete instances.
+		List<FontFamily> items = this.MonospaceOnly
+			? [.. this.fontFamilies.Where(family => family.IsMonospace())]
+			: [.. this.fontFamilies];
 
-		this.SelectListItem(this.fontFamilyListBox, selected);
+		this.fontFamilyListBox.ItemsSource = items;
 
-		if (this.fontFamilyListBox.Items.Count > 0
-			&& (this.fontFamilyListBox.SelectedItem is null or FontFamily { Source: "" }))
+		// Try to find an item in the new list that matches the previous selection by Source.
+		FontFamily? toSelect = null;
+		if (!string.IsNullOrEmpty(selectedSource))
 		{
-			this.SelectListItem(this.fontFamilyListBox, this.fontFamilyListBox.Items[0]);
+			toSelect = items.FirstOrDefault(f => string.Equals(f.Source, selectedSource, StringComparison.Ordinal));
+		}
+
+		// If there is no match, prefer selecting the first available item.
+		if (toSelect is null && items.Count > 0)
+		{
+			toSelect = items[0];
+		}
+
+		if (toSelect is not null)
+		{
+			this.SelectListItem(this.fontFamilyListBox, toSelect);
 		}
 	}
 
@@ -274,8 +288,20 @@ public partial class FontDialog : Window
 
 	private void OkButton_Click(object sender, RoutedEventArgs e)
 	{
-		this.DialogResult = new[] { this.fontFamilyListBox, this.fontStyleListBox, this.fontWeightListBox, this.fontSizeListBox }
-			.All(listBox => listBox.SelectedItem != null);
+		// Make sure we have good instances. Due to type converters, WPF can sometimes create "empty"
+		// instances of references types if they have a default constructor (like FontFamily does).
+		ListBox? unselectedListBox = new[] { this.fontFamilyListBox, this.fontStyleListBox, this.fontWeightListBox, this.fontSizeListBox }
+			.FirstOrDefault(listBox => string.IsNullOrEmpty(listBox.SelectedItem?.ToString()));
+
+		if (unselectedListBox is null)
+		{
+			this.DialogResult = true;
+		}
+		else
+		{
+			unselectedListBox.Focus();
+			Keyboard.Focus(unselectedListBox);
+		}
 	}
 
 	private void FontFamilyTextBox_TextChanged(object sender, TextChangedEventArgs e)
