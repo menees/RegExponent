@@ -23,6 +23,7 @@ public partial class FontDialog : Window
 	private ICollection<FontStyle> fontStyles;
 	private ICollection<FontWeight> fontWeights;
 	private ICollection<double> fontSizes;
+	private bool monospaceOnly;
 
 	#endregion
 
@@ -84,7 +85,8 @@ public partial class FontDialog : Window
 			if (this.fontFamilies != value)
 			{
 				this.fontFamilies = value;
-				this.fontFamilyListBox.ItemsSource = value;
+				this.monospaceOnly = this.FontFamilies.All(family => family.IsMonospace());
+				this.SetFontFamiliesListBoxItems();
 			}
 		}
 	}
@@ -170,6 +172,21 @@ public partial class FontDialog : Window
 		set => this.SelectListItem(this.fontSizeListBox, value);
 	}
 
+	public bool MonospaceOnly
+	{
+		get => this.monospaceOnly;
+		set
+		{
+			if (this.monospaceOnly != value)
+			{
+				this.monospaceOnly = value;
+				this.SetFontFamiliesListBoxItems();
+			}
+		}
+	}
+
+	public Visibility MonospaceOnlyVisibility => this.monospaceOnly ? Visibility.Collapsed : Visibility.Visible;
+
 	#endregion
 
 	#region Protected Methods
@@ -232,6 +249,23 @@ public partial class FontDialog : Window
 		listBox.SelectedItem = value;
 		listBox.ScrollIntoView(listBox.SelectedItem);
 		this.Dispatcher.BeginInvoke(new Action(() => FocusSelectedItem(listBox)), DispatcherPriority.Loaded);
+	}
+
+	private void SetFontFamiliesListBoxItems()
+	{
+		object? selected = this.fontFamilyListBox.SelectedItem;
+
+		this.fontFamilyListBox.ItemsSource = this.MonospaceOnly
+			? this.fontFamilies.Where(family => family.IsMonospace())
+			: this.fontFamilies;
+
+		this.SelectListItem(this.fontFamilyListBox, selected);
+
+		if (this.fontFamilyListBox.Items.Count > 0
+			&& (this.fontFamilyListBox.SelectedItem is null or FontFamily { Source: "" }))
+		{
+			this.SelectListItem(this.fontFamilyListBox, this.fontFamilyListBox.Items[0]);
+		}
 	}
 
 	#endregion

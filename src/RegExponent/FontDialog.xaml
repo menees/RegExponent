@@ -41,7 +41,12 @@
 		</Grid.RowDefinitions>
 
 		<!-- Font Family -->
-		<Label Grid.Column="1" Grid.Row="1">Font:</Label>
+		<DockPanel Grid.Column="1" Grid.Row="1">
+			<Label Target="{Binding ElementName=fontFamilyListBox}">_Font:</Label>
+			<CheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
+					  IsChecked="{Binding MonospaceOnly, RelativeSource={RelativeSource AncestorType=Window}, Mode=TwoWay}"
+					  Visibility="{Binding MonospaceOnlyVisibility, RelativeSource={RelativeSource AncestorType=Window}, Mode=OneWay}">_Monospace Only</CheckBox>
+		</DockPanel>
 		<TextBox Name="fontFamilyTextBox" Grid.Column="1" Grid.Row="2" Text="{Binding ElementName=fontFamilyListBox,Path=SelectedItem}" TextChanged="FontFamilyTextBox_TextChanged" />
 		<ListBox Name="fontFamilyListBox" Grid.Column="1" Grid.Row="3" SelectedIndex="0">
 			<ListBox.ItemTemplate>
@@ -69,7 +74,7 @@
 		</ListBox>
 
 		<!-- Font Style -->
-		<Label Grid.Column="3" Grid.Row="1">Style:</Label>
+		<Label Grid.Column="3" Grid.Row="1" Target="{Binding ElementName=fontStyleListBox}">St_yle:</Label>
 		<TextBox Name="fontStyleTextBox" Grid.Column="3" Grid.Row="2" Text="{Binding ElementName=fontStyleListBox,Path=SelectedItem}" TextChanged="FontStyleTextBox_TextChanged" IsReadOnly="True" />
 		<ListBox Name="fontStyleListBox" Grid.Column="3" Grid.Row="3" Padding="0,0,5,0" SelectedIndex="0">
 			<ListBox.ItemTemplate>
@@ -80,7 +85,7 @@
 		</ListBox>
 
 		<!-- Font Weight -->
-		<Label Grid.Column="5" Grid.Row="1">Weight:</Label>
+		<Label Grid.Column="5" Grid.Row="1" Target="{Binding ElementName=fontWeightListBox}">_Weight:</Label>
 		<TextBox Name="fontWeightTextBox" Grid.Column="5" Grid.Row="2" Text="{Binding ElementName=fontWeightListBox,Path=SelectedItem}" TextChanged="FontWeightTextBox_TextChanged" IsReadOnly="True" />
 		<ListBox Name="fontWeightListBox" Grid.Column="5" Grid.Row="3" Padding="0,0,5,0" SelectedIndex="0">
 			<ListBox.ItemTemplate>
@@ -91,7 +96,7 @@
 		</ListBox>
 
 		<!-- Font Size -->
-		<Label Grid.Column="7" Grid.Row="1">Size:</Label>
+		<Label Grid.Column="7" Grid.Row="1" Target="{Binding ElementName=fontSizeListBox}">Si_ze:</Label>
 		<TextBox Name="fontSizeTextBox" Grid.Column="7" Grid.Row="2" Text="{Binding ElementName=fontSizeListBox,Path=SelectedItem}" TextChanged="FontSizeTextBox_TextChanged" IsReadOnly="True" />
 		<ListBox Name="fontSizeListBox" Grid.Column="7" Grid.Row="3" Width="60" SelectedIndex="0" />
 
