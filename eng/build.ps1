@@ -14,7 +14,7 @@ $repoPath = Resolve-Path (Join-Path $scriptPath '..')
 $productName = Split-Path -Leaf $repoPath
 if (!$slnName)
 {
-	$slnName = "$productName.sln"
+	$slnName = "$productName.slnx"
 }
 
 # We can't build the full .sln as long as we have to reference a local AvalonEdit folder

@@ -1,0 +1,19 @@
+<Solution>
+  <Folder Name="/Docs/">
+    <File Path="docs/AvalonEdit Rendering.pdf" />
+    <File Path="docs/MS Regex Quick Reference.docx" />
+    <File Path="docs/Using AvalonEdit (WPF Text Editor) - CodeProject.pdf" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path=".gitattributes" />
+    <File Path=".gitignore" />
+    <File Path="Build.cmd" />
+    <File Path="LICENSE" />
+    <File Path="README.md" />
+  </Folder>
+  <Folder Name="/Src/">
+    <File Path="src/Directory.Build.props" />
+  </Folder>
+  <Project Path="src/RegExponent/RegExponent.csproj" />
+</Solution>
