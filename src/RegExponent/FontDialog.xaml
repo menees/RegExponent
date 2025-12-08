@@ -14,18 +14,18 @@
 	<Window.Resources>
 		<local:FontFamilyMonospaceMarkConverter x:Key="MonospaceMarker" />
 	</Window.Resources>
-	<Grid>
+	<Grid x:Name="mainGrid">
 
 		<Grid.ColumnDefinitions>
 			<ColumnDefinition Width="10" />
-			<ColumnDefinition />
-			<ColumnDefinition Width="10" />
-			<ColumnDefinition Width="Auto" />
-			<ColumnDefinition Width="10" />
-			<ColumnDefinition Width="Auto" />
-			<ColumnDefinition Width="10" />
-			<ColumnDefinition Width="Auto" />
-			<ColumnDefinition Width="10" />
+			<ColumnDefinition x:Name="familyColumn" />
+			<ColumnDefinition x:Name="familySpaceColumn" Width="10" />
+			<ColumnDefinition x:Name="styleColumn" Width="Auto" />
+			<ColumnDefinition x:Name="styleSpaceColumn" Width="10" />
+			<ColumnDefinition x:Name="weightColumn" Width="Auto" />
+			<ColumnDefinition x:Name="weightSpaceColumn" Width="10" />
+			<ColumnDefinition x:Name="sizeColumn" Width="Auto" />
+			<ColumnDefinition x:Name="sizeSpaceColumn" Width="10" />
 			<ColumnDefinition Width="Auto" />
 			<ColumnDefinition Width="10" />
 		</Grid.ColumnDefinitions>

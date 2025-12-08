@@ -894,17 +894,22 @@ public partial class MainWindow
 
 	private void FontExecuted(object? sender, ExecutedRoutedEventArgs e)
 	{
+		Control control = this.customFontControls[0];
+
+		// Using a single style will hide the FontDialog's Style column. If someone was already using
+		// Italic, then we'll still allow it. The old Win32 dialog didn't support WPF's Oblique style,
+		// but someone could be using it by editing their .stgx file.
+		FontStyle requiredStyle = FontStyles.Normal;
 		FontDialog dialog = new()
 		{
 			Owner = this,
-			FontStyles = [FontStyles.Normal],
+			FontStyles = control.FontStyle == requiredStyle ? [requiredStyle] : [requiredStyle, control.FontStyle],
 			FontWeights = [FontWeights.ExtraLight, FontWeights.Light, FontWeights.Regular, FontWeights.Medium, FontWeights.SemiBold],
 		};
 
 		const int MaxFontSize = 20;
 		dialog.FontSizes = [.. dialog.FontSizes.Where(size => size <= MaxFontSize)];
 
-		Control control = this.customFontControls[0];
 		dialog.SelectedFontFamily = control.FontFamily;
 		dialog.SelectedFontStyle = control.FontStyle;
 		dialog.SelectedFontWeight = control.FontWeight;

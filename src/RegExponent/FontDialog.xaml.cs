@@ -87,6 +87,10 @@ public partial class FontDialog : Window
 				this.fontFamilies = value;
 				this.monospaceOnly = this.FontFamilies.All(family => family.IsMonospace());
 				this.SetFontFamiliesListBoxItems();
+
+				// Note: We only check the column visibility when the collection
+				// of font families is programmatically changed (not user filtered).
+				this.CheckColumnVisibility(this.fontFamilyListBox);
 			}
 		}
 	}
@@ -106,6 +110,7 @@ public partial class FontDialog : Window
 			{
 				this.fontStyles = value;
 				this.fontStyleListBox.ItemsSource = value;
+				this.CheckColumnVisibility(this.fontStyleListBox);
 			}
 		}
 	}
@@ -125,6 +130,7 @@ public partial class FontDialog : Window
 			{
 				this.fontWeights = value;
 				this.fontWeightListBox.ItemsSource = value;
+				this.CheckColumnVisibility(this.fontWeightListBox);
 			}
 		}
 	}
@@ -144,6 +150,7 @@ public partial class FontDialog : Window
 			{
 				this.fontSizes = value;
 				this.fontSizeListBox.ItemsSource = value;
+				this.CheckColumnVisibility(this.fontSizeListBox);
 			}
 		}
 	}
@@ -181,6 +188,10 @@ public partial class FontDialog : Window
 			{
 				this.monospaceOnly = value;
 				this.SetFontFamiliesListBoxItems();
+
+				// Note: Checking the box doesn't call CheckColumnVisibility
+				// because if only one monospace font is in the list, then the
+				// column would hide, and the user couldn't uncheck the box.
 			}
 		}
 	}
@@ -279,6 +290,19 @@ public partial class FontDialog : Window
 		if (toSelect is not null)
 		{
 			this.SelectListItem(this.fontFamilyListBox, toSelect);
+		}
+	}
+
+	private void CheckColumnVisibility(ListBox listBox)
+	{
+		if (listBox.Items.Count == 1)
+		{
+			int listBoxColumnIndex = Grid.GetColumn(listBox);
+			ColumnDefinition listBoxColumn = this.mainGrid.ColumnDefinitions[listBoxColumnIndex];
+			ColumnDefinition spaceColumn = this.mainGrid.ColumnDefinitions[listBoxColumnIndex + 1];
+			GridLength zero = new(0);
+			listBoxColumn.Width = zero;
+			spaceColumn.Width = zero;
 		}
 	}
 
