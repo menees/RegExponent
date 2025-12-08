@@ -13,8 +13,11 @@
 		<Copyright>Copyright © 2022-$(CurrentYear) Bill Menees</Copyright>
 		<Copyright Condition="$(CurrentYear) == '2022'">Copyright © 2022 Bill Menees</Copyright>
 
-		<!-- When TargetFrameworks changes, also update the app's Properties\PublishProfiles\*.pubxml files. -->
-		<BaseNetVersion>8.0</BaseNetVersion>
+		<!-- When BaseNetVersion changes, also update:
+			* The app's Properties\PublishProfiles\*.pubxml files.
+			* The dotnet-version in .github\workflows\build.yml.
+		-->
+		<BaseNetVersion>10.0</BaseNetVersion>
 		<TargetFrameworkCoreBase>net$(BaseNetVersion)</TargetFrameworkCoreBase>
 		<TargetFramework>$(TargetFrameworkCoreBase)-windows</TargetFramework>
 
@@ -26,7 +29,7 @@
 		<_SkipUpgradeNetAnalyzersNuGetWarning>true</_SkipUpgradeNetAnalyzersNuGetWarning>
 
 		<!-- Make the assembly, file, and NuGet package versions the same. -->
-		<Version>1.3.4</Version>
+		<Version>1.4.0</Version>
 		<UseLocaMeneesLibraries>false</UseLocaMeneesLibraries>
 		<LocaMeneesLibrariesSrc/>
 		<BuildingInsideVisualStudio Condition="'$(BuildingInsideVisualStudio)' == ''">false</BuildingInsideVisualStudio>
@@ -68,7 +71,7 @@
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="$(BaseNetVersion).0">
+		<PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="$(BaseNetVersion).100">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
