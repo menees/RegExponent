@@ -82,7 +82,7 @@ public partial class MainWindow
 			this.matchGrid,
 			this.splitGrid,
 			this.benchmarkGrid,
-			this.explainText,
+			this.explainTree,
 		];
 
 		this.recentDropDownMenu = new ContextMenu
@@ -1204,25 +1204,50 @@ public partial class MainWindow
 
 	private void UpdateExplain()
 	{
+		this.explainTree.Items.Clear();
+
 		string patternText = this.model.Pattern;
 		RegExplainer.Parser.RegexParser parser = new(patternText, this.model.Options);
 		if (parser.TryParse(
 			out RegExplainer.Ast.RegexNode? ast,
 			out RegExplainer.RegexParseException? error))
 		{
-			RegExplainer.Visitor.ExplanationVisitor visitor = new();
+			TreeViewExplanationVisitor visitor = new();
 			ast!.Accept(visitor, 0);
-			this.explainText.Text = visitor.Builder.ToString();
+			foreach (System.Windows.Controls.TreeViewItem item in visitor.RootItems)
+			{
+				this.explainTree.Items.Add(item);
+			}
 		}
 		else
 		{
-			this.explainText.Text = error?.ToString() ?? "Unknown parse error.";
+			string errorText = error?.ToString() ?? "Unknown parse error.";
+			this.explainTree.Items.Add(new System.Windows.Controls.TreeViewItem
+			{
+				Header = new System.Windows.Controls.TextBlock
+				{
+					Text = errorText,
+					Foreground = System.Windows.Media.Brushes.Red,
+					TextWrapping = System.Windows.TextWrapping.Wrap,
+				},
+			});
 		}
 	}
 
 	private void CloseExplainClick(object sender, RoutedEventArgs e)
 	{
 		this.explainTab.Visibility = Visibility.Collapsed;
+	}
+
+	private void ExplainTreeSelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+	{
+		if (e.NewValue is TreeViewItem { Tag: (int start, int length) }
+			&& start >= 0 && length >= 0
+			&& (start + length) <= this.pattern.Document.TextLength)
+		{
+			this.pattern.Select(start, length);
+			this.pattern.TextArea.Caret.BringCaretToView();
+		}
 	}
 
 	private void BottomTabsSelectionChanged(object sender, SelectionChangedEventArgs e)

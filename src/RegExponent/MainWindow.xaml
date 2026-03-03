@@ -437,11 +437,10 @@
 					</Grid>
 				</TabItem.Header>
 				<TabItem.Content>
-					<TextBox x:Name="explainText" IsReadOnly="True" IsReadOnlyCaretVisible="True"
-							 TextWrapping="Wrap" AcceptsReturn="True"
-							 VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
-							 Background="{DynamicResource {x:Static SystemColors.WindowBrushKey}}"
-							 BorderThickness="0" />
+					<TreeView x:Name="explainTree"
+								  BorderThickness="0"
+								  Background="{DynamicResource {x:Static SystemColors.WindowBrushKey}}"
+								  SelectedItemChanged="ExplainTreeSelectedItemChanged" />
 				</TabItem.Content>
 			</TabItem>
 			<TabItem x:Name="benchmarksTab" IsVisibleChanged="OutputTabIsVisibleChanged">
