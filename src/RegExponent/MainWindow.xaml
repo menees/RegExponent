@@ -303,12 +303,12 @@
 				<local:Editor.ContextMenu>
 					<ContextMenu>
 						<!-- https://stackoverflow.com/a/77112366/1882616 -->
-						<MenuItem Header="_Undo" Command="Undo" CommandTarget="{Binding ElementName=pattern, Path=TextArea}" />
-						<MenuItem Header="_Redo" Command="Redo" CommandTarget="{Binding ElementName=pattern, Path=TextArea}" />
+						<MenuItem Header="_Undo" Command="Undo" CommandTarget="{Binding PlacementTarget.TextArea, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ContextMenu}}}" />
+						<MenuItem Header="_Redo" Command="Redo" CommandTarget="{Binding PlacementTarget.TextArea, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ContextMenu}}}" />
 						<Separator/>
-						<MenuItem Header="_Cut" Command="Cut" CommandTarget="{Binding ElementName=pattern, Path=TextArea}" />
-						<MenuItem Header="C_opy" Command="Copy" CommandTarget="{Binding ElementName=pattern, Path=TextArea}" />
-						<MenuItem Header="_Paste" Command="Paste" CommandTarget="{Binding ElementName=pattern, Path=TextArea}" />
+						<MenuItem Header="_Cut" Command="Cut" CommandTarget="{Binding PlacementTarget.TextArea, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ContextMenu}}}" />
+						<MenuItem Header="C_opy" Command="Copy" CommandTarget="{Binding PlacementTarget.TextArea, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ContextMenu}}}" />
+						<MenuItem Header="_Paste" Command="Paste" CommandTarget="{Binding PlacementTarget.TextArea, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ContextMenu}}}" />
 					</ContextMenu>
 				</local:Editor.ContextMenu>
 			</local:Editor>
@@ -320,12 +320,12 @@
 			<local:Editor x:Name="replacement" MaxHeight="300" TextChanged="EditorTextChanged" SyntaxHighlighting="Replacement">
 				<local:Editor.ContextMenu>
 					<ContextMenu>
-						<MenuItem Header="_Undo" Command="Undo" CommandTarget="{Binding ElementName=replacement, Path=TextArea}" />
-						<MenuItem Header="_Redo" Command="Redo" CommandTarget="{Binding ElementName=replacement, Path=TextArea}" />
+						<MenuItem Header="_Undo" Command="Undo" CommandTarget="{Binding PlacementTarget.TextArea, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ContextMenu}}}" />
+						<MenuItem Header="_Redo" Command="Redo" CommandTarget="{Binding PlacementTarget.TextArea, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ContextMenu}}}" />
 						<Separator/>
-						<MenuItem Header="_Cut" Command="Cut" CommandTarget="{Binding ElementName=replacement, Path=TextArea}" />
-						<MenuItem Header="C_opy" Command="Copy" CommandTarget="{Binding ElementName=replacement, Path=TextArea}" />
-						<MenuItem Header="_Paste" Command="Paste" CommandTarget="{Binding ElementName=replacement, Path=TextArea}" />
+						<MenuItem Header="_Cut" Command="Cut" CommandTarget="{Binding PlacementTarget.TextArea, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ContextMenu}}}" />
+						<MenuItem Header="C_opy" Command="Copy" CommandTarget="{Binding PlacementTarget.TextArea, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ContextMenu}}}" />
+						<MenuItem Header="_Paste" Command="Paste" CommandTarget="{Binding PlacementTarget.TextArea, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ContextMenu}}}" />
 					</ContextMenu>
 				</local:Editor.ContextMenu>
 			</local:Editor>
@@ -336,12 +336,12 @@
 			<local:Editor x:Name="input"  TextChanged="EditorTextChanged">
 				<local:Editor.ContextMenu>
 					<ContextMenu>
-						<MenuItem Header="_Undo" Command="Undo" CommandTarget="{Binding ElementName=input, Path=TextArea}" />
-						<MenuItem Header="_Redo" Command="Redo" CommandTarget="{Binding ElementName=input, Path=TextArea}" />
+						<MenuItem Header="_Undo" Command="Undo" CommandTarget="{Binding PlacementTarget.TextArea, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ContextMenu}}}" />
+						<MenuItem Header="_Redo" Command="Redo" CommandTarget="{Binding PlacementTarget.TextArea, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ContextMenu}}}" />
 						<Separator/>
-						<MenuItem Header="_Cut" Command="Cut" CommandTarget="{Binding ElementName=input, Path=TextArea}" />
-						<MenuItem Header="C_opy" Command="Copy" CommandTarget="{Binding ElementName=input, Path=TextArea}" />
-						<MenuItem Header="_Paste" Command="Paste" CommandTarget="{Binding ElementName=input, Path=TextArea}" />
+						<MenuItem Header="_Cut" Command="Cut" CommandTarget="{Binding PlacementTarget.TextArea, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ContextMenu}}}" />
+						<MenuItem Header="C_opy" Command="Copy" CommandTarget="{Binding PlacementTarget.TextArea, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ContextMenu}}}" />
+						<MenuItem Header="_Paste" Command="Paste" CommandTarget="{Binding PlacementTarget.TextArea, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ContextMenu}}}" />
 					</ContextMenu>
 				</local:Editor.ContextMenu>
 			</local:Editor>
@@ -385,7 +385,7 @@
 							   Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
 					<local:Editor.ContextMenu>
 						<ContextMenu>
-							<MenuItem Header="C_opy" Command="Copy" CommandTarget="{Binding ElementName=replaced, Path=TextArea}" />
+							<MenuItem Header="C_opy" Command="Copy" CommandTarget="{Binding PlacementTarget.TextArea, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ContextMenu}}}" />
 						</ContextMenu>
 					</local:Editor.ContextMenu>
 				</local:Editor>
