@@ -14,6 +14,13 @@
   </Folder>
   <Folder Name="/Src/">
     <File Path="src/Directory.Build.props" />
+    <Project Path="src/RegExplainer/RegExplainer.csproj" />
+    <Project Path="src/RegExponent/RegExponent.csproj" />
   </Folder>
-  <Project Path="src/RegExponent/RegExponent.csproj" />
+  <Folder Name="/Tests/">
+    <File Path="tests/.runsettings" />
+    <File Path="tests/AssemblyInfo.cs" />
+    <File Path="tests/Directory.Build.props" />
+    <Project Path="tests/RegExplainer.Tests/RegExplainer.Tests.csproj" />
+  </Folder>
 </Solution>

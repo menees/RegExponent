@@ -1,9 +1,9 @@
 param(
 	[bool] $build = $true,
+	[bool] $test = $false,
 	[string[]] $configurations = @('Debug', 'Release'),
 	[bool] $publish = $false,
-	[string] $msBuildVerbosity = 'minimal',
-	[string] $slnName = $null
+	[string] $msBuildVerbosity = 'minimal'
 )
 
 Set-StrictMode -Version Latest
@@ -11,18 +11,14 @@ $ErrorActionPreference = "Stop"
 
 $scriptPath = [IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Definition)
 $repoPath = Resolve-Path (Join-Path $scriptPath '..')
-$productName = Split-Path -Leaf $repoPath
-if (!$slnName)
+$slnPath = @(Get-ChildItem -Path $repoPath -Filter '*.slnx')
+if (!$slnPath)
 {
-	$slnName = "$productName.slnx"
+	throw "Solution not found at $repoPath."
 }
 
-# We can't build the full .sln as long as we have to reference a local AvalonEdit folder
-# to get the fixes from https://github.com/icsharpcode/AvalonEdit/pull/342.
-# I hope it's short term, so I haven't configured AvalonEdit as a git submodule.
-# For now, we'll just build the RegExponent.csproj instead because it knows how
-# to skip the AvalonEdit local reference if it doesn't exist.
-$slnPath = Join-Path $repoPath $slnName
+$slnPath = $slnPath[0].FullName
+$productName = [IO.Path]::GetFileNameWithoutExtension($slnPath)
 
 function GetXmlPropertyValue($fileName, $propertyName)
 {
@@ -37,6 +33,14 @@ if ($build)
 	foreach ($configuration in $configurations)
 	{
 		dotnet build $slnPath /p:Configuration=$configuration /v:$msBuildVerbosity /nologo
+	}
+}
+
+if ($test)
+{
+	foreach ($configuration in $configurations)
+	{
+		dotnet test $slnPath /p:Configuration=$configuration
 	}
 }
 
@@ -69,7 +73,8 @@ if ($publish)
 					# The Publish target in "C:\Program Files\dotnet\sdk\3.1.101\Sdks\Microsoft.NET.Sdk\targets\Microsoft.NET.Sdk.CrossTargeting.targets"
 					# throws an exception if the .csproj uses <TargetFrameworks>. We have to override that and force a specific <TargetFramework> instead.
 					$targetFramework = GetXmlPropertyValue $profile 'TargetFramework'
-					dotnet publish $slnPath /t:Publish /p:PublishProfile=$profileName /p:TargetFramework=$targetFramework /v:$msBuildVerbosity /nologo /p:Configuration=$configuration
+					$projectPath = @(Get-ChildItem -Path $profile.Directory.Parent.Parent.FullName -Filter '*.csproj')[0].FullName
+					dotnet publish $projectPath /t:Publish /p:PublishProfile=$profileName /p:TargetFramework=$targetFramework /v:$msBuildVerbosity /nologo /p:Configuration=$configuration
 
 					Remove-Item "$artifactsPath\$profileName\*.pdb"
 					Remove-Item "$artifactsPath\$profileName\ICSharpCode.AvalonEdit.xml" -ErrorAction Ignore # Only exists in builds with local AvalonEdit

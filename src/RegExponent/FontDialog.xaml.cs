@@ -78,7 +78,7 @@ public partial class FontDialog : Window
 	{
 		get => this.fontFamilies;
 
-		[MemberNotNull(nameof(this.fontFamilies))]
+		[MemberNotNull(nameof(fontFamilies))]
 		set
 		{
 			ArgumentNullException.ThrowIfNull(value);
@@ -102,7 +102,7 @@ public partial class FontDialog : Window
 	{
 		get => this.fontStyles;
 
-		[MemberNotNull(nameof(this.fontStyles))]
+		[MemberNotNull(nameof(fontStyles))]
 		set
 		{
 			ArgumentNullException.ThrowIfNull(value);
@@ -122,7 +122,7 @@ public partial class FontDialog : Window
 	{
 		get => this.fontWeights;
 
-		[MemberNotNull(nameof(this.fontWeights))]
+		[MemberNotNull(nameof(fontWeights))]
 		set
 		{
 			ArgumentNullException.ThrowIfNull(value);
@@ -142,7 +142,7 @@ public partial class FontDialog : Window
 	{
 		get => this.fontSizes;
 
-		[MemberNotNull(nameof(this.fontSizes))]
+		[MemberNotNull(nameof(fontSizes))]
 		set
 		{
 			ArgumentNullException.ThrowIfNull(value);
@@ -221,7 +221,7 @@ public partial class FontDialog : Window
 
 		try
 		{
-			var converter = new TConverter();
+			TConverter converter = new();
 			if (converter.CanConvertFrom(typeof(string))
 				&& converter.ConvertFromString(fontStyleName) is TInfo info)
 			{

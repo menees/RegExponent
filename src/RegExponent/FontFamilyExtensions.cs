@@ -10,23 +10,23 @@ internal static class FontFamilyExtensions
 		// Use glyph advance widths — if a Typeface for the family reports equal advance
 		// widths for a set of representative glyphs, treat it as monospace.
 		const double epsilon = 1e-6;
-		var sampleChars = new[] { 'i', 'm', 'W', '0', '1', ' ' };
+		char[] sampleChars = ['i', 'm', 'W', '0', '1', ' '];
 
 		bool result = false;
-		foreach (var familyTypeface in family.FamilyTypefaces)
+		foreach (FamilyTypeface? familyTypeface in family.FamilyTypefaces)
 		{
-			var typeface = new Typeface(family, familyTypeface.Style, familyTypeface.Weight, familyTypeface.Stretch);
+			Typeface typeface = new(family, familyTypeface.Style, familyTypeface.Weight, familyTypeface.Stretch);
 			if (!typeface.TryGetGlyphTypeface(out GlyphTypeface glyph))
 			{
 				continue;
 			}
 
 			double? baselineWidth = null;
-			var allMatch = true;
+			bool allMatch = true;
 
-			foreach (var ch in sampleChars)
+			foreach (char ch in sampleChars)
 			{
-				var code = (int)ch;
+				int code = (int)ch;
 				if (!glyph.CharacterToGlyphMap.TryGetValue(code, out ushort glyphIndex))
 				{
 					allMatch = false;
