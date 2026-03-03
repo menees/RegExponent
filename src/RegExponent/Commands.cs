@@ -25,6 +25,8 @@ internal static class Commands
 	public static readonly RoutedUICommand RunBenchmark = new(nameof(RunBenchmark), nameof(RunBenchmark), typeof(Commands));
 	public static readonly RoutedUICommand ViewBenchmarks = new(nameof(ViewBenchmarks), nameof(ViewBenchmarks), typeof(Commands));
 
+	public static readonly RoutedUICommand ExplainPattern = new(nameof(ExplainPattern), nameof(ExplainPattern), typeof(Commands));
+
 	public static readonly RoutedUICommand ShellExecute = new(nameof(ShellExecute), nameof(ShellExecute), typeof(Commands));
 
 	public static readonly RoutedUICommand InsertPattern = new(nameof(InsertPattern), nameof(InsertPattern), typeof(Commands));

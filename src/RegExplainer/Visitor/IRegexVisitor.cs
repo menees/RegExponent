@@ -28,5 +28,9 @@ public interface IRegexVisitor
 
 	void VisitNamedBackreference(Ast.NamedBackreferenceNode node, int indent);
 
+	void VisitComment(CommentNode node, int indent);
+
 	void VisitConditional(ConditionalNode node, int indent);
+
+	void VisitInlineOptions(InlineOptionsNode node, int indent);
 }

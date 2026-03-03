@@ -38,6 +38,11 @@ public sealed class ExplanationVisitor : IRegexVisitor
 		this.AppendLine(indent, $"- Backreference: \\{node.Number} {FormatSpan(node)}");
 	}
 
+	public void VisitComment(CommentNode node, int indent)
+	{
+		this.AppendLine(indent, $"- Comment: # {node.Text} {FormatSpan(node)}");
+	}
+
 	public void VisitCharacterClass(CharacterClassNode node, int indent)
 	{
 		this.AppendLine(indent, $"- Character class: [{(node.IsNegated ? "^" : string.Empty)}...] ({node.Items.Count} item(s)) {FormatSpan(node)}");
@@ -83,6 +88,11 @@ public sealed class ExplanationVisitor : IRegexVisitor
 
 		this.AppendLine(indent, $"- Group: {kind} {FormatSpan(node)}");
 		node.Inner.Accept(this, indent + 1);
+	}
+
+	public void VisitInlineOptions(InlineOptionsNode node, int indent)
+	{
+		this.AppendLine(indent, $"- Inline options: (?{node.Options}) {FormatSpan(node)}");
 	}
 
 	public void VisitLiteral(LiteralNode node, int indent)

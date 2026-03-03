@@ -15,17 +15,23 @@ public sealed class RegexParser
 	private const int DecimalBase = 10;
 	private const int HexadecimalBase = 16;
 
+	private readonly System.Text.RegularExpressions.RegexOptions options;
 	private readonly string text;
+	private bool explicitCapture;
+	private bool extendedMode;
 	private int pos;
 
 	#endregion
 
 	#region Constructors
 
-	public RegexParser(string text)
+	public RegexParser(string text, System.Text.RegularExpressions.RegexOptions options = System.Text.RegularExpressions.RegexOptions.None)
 	{
 		this.text = text ?? string.Empty;
 		this.pos = 0;
+		this.options = options;
+		this.explicitCapture = options.HasFlag(System.Text.RegularExpressions.RegexOptions.ExplicitCapture);
+		this.extendedMode = options.HasFlag(System.Text.RegularExpressions.RegexOptions.IgnorePatternWhitespace);
 	}
 
 	#endregion
@@ -184,6 +190,11 @@ public sealed class RegexParser
 					{
 						this.Advance();
 						return new Ast.AnchorNode(Ast.AnchorKind.End);
+					}),
+				'{' or '}' => this.WithSpan(() =>
+					{
+						char ch = this.Advance();
+						return new Ast.LiteralNode(ch.ToString());
 					}),
 				_ => this.ParseLiteralRun(),
 			};
@@ -438,11 +449,12 @@ public sealed class RegexParser
 		RegexNode result;
 
 		// simple capturing group: (...)
+		// With ExplicitCapture / (?n), unnamed groups become non-capturing.
 		if (this.Peek() != '?')
 		{
 			RegexNode inner = this.ParseAlternation();
 			this.Expect(')');
-			result = new GroupNode(inner, isCapturing: true)
+			result = new GroupNode(inner, isCapturing: !this.explicitCapture)
 			{
 				Start = startPos,
 				End = this.pos,
@@ -534,35 +546,60 @@ public sealed class RegexParser
 		}
 		else
 		{
-			// inline options (?i:...)
-			int savePos = this.pos;
-			while (!this.IsAtEnd() && this.Peek() != ':')
-			{
-				if (this.Peek() == ')' || this.Peek() == '<' || this.Peek() == '=')
-				{
-					break;
-				}
+			result = this.ParseInlineOptionsGroup(startPos);
+		}
 
-				this.Advance();
+		return result;
+	}
+
+	private RegexNode ParseInlineOptionsGroup(int startPos)
+	{
+		// inline options (?i:...), (?n), etc.
+		int savePos = this.pos;
+		while (!this.IsAtEnd() && this.Peek() != ':')
+		{
+			if (this.Peek() == ')' || this.Peek() == '<' || this.Peek() == '=')
+			{
+				break;
 			}
 
-			if (!this.IsAtEnd() && this.Peek() == ':')
+			this.Advance();
+		}
+
+		RegexNode result;
+		if (!this.IsAtEnd() && this.Peek() == ':')
+		{
+			string optsStr = new(this.text.AsSpan(savePos, this.pos - savePos));
+			this.Advance();
+			bool savedExtended = this.extendedMode;
+			bool savedExplicit = this.explicitCapture;
+			this.ApplyInlineOptions(optsStr);
+			RegexNode inner = this.ParseAlternation();
+			this.extendedMode = savedExtended;
+			this.explicitCapture = savedExplicit;
+			this.Expect(')');
+			result = new Ast.GroupNode(inner, isCapturing: false, name: null, inlineOptions: optsStr)
 			{
-				string optsStr = new(this.text.AsSpan(savePos, this.pos - savePos));
-				this.Advance();
-				RegexNode inner = this.ParseAlternation();
-				this.Expect(')');
-				result = new Ast.GroupNode(inner, isCapturing: false, name: null, inlineOptions: optsStr)
-				{
-					Start = startPos,
-					End = this.pos,
-				};
-			}
-			else
+				Start = startPos,
+				End = this.pos,
+			};
+		}
+		else if (!this.IsAtEnd() && this.Peek() == ')' && this.pos > savePos)
+		{
+			// Standalone inline options like (?n), (?i), (?i-s), etc.
+			string optsStr = new(this.text.AsSpan(savePos, this.pos - savePos));
+			this.Advance(); // consume ')'
+			this.ApplyInlineOptions(optsStr);
+			result = new Ast.InlineOptionsNode(optsStr)
 			{
-				this.pos = savePos;
-				throw this.CreateError("Unknown group construct");
-			}
+				Start = startPos,
+				End = this.pos,
+			};
+		}
+		else
+		{
+			this.pos = savePos;
+			throw this.CreateError("Unknown group construct");
 		}
 
 		return result;
@@ -606,6 +643,11 @@ public sealed class RegexParser
 			{
 				char c = this.Peek();
 				if (IsMetaChar(c))
+				{
+					break;
+				}
+
+				if (this.extendedMode && (char.IsWhiteSpace(c) || c == '#'))
 				{
 					break;
 				}
@@ -704,7 +746,7 @@ public sealed class RegexParser
 		if (!this.IsAtEnd())
 		{
 			char c = this.Peek();
-			if (c == '*' || c == '+' || c == '?' || c == '{')
+			if (c == '*' || c == '+' || c == '?' || (c == '{' && this.IsQuantifierBrace()))
 			{
 				// If the atom is a multi-character literal, a following quantifier applies only
 				// to the last character. Split the literal into a prefix (if any) and the last
@@ -779,10 +821,22 @@ public sealed class RegexParser
 			SequenceNode seq = new();
 			while (!this.IsAtEnd())
 			{
+				this.SkipExtendedWhitespace();
+				if (this.IsAtEnd())
+				{
+					break;
+				}
+
 				char c = this.Peek();
 				if (c == '|' || c == ')')
 				{
 					break;
+				}
+
+				if (this.extendedMode && c == '#')
+				{
+					seq.Items.Add(this.ParseComment());
+					continue;
 				}
 
 				RegexNode? atom = this.ParseAtom();
@@ -791,6 +845,7 @@ public sealed class RegexParser
 					break;
 				}
 
+				this.SkipExtendedWhitespace();
 				RegexNode q = this.ParseQuantifierIfAny(atom);
 				seq.Items.Add(q);
 			}
@@ -818,7 +873,61 @@ public sealed class RegexParser
 	}
 
 	// helpers
+	private void ApplyInlineOptions(string options)
+	{
+		bool afterMinus = false;
+		foreach (char c in options)
+		{
+			if (c == '-')
+			{
+				afterMinus = true;
+			}
+			else if (c == 'n')
+			{
+				this.explicitCapture = !afterMinus;
+			}
+			else if (c == 'x')
+			{
+				this.extendedMode = !afterMinus;
+			}
+		}
+	}
+
+	private bool IsQuantifierBrace() => this.pos + 1 < this.text.Length && char.IsDigit(this.text[this.pos + 1]);
+
+	private CommentNode ParseComment()
+	{
+		return this.WithSpan(() =>
+		{
+			this.Advance(); // consume '#'
+			int start = this.pos;
+			while (!this.IsAtEnd() && this.Peek() != '\n')
+			{
+				this.Advance();
+			}
+
+			string text = this.text[start..this.pos].TrimEnd('\r');
+			if (!this.IsAtEnd() && this.Peek() == '\n')
+			{
+				this.Advance();
+			}
+
+			return new CommentNode(text);
+		});
+	}
+
 	private char Peek() => this.text[this.pos];
+
+	private void SkipExtendedWhitespace()
+	{
+		if (this.extendedMode)
+		{
+			while (!this.IsAtEnd() && char.IsWhiteSpace(this.Peek()))
+			{
+				this.Advance();
+			}
+		}
+	}
 
 	private T WithSpan<T>(Func<T> ctor)
 		where T : RegexNode

@@ -82,6 +82,7 @@ public partial class MainWindow
 			this.matchGrid,
 			this.splitGrid,
 			this.benchmarkGrid,
+			this.explainText,
 		];
 
 		this.recentDropDownMenu = new ContextMenu
@@ -126,6 +127,7 @@ public partial class MainWindow
 		ICollectionView benchmarkView = CollectionViewSource.GetDefaultView(this.benchmarkGrid.ItemsSource);
 		benchmarkView.SortDescriptions.Add(new SortDescription(nameof(Benchmark.Index), ListSortDirection.Descending));
 		this.benchmarksTab.Visibility = Visibility.Collapsed;
+		this.explainTab.Visibility = Visibility.Collapsed;
 
 		this.patternBracketMatcher = new();
 		this.pattern.SetBracketMatcher(this.patternBracketMatcher);
@@ -499,6 +501,11 @@ public partial class MainWindow
 					SetColumnVisibility(this.splitCommentColumn, splits, s => s.Comment.IsNotEmpty());
 					this.splitGrid.ItemsSource = splits;
 					this.splitTab.Header = $"Output ({splits.Count})";
+				}
+
+				if (this.explainTab.IsVisible && this.bottomTabs.SelectedItem == this.explainTab)
+				{
+					this.UpdateExplain();
 				}
 			}
 		}
@@ -1186,6 +1193,44 @@ public partial class MainWindow
 	private void ViewBenchmarksExecuted(object sender, ExecutedRoutedEventArgs e)
 	{
 		this.ShowBenchmarks();
+	}
+
+	private void ExplainPatternExecuted(object sender, ExecutedRoutedEventArgs e)
+	{
+		this.explainTab.Visibility = Visibility.Visible;
+		this.bottomTabs.SelectedItem = this.explainTab;
+		this.UpdateExplain();
+	}
+
+	private void UpdateExplain()
+	{
+		string patternText = this.model.Pattern;
+		RegExplainer.Parser.RegexParser parser = new(patternText, this.model.Options);
+		if (parser.TryParse(
+			out RegExplainer.Ast.RegexNode? ast,
+			out RegExplainer.RegexParseException? error))
+		{
+			RegExplainer.Visitor.ExplanationVisitor visitor = new();
+			ast!.Accept(visitor, 0);
+			this.explainText.Text = visitor.Builder.ToString();
+		}
+		else
+		{
+			this.explainText.Text = error?.ToString() ?? "Unknown parse error.";
+		}
+	}
+
+	private void CloseExplainClick(object sender, RoutedEventArgs e)
+	{
+		this.explainTab.Visibility = Visibility.Collapsed;
+	}
+
+	private void BottomTabsSelectionChanged(object sender, SelectionChangedEventArgs e)
+	{
+		if (!this.updating && this.explainTab.IsVisible && this.bottomTabs.SelectedItem == this.explainTab)
+		{
+			this.UpdateExplain();
+		}
 	}
 
 	#endregion

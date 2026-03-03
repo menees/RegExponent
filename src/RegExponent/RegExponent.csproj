@@ -44,4 +44,8 @@
 	<ItemGroup>
 		<PackageReference Include="AvalonEdit" Version="6.3.1.120" />
 	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\RegExplainer\RegExplainer.csproj" />
+	</ItemGroup>
 </Project>

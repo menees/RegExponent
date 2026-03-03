@@ -1,0 +1,7 @@
+{
+  "Version": 1,
+  "UnixNewline": true,
+  "RegexOptions": "Multiline",
+  "Pattern": "^(?:https?)://(www\\.)?example\\.(com|org|net)/path(?:/(\\d\u002B))?$",
+  "Input": "http://example.com/path\nhttps://www.example.org/path/123\nhttp://example.net/path/4"
+}

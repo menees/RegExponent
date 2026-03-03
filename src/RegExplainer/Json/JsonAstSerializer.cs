@@ -53,19 +53,8 @@ public static class JsonAstSerializer
 				end = l.End,
 				text = l.Text,
 			},
-			DotNode d => new
-			{
-				type = "Dot",
-				start = d.Start,
-				end = d.End,
-			},
-			AnchorNode an => new
-			{
-				type = "Anchor",
-				start = an.Start,
-				end = an.End,
-				kind = an.Kind.ToString(),
-			},
+			DotNode d => new { type = "Dot", start = d.Start, end = d.End },
+			AnchorNode an => new { type = "Anchor", start = an.Start, end = an.End, kind = an.Kind.ToString() },
 			QuantifierNode q => new
 			{
 				type = "Quantifier",
@@ -76,26 +65,8 @@ public static class JsonAstSerializer
 				lazy = q.IsLazy,
 				target = ToDto(q.Target),
 			},
-			CharacterClassNode cc => new
-			{
-				type = "CharacterClass",
-				start = cc.Start,
-				end = cc.End,
-				negated = cc.IsNegated,
-				items = cc.Items.ConvertAll(FormatClassItemDto),
-				span = new { start = cc.Start, end = cc.End },
-			},
-			GroupNode g => new
-			{
-				type = "Group",
-				start = g.Start,
-				end = g.End,
-				capturing = g.IsCapturing,
-				name = g.Name,
-				inlineOptions = g.InlineOptions,
-				inner = ToDto(g.Inner),
-				span = new { start = g.Start, end = g.End },
-			},
+			CharacterClassNode cc => ToCharacterClassDto(cc),
+			GroupNode g => ToGroupDto(g),
 			LookaroundNode ln => new
 			{
 				type = "Lookaround",
@@ -104,20 +75,8 @@ public static class JsonAstSerializer
 				kind = ln.Kind.ToString(),
 				inner = ToDto(ln.Inner),
 			},
-			BackreferenceNode br => new
-			{
-				type = "Backreference",
-				start = br.Start,
-				end = br.End,
-				number = br.Number,
-			},
-			NamedBackreferenceNode nbr => new
-			{
-				type = "NamedBackreference",
-				start = nbr.Start,
-				end = nbr.End,
-				name = nbr.Name,
-			},
+			BackreferenceNode br => new { type = "Backreference", start = br.Start, end = br.End, number = br.Number },
+			NamedBackreferenceNode nbr => new { type = "NamedBackreference", start = nbr.Start, end = nbr.End, name = nbr.Name },
 			ConditionalNode cn => new
 			{
 				type = "Conditional",
@@ -127,16 +86,34 @@ public static class JsonAstSerializer
 				trueBranch = ToDto(cn.TrueBranch),
 				falseBranch = cn.FalseBranch != null ? ToDto(cn.FalseBranch) : null,
 			},
-			EscapeNode e => new
-			{
-				type = "Escape",
-				start = e.Start,
-				end = e.End,
-				text = e.EscapeText,
-			},
+			EscapeNode e => new { type = "Escape", start = e.Start, end = e.End, text = e.EscapeText },
+			InlineOptionsNode io => new { type = "InlineOptions", start = io.Start, end = io.End, options = io.Options },
+			CommentNode cm => new { type = "Comment", start = cm.Start, end = cm.End, text = cm.Text },
 			_ => new { type = node.GetType().Name },
 		};
 	}
+
+	private static object ToCharacterClassDto(CharacterClassNode cc) => new
+	{
+		type = "CharacterClass",
+		start = cc.Start,
+		end = cc.End,
+		negated = cc.IsNegated,
+		items = cc.Items.ConvertAll(FormatClassItemDto),
+		span = new { start = cc.Start, end = cc.End },
+	};
+
+	private static object ToGroupDto(GroupNode g) => new
+	{
+		type = "Group",
+		start = g.Start,
+		end = g.End,
+		capturing = g.IsCapturing,
+		name = g.Name,
+		inlineOptions = g.InlineOptions,
+		inner = ToDto(g.Inner),
+		span = new { start = g.Start, end = g.End },
+	};
 
 	private static object FormatClassItemDto(CharacterClassItem item)
 	{

@@ -405,5 +405,215 @@ public class RegexParserTests
 		error.Position.ShouldBe(2);
 	}
 
+	[TestMethod]
+	public void ParsesStandaloneInlineOptions()
+	{
+		RegexParser p = new("(?n)abc");
+		Ast.RegexNode ast = p.Parse();
+		Ast.SequenceNode seq = ast.ShouldBeOfType<SequenceNode>();
+		seq.Items.Count.ShouldBe(2);
+
+		Ast.InlineOptionsNode opts = seq.Items[0].ShouldBeOfType<InlineOptionsNode>();
+		opts.Options.ShouldBe("n");
+		opts.Start.ShouldBe(0);
+		opts.End.ShouldBe(4);
+
+		seq.Items[1].ShouldBeOfType<LiteralNode>().Text.ShouldBe("abc");
+	}
+
+	[TestMethod]
+	public void ParsesStandaloneInlineOptionsMultipleFlags()
+	{
+		RegexParser p = new("(?i-s)test");
+		Ast.RegexNode ast = p.Parse();
+		Ast.SequenceNode seq = ast.ShouldBeOfType<SequenceNode>();
+		seq.Items.Count.ShouldBe(2);
+
+		Ast.InlineOptionsNode opts = seq.Items[0].ShouldBeOfType<InlineOptionsNode>();
+		opts.Options.ShouldBe("i-s");
+	}
+
+	[TestMethod]
+	public void ParsesStandaloneInlineOptionsSingleFlag()
+	{
+		RegexParser p = new("(?i)");
+		Ast.RegexNode ast = p.Parse();
+		Ast.InlineOptionsNode opts = ast.ShouldBeOfType<InlineOptionsNode>();
+		opts.Options.ShouldBe("i");
+	}
+
+	[TestMethod]
+	public void StandaloneInlineOptionsJsonContainsInlineOptions()
+	{
+		RegexParser p = new("(?n)abc");
+		Ast.RegexNode ast = p.Parse();
+		string json = JsonAstSerializer.Serialize(ast);
+		json.ShouldContain("InlineOptions");
+		json.ShouldContain("\"n\"");
+	}
+
+	[TestMethod]
+	public void StandaloneInlineOptionsExplanationContainsOptions()
+	{
+		RegexParser p = new("(?n)abc");
+		Ast.RegexNode ast = p.Parse();
+		Visitor.ExplanationVisitor v = new();
+		ast.Accept(v, 0);
+		string explanation = v.Builder.ToString();
+		explanation.ShouldContain("Inline options");
+		explanation.ShouldContain("(?n)");
+	}
+
+	[TestMethod]
+	public void ParsesPatternWithStandaloneInlineOptionsAndNamedGroups()
+	{
+		// Simplified version of the original bug report pattern: (?n) followed by named captures.
+		RegexParser p = new("""(?n)x:(?<Long>-?\d+),y:(?<Lat>-?\d+)""");
+		Ast.RegexNode ast = p.Parse();
+		string json = JsonAstSerializer.Serialize(ast);
+		json.ShouldContain("InlineOptions");
+		json.ShouldContain("Long");
+		json.ShouldContain("Lat");
+	}
+
+	[TestMethod]
+	public void LiteralBraceNotMistakenForQuantifier()
+	{
+		// { not followed by a digit is a literal, not a quantifier.
+		RegexParser p = new("a{b}");
+		Ast.RegexNode ast = p.Parse();
+		string json = JsonAstSerializer.Serialize(ast);
+		json.ShouldNotContain("Quantifier");
+		json.ShouldContain("Literal");
+	}
+
+	[TestMethod]
+	public void BraceQuantifierStillWorks()
+	{
+		// {3} after a literal should still parse as a quantifier.
+		RegexParser p = new("a{3}");
+		Ast.RegexNode ast = p.Parse();
+		Ast.QuantifierNode quant = ast.ShouldBeOfType<QuantifierNode>();
+		quant.Min.ShouldBe(3);
+		quant.Max.ShouldBe(3);
+	}
+
+	[TestMethod]
+	public void BraceRangeQuantifierStillWorks()
+	{
+		RegexParser p = new("a{2,5}");
+		Ast.RegexNode ast = p.Parse();
+		Ast.QuantifierNode quant = ast.ShouldBeOfType<QuantifierNode>();
+		quant.Min.ShouldBe(2);
+		quant.Max.ShouldBe(5);
+	}
+
+	[TestMethod]
+	public void ParsesOriginalBugReportPattern()
+	{
+		// Full pattern from the original bug report.
+		const string pattern = """(?n)"geometry":{"x":(?<Long>-?\d+(\.\d+)?),"y":(?<Lat>-?\d+(\.\d+)?)(,"z":(?<Alt>-?\d+(\.\d+)?))?}""";
+		RegexParser p = new(pattern);
+		Ast.RegexNode ast = p.Parse();
+		string json = JsonAstSerializer.Serialize(ast);
+		json.ShouldContain("InlineOptions");
+		json.ShouldContain("Long");
+		json.ShouldContain("Lat");
+		json.ShouldContain("Alt");
+	}
+
+	[TestMethod]
+	public void ExplicitCaptureOptionMakesUnnamedGroupNonCapturing()
+	{
+		// With RegexOptions.ExplicitCapture, unnamed (...) groups become non-capturing.
+		RegexParser p = new("(abc)", System.Text.RegularExpressions.RegexOptions.ExplicitCapture);
+		Ast.RegexNode ast = p.Parse();
+		Ast.GroupNode group = ast.ShouldBeOfType<GroupNode>();
+		group.IsCapturing.ShouldBeFalse();
+	}
+
+	[TestMethod]
+	public void ExplicitCaptureOptionPreservesNamedGroupCapturing()
+	{
+		// Named groups should still capture even with ExplicitCapture.
+		RegexParser p = new("(?<name>abc)", System.Text.RegularExpressions.RegexOptions.ExplicitCapture);
+		Ast.RegexNode ast = p.Parse();
+		Ast.GroupNode group = ast.ShouldBeOfType<GroupNode>();
+		group.IsCapturing.ShouldBeTrue();
+		group.Name.ShouldBe("name");
+	}
+
+	[TestMethod]
+	public void InlineOptionNMakesSubsequentUnnamedGroupNonCapturing()
+	{
+		// (?n) followed by (...) — the unnamed group should become non-capturing.
+		RegexParser p = new("(?n)(abc)");
+		Ast.RegexNode ast = p.Parse();
+		Ast.SequenceNode seq = ast.ShouldBeOfType<SequenceNode>();
+		seq.Items.Count.ShouldBe(2);
+		seq.Items[0].ShouldBeOfType<InlineOptionsNode>().Options.ShouldBe("n");
+		Ast.GroupNode group = seq.Items[1].ShouldBeOfType<GroupNode>();
+		group.IsCapturing.ShouldBeFalse();
+	}
+
+	[TestMethod]
+	public void InlineOptionNDoesNotAffectNamedGroups()
+	{
+		// (?n) followed by (?<name>...) — named groups should still capture.
+		RegexParser p = new("(?n)(?<name>abc)");
+		Ast.RegexNode ast = p.Parse();
+		Ast.SequenceNode seq = ast.ShouldBeOfType<SequenceNode>();
+		seq.Items.Count.ShouldBe(2);
+		Ast.GroupNode group = seq.Items[1].ShouldBeOfType<GroupNode>();
+		group.IsCapturing.ShouldBeTrue();
+		group.Name.ShouldBe("name");
+	}
+
+	[TestMethod]
+	public void ScopedInlineOptionNIsRestoredAfterGroup()
+	{
+		// (?n:(a))(b) — inside (?n:...) the unnamed group is non-capturing,
+		// but outside it the unnamed group should be capturing again.
+		RegexParser p = new("(?n:(a))(b)");
+		Ast.RegexNode ast = p.Parse();
+		Ast.SequenceNode seq = ast.ShouldBeOfType<SequenceNode>();
+		seq.Items.Count.ShouldBe(2);
+
+		// The scoped group (?n:...) itself is non-capturing.
+		Ast.GroupNode scopedGroup = seq.Items[0].ShouldBeOfType<GroupNode>();
+		scopedGroup.IsCapturing.ShouldBeFalse();
+
+		// Inner (a) should be non-capturing because of (?n:...).
+		Ast.GroupNode innerGroup = scopedGroup.Inner.ShouldBeOfType<GroupNode>();
+		innerGroup.IsCapturing.ShouldBeFalse();
+
+		// Outer (b) should be capturing because n scope has ended.
+		Ast.GroupNode outerGroup = seq.Items[1].ShouldBeOfType<GroupNode>();
+		outerGroup.IsCapturing.ShouldBeTrue();
+	}
+
+	[TestMethod]
+	public void InlineOptionMinusNReEnablesCapturing()
+	{
+		// With ExplicitCapture, (?-n) should re-enable unnamed capturing.
+		RegexParser p = new("(?-n)(abc)", System.Text.RegularExpressions.RegexOptions.ExplicitCapture);
+		Ast.RegexNode ast = p.Parse();
+		Ast.SequenceNode seq = ast.ShouldBeOfType<SequenceNode>();
+		seq.Items.Count.ShouldBe(2);
+		seq.Items[0].ShouldBeOfType<InlineOptionsNode>().Options.ShouldBe("-n");
+		Ast.GroupNode group = seq.Items[1].ShouldBeOfType<GroupNode>();
+		group.IsCapturing.ShouldBeTrue();
+	}
+
+	[TestMethod]
+	public void WithoutExplicitCaptureUnnamedGroupIsCapturing()
+	{
+		// Baseline: without ExplicitCapture, (...) is capturing.
+		RegexParser p = new("(abc)");
+		Ast.RegexNode ast = p.Parse();
+		Ast.GroupNode group = ast.ShouldBeOfType<GroupNode>();
+		group.IsCapturing.ShouldBeTrue();
+	}
+
 	#endregion
 }

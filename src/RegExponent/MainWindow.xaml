@@ -27,6 +27,7 @@
 		<CommandBinding Command="local:Commands.About" Executed="AboutExecuted" />
 		<CommandBinding Command="local:Commands.RunBenchmark" Executed="RunBenchmarkExecuted" />
 		<CommandBinding Command="local:Commands.ViewBenchmarks" Executed="ViewBenchmarksExecuted" />
+		<CommandBinding Command="local:Commands.ExplainPattern" Executed="ExplainPatternExecuted" />
 
 		<CommandBinding Command="local:Commands.Match" Executed="ToggleMenuItemExecuted" />
 		<CommandBinding Command="local:Commands.Replace" Executed="ToggleMenuItemExecuted" />
@@ -225,11 +226,13 @@
 						<MenuItem Header="_Input" Command="local:Commands.GenerateCodeToClipboard" CommandParameter="HTML/Input"
 								  Style="{StaticResource CodeGeneratorMenuItem}"/>
 					</MenuItem>
-					<MenuItem Header="_Benchmarks" Icon="{StaticResource Icon.TxRowCount}">
-						<MenuItem Header="_Run" Command="local:Commands.RunBenchmark"/>
-						<MenuItem Header="_View" Command="local:Commands.ViewBenchmarks"/>
+						<MenuItem Header="_Benchmarks" Icon="{StaticResource Icon.TxRowCount}">
+							<MenuItem Header="_Run" Command="local:Commands.RunBenchmark"/>
+							<MenuItem Header="_View" Command="local:Commands.ViewBenchmarks"/>
+						</MenuItem>
+						<Separator/>
+						<MenuItem Header="_Explain Pattern" Command="local:Commands.ExplainPattern"/>
 					</MenuItem>
-				</MenuItem>
 				<MenuItem Header="_Help">
 					<MenuItem Header=".NET Regex _Quick Reference" Command="Help" Icon="{StaticResource Icon.F1Help}"/>
 					<MenuItem Header=".NET Regex _Options" Command="local:Commands.ShellExecute" CommandParameter="https://docs.microsoft.com/en-us/dotnet/standard/base-types/regular-expression-options"/>
@@ -349,7 +352,7 @@
 
 		<GridSplitter x:Name="splitter" Grid.Row="5" HorizontalAlignment="Stretch" VerticalAlignment="Center" ShowsPreview="True" Height="4" />
 
-		<TabControl x:Name="bottomTabs" Grid.Row="6">
+		<TabControl x:Name="bottomTabs" Grid.Row="6" SelectionChanged="BottomTabsSelectionChanged">
 			<TabItem x:Name="matchTab" Header="Matches">
 				<DataGrid x:Name="matchGrid" CurrentCellChanged="MatchGridCurrentCellChanged">
 					<DataGrid.Columns>
@@ -402,6 +405,44 @@
 						<DataGridTextColumn x:Name="splitCommentColumn" Header="Comment" Binding="{Binding Comment, Mode=OneWay}" Visibility="Collapsed"/>
 					</DataGrid.Columns>
 				</DataGrid>
+			</TabItem>
+			<TabItem x:Name="explainTab" IsVisibleChanged="OutputTabIsVisibleChanged">
+				<TabItem.Header>
+					<Grid>
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition Width="*" />
+							<ColumnDefinition Width="Auto" />
+						</Grid.ColumnDefinitions>
+						<TextBlock Grid.Column="0">Explain</TextBlock>
+						<Button Grid.Column="1" Click="CloseExplainClick">
+							<Button.Template>
+								<ControlTemplate TargetType="Button">
+									<Path Data="M0,0 L8,8 M8,0 L0,8" StrokeThickness="3" VerticalAlignment="Center" Margin="5,4,0,2">
+										<Path.Style>
+											<Style TargetType="{x:Type Path}">
+												<Style.Triggers>
+													<Trigger Property="IsMouseOver" Value="False">
+														<Setter Property="Stroke" Value="LightGray" />
+													</Trigger>
+													<Trigger Property="IsMouseOver" Value="True">
+														<Setter Property="Stroke" Value="Black" />
+													</Trigger>
+												</Style.Triggers>
+											</Style>
+										</Path.Style>
+									</Path>
+								</ControlTemplate>
+							</Button.Template>
+						</Button>
+					</Grid>
+				</TabItem.Header>
+				<TabItem.Content>
+					<TextBox x:Name="explainText" IsReadOnly="True" IsReadOnlyCaretVisible="True"
+							 TextWrapping="Wrap" AcceptsReturn="True"
+							 VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
+							 Background="{DynamicResource {x:Static SystemColors.WindowBrushKey}}"
+							 BorderThickness="0" />
+				</TabItem.Content>
 			</TabItem>
 			<TabItem x:Name="benchmarksTab" IsVisibleChanged="OutputTabIsVisibleChanged">
 				<!-- https://stackoverflow.com/a/47331069/1882616 -->
