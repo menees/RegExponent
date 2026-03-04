@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Media;
+using RegExplainer.Ast;
 using RegExplainer.Visitor;
 
 #endregion
@@ -31,13 +32,15 @@ internal sealed class TreeViewExplanationVisitor : ExplanationVisitorBase
 
 	#region Protected Methods
 
-	protected override void AppendLine(int indent, string text, ExplainNodeKind nodeKind)
+	protected override void AppendLine(int indent, string text, ExplainNodeKind nodeKind, RegexNode? node)
 	{
-		(int Start, int Length)? span = TryParseSpan(text);
+		(int Start, int Length)? span = node?.Start != null && node?.End != null && node.End >= node.Start
+			? (node.Start.Value, node.End.Value - node.Start.Value)
+			: null;
 
 		TreeViewItem item = new()
 		{
-			Header = CreateHeader(text, nodeKind),
+			Header = CreateHeader(text, nodeKind, node),
 			IsExpanded = true,
 			Tag = span,
 			HorizontalContentAlignment = HorizontalAlignment.Left,
@@ -66,33 +69,7 @@ internal sealed class TreeViewExplanationVisitor : ExplanationVisitorBase
 
 	#region Private Methods
 
-	private static (int Start, int Length)? TryParseSpan(string text)
-	{
-		// Parse span in format [start..end] from the end of the text (from FormatSpan).
-		(int Start, int Length)? result = null;
-
-		int close = text.LastIndexOf(']');
-		if (close > 0)
-		{
-			int open = text.LastIndexOf('[', close);
-			if (open >= 0)
-			{
-				string span = text[(open + 1)..close];
-				int dots = span.IndexOf("..", StringComparison.Ordinal);
-				if (dots > 0
-					&& int.TryParse(span[..dots], out int start)
-					&& int.TryParse(span[(dots + 2)..], out int end)
-					&& end >= start)
-				{
-					result = (start, end - start);
-				}
-			}
-		}
-
-		return result;
-	}
-
-	private static object CreateHeader(string text, ExplainNodeKind nodeKind)
+	private static object CreateHeader(string text, ExplainNodeKind nodeKind, RegexNode? node)
 	{
 		Color color = GetNodeColor(nodeKind);
 		string icon = GetNodeIcon(nodeKind);
@@ -146,6 +123,17 @@ internal sealed class TreeViewExplanationVisitor : ExplanationVisitorBase
 				Text = text,
 				FontWeight = FontWeights.SemiBold,
 				Style = CreateTextBlockStyle(new SolidColorBrush(color)),
+				VerticalAlignment = VerticalAlignment.Center,
+			});
+		}
+
+		// Span indicator (closed-open interval).
+		if (node != null)
+		{
+			panel.Children.Add(new TextBlock
+			{
+				Text = $" {FormatSpan(node)}",
+				Style = CreateTextBlockStyle(Brushes.Gray),
 				VerticalAlignment = VerticalAlignment.Center,
 			});
 		}

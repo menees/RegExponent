@@ -39,10 +39,10 @@ public abstract class ExplanationVisitorBase : IRegexVisitor
 
 	public void VisitAlternation(AlternationNode node, int indent)
 	{
-		this.AppendLine(indent, $"Alternation (one of {node.Alternatives.Count} branches) {FormatSpan(node)}", ExplainNodeKind.Alternation);
+		this.AppendLine(indent, $"Alternation (one of {node.Alternatives.Count} branches)", ExplainNodeKind.Alternation, node);
 		for (int i = 0; i < node.Alternatives.Count; i++)
 		{
-			this.AppendLine(indent + 1, $"[{i}] Branch:", ExplainNodeKind.AlternationBranch);
+			this.AppendLine(indent + 1, $"[{i}] Branch:", ExplainNodeKind.AlternationBranch, null);
 			node.Alternatives[i].Accept(this, indent + 2);
 		}
 	}
@@ -50,49 +50,49 @@ public abstract class ExplanationVisitorBase : IRegexVisitor
 	public void VisitAnchor(AnchorNode node, int indent)
 	{
 		string desc = node.Kind == AnchorKind.Start ? "start of input '^'" : "end of input '$'";
-		this.AppendLine(indent, $"Anchor: {desc} {FormatSpan(node)}", ExplainNodeKind.Anchor);
+		this.AppendLine(indent, $"Anchor: {desc}", ExplainNodeKind.Anchor, node);
 	}
 
 	public void VisitBackreference(BackreferenceNode node, int indent)
 	{
-		this.AppendLine(indent, $"Backreference: \\{node.Number} {FormatSpan(node)}", ExplainNodeKind.Backreference);
+		this.AppendLine(indent, $"Backreference: \\{node.Number}", ExplainNodeKind.Backreference, node);
 	}
 
 	public void VisitComment(CommentNode node, int indent)
 	{
-		this.AppendLine(indent, $"Comment: # {node.Text} {FormatSpan(node)}", ExplainNodeKind.Comment);
+		this.AppendLine(indent, $"Comment: # {node.Text}", ExplainNodeKind.Comment, node);
 	}
 
 	public void VisitCharacterClass(CharacterClassNode node, int indent)
 	{
 		string negated = node.IsNegated ? "^" : string.Empty;
-		string text = $"Character class: [{negated}...] ({node.Items.Count} item(s)) {FormatSpan(node)}";
-		this.AppendLine(indent, text, ExplainNodeKind.CharacterClass);
+		string text = $"Character class: [{negated}...] ({node.Items.Count} item(s))";
+		this.AppendLine(indent, text, ExplainNodeKind.CharacterClass, node);
 		string[] parts = [.. node.Items.Select(FormatClassItem)];
-		this.AppendLine(indent + 1, $"Contents: {string.Join(", ", parts)}", ExplainNodeKind.CharacterClassDetail);
+		this.AppendLine(indent + 1, $"Contents: {string.Join(", ", parts)}", ExplainNodeKind.CharacterClassDetail, null);
 	}
 
 	public void VisitConditional(ConditionalNode node, int indent)
 	{
-		this.AppendLine(indent, $"Conditional: if ({node.Condition})", ExplainNodeKind.Conditional);
-		this.AppendLine(indent + 1, "True branch:", ExplainNodeKind.ConditionalBranch);
+		this.AppendLine(indent, $"Conditional: if ({node.Condition})", ExplainNodeKind.Conditional, node);
+		this.AppendLine(indent + 1, "True branch:", ExplainNodeKind.ConditionalBranch, null);
 		node.TrueBranch.Accept(this, indent + 2);
 		if (node.FalseBranch != null)
 		{
-			this.AppendLine(indent + 1, "False branch:", ExplainNodeKind.ConditionalBranch);
+			this.AppendLine(indent + 1, "False branch:", ExplainNodeKind.ConditionalBranch, null);
 			node.FalseBranch.Accept(this, indent + 2);
 		}
 	}
 
 	public void VisitDot(DotNode node, int indent)
 	{
-		this.AppendLine(indent, $"Dot: matches any character (except newline by default) {FormatSpan(node)}", ExplainNodeKind.Dot);
+		this.AppendLine(indent, "Dot: matches any character (except newline by default)", ExplainNodeKind.Dot, node);
 	}
 
 	public void VisitEscape(EscapeNode node, int indent)
 	{
 		string desc = DescribeEscape(node.EscapeText);
-		this.AppendLine(indent, $"Escape: {node.EscapeText} ({desc})", ExplainNodeKind.Escape);
+		this.AppendLine(indent, $"Escape: {node.EscapeText} ({desc})", ExplainNodeKind.Escape, node);
 	}
 
 	public void VisitGroup(GroupNode node, int indent)
@@ -108,19 +108,19 @@ public abstract class ExplanationVisitorBase : IRegexVisitor
 			kind += $" (options: {node.InlineOptions})";
 		}
 
-		this.AppendLine(indent, $"Group: {kind} {FormatSpan(node)}", ExplainNodeKind.Group);
+		this.AppendLine(indent, $"Group: {kind}", ExplainNodeKind.Group, node);
 		node.Inner.Accept(this, indent + 1);
 	}
 
 	public void VisitInlineOptions(InlineOptionsNode node, int indent)
 	{
-		this.AppendLine(indent, $"Inline options: (?{node.Options}) {FormatSpan(node)}", ExplainNodeKind.InlineOptions);
+		this.AppendLine(indent, $"Inline options: (?{node.Options})", ExplainNodeKind.InlineOptions, node);
 	}
 
 	public void VisitLiteral(LiteralNode node, int indent)
 	{
 		string disp = node.Text.Length == 1 ? QuoteChar(node.Text[0]) : $"\"{EscapeStringForDisplay(node.Text)}\"";
-		this.AppendLine(indent, $"Literal: {disp} {FormatSpan(node)}", ExplainNodeKind.Literal);
+		this.AppendLine(indent, $"Literal: {disp}", ExplainNodeKind.Literal, node);
 	}
 
 	public void VisitLookaround(LookaroundNode node, int indent)
@@ -133,13 +133,13 @@ public abstract class ExplanationVisitorBase : IRegexVisitor
 			LookaroundKind.NegativeLookbehind => "Negative lookbehind (?<!)",
 			_ => "Lookaround",
 		};
-		this.AppendLine(indent, $"{desc} {FormatSpan(node)}", ExplainNodeKind.Lookaround);
+		this.AppendLine(indent, desc, ExplainNodeKind.Lookaround, node);
 		node.Inner.Accept(this, indent + 1);
 	}
 
 	public void VisitNamedBackreference(NamedBackreferenceNode node, int indent)
 	{
-		this.AppendLine(indent, $"Named backreference: \\k<{node.Name}> {FormatSpan(node)}", ExplainNodeKind.NamedBackreference);
+		this.AppendLine(indent, $"Named backreference: \\k<{node.Name}>", ExplainNodeKind.NamedBackreference, node);
 	}
 
 	public void VisitQuantifier(QuantifierNode node, int indent)
@@ -153,12 +153,12 @@ public abstract class ExplanationVisitorBase : IRegexVisitor
 		};
 		string mode = node.IsLazy ? "lazy" : "greedy";
 		node.Target.Accept(this, indent);
-		this.AppendLine(indent + 1, $"(repeated {range}, {mode}) {FormatSpan(node)}", ExplainNodeKind.QuantifierDetail);
+		this.AppendLine(indent + 1, $"(repeated {range}, {mode})", ExplainNodeKind.QuantifierDetail, node);
 	}
 
 	public void VisitSequence(SequenceNode node, int indent)
 	{
-		this.AppendLine(indent, $"Sequence ({node.Items.Count} item(s)) {FormatSpan(node)}", ExplainNodeKind.Sequence);
+		this.AppendLine(indent, $"Sequence ({node.Items.Count} item(s))", ExplainNodeKind.Sequence, node);
 		foreach (RegexNode child in node.Items)
 		{
 			child.Accept(this, indent + 1);
@@ -169,7 +169,9 @@ public abstract class ExplanationVisitorBase : IRegexVisitor
 
 	#region Protected Methods
 
-	protected abstract void AppendLine(int indent, string text, ExplainNodeKind nodeKind);
+	protected static string FormatSpan(RegexNode node) => $"[{node.Start},{node.End})";
+
+	protected abstract void AppendLine(int indent, string text, ExplainNodeKind nodeKind, RegexNode? node);
 
 	#endregion
 
@@ -221,8 +223,6 @@ public abstract class ExplanationVisitorBase : IRegexVisitor
 			_ => "<unknown>",
 		};
 	}
-
-	private static string FormatSpan(RegexNode node) => $"[{node.Start}..{node.End}]";
 
 	private static string QuoteChar(char c)
 	{
