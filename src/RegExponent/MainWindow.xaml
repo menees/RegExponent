@@ -438,9 +438,18 @@
 				</TabItem.Header>
 				<TabItem.Content>
 					<TreeView x:Name="explainTree"
-								  BorderThickness="0"
-								  Background="{DynamicResource {x:Static SystemColors.WindowBrushKey}}"
-								  SelectedItemChanged="ExplainTreeSelectedItemChanged" />
+									  BorderThickness="0"
+									  Background="{DynamicResource {x:Static SystemColors.WindowBrushKey}}"
+									  SelectedItemChanged="ExplainTreeSelectedItemChanged">
+							<TreeView.ItemContainerStyle>
+								<Style TargetType="TreeViewItem">
+									<Style.Resources>
+										<SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="#FF808080" />
+										<SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}" Color="White" />
+									</Style.Resources>
+								</Style>
+							</TreeView.ItemContainerStyle>
+						</TreeView>
 				</TabItem.Content>
 			</TabItem>
 			<TabItem x:Name="benchmarksTab" IsVisibleChanged="OutputTabIsVisibleChanged">
