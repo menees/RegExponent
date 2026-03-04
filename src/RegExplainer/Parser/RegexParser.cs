@@ -878,17 +878,17 @@ public sealed class RegexParser
 		bool afterMinus = false;
 		foreach (char c in options)
 		{
-			if (c == '-')
+			switch (c)
 			{
-				afterMinus = true;
-			}
-			else if (c == 'n')
-			{
-				this.explicitCapture = !afterMinus;
-			}
-			else if (c == 'x')
-			{
-				this.extendedMode = !afterMinus;
+				case '-':
+					afterMinus = true;
+					break;
+				case 'n':
+					this.explicitCapture = !afterMinus;
+					break;
+				case 'x':
+					this.extendedMode = !afterMinus;
+					break;
 			}
 		}
 	}

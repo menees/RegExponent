@@ -69,7 +69,7 @@ internal sealed class TreeViewExplanationVisitor : ExplanationVisitorBase
 
 	#region Private Methods
 
-	private static object CreateHeader(string text, ExplainNodeKind nodeKind, RegexNode? node)
+	private static StackPanel CreateHeader(string text, ExplainNodeKind nodeKind, RegexNode? node)
 	{
 		Color color = GetNodeColor(nodeKind);
 		string icon = GetNodeIcon(nodeKind);
