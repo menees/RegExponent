@@ -24,6 +24,7 @@
 				<ResourceDictionary Source="Resources/Save.xaml"/>
 				<ResourceDictionary Source="Resources/SaveAs.xaml"/>
 				<ResourceDictionary Source="Resources/Split.xaml"/>
+				<ResourceDictionary Source="Resources/RegularExpressionValidator.xaml"/>
 				<ResourceDictionary Source="Resources/TxRowCount.xaml"/>
 			</ResourceDictionary.MergedDictionaries>
 

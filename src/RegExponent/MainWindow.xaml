@@ -226,13 +226,13 @@
 						<MenuItem Header="_Input" Command="local:Commands.GenerateCodeToClipboard" CommandParameter="HTML/Input"
 								  Style="{StaticResource CodeGeneratorMenuItem}"/>
 					</MenuItem>
-						<MenuItem Header="_Benchmarks" Icon="{StaticResource Icon.TxRowCount}">
-							<MenuItem Header="_Run" Command="local:Commands.RunBenchmark"/>
-							<MenuItem Header="_View" Command="local:Commands.ViewBenchmarks"/>
-						</MenuItem>
-						<Separator/>
-						<MenuItem Header="_Explain Pattern" Command="local:Commands.ExplainPattern"/>
+					<MenuItem Header="_Benchmarks" Icon="{StaticResource Icon.TxRowCount}">
+						<MenuItem Header="_Run" Command="local:Commands.RunBenchmark"/>
+						<MenuItem Header="_View" Command="local:Commands.ViewBenchmarks"/>
 					</MenuItem>
+					<Separator/>
+					<MenuItem Header="_Explain Pattern" Command="local:Commands.ExplainPattern" Icon="{StaticResource Icon.ExplainPattern}"/>
+				</MenuItem>
 				<MenuItem Header="_Help">
 					<MenuItem Header=".NET Regex _Quick Reference" Command="Help" Icon="{StaticResource Icon.F1Help}"/>
 					<MenuItem Header=".NET Regex _Options" Command="local:Commands.ShellExecute" CommandParameter="https://docs.microsoft.com/en-us/dotnet/standard/base-types/regular-expression-options"/>
@@ -441,15 +441,15 @@
 									  BorderThickness="0"
 									  Background="{DynamicResource {x:Static SystemColors.WindowBrushKey}}"
 									  SelectedItemChanged="ExplainTreeSelectedItemChanged">
-							<TreeView.ItemContainerStyle>
-								<Style TargetType="TreeViewItem">
-									<Style.Resources>
-										<SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="#FF808080" />
-										<SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}" Color="White" />
-									</Style.Resources>
-								</Style>
-							</TreeView.ItemContainerStyle>
-						</TreeView>
+						<TreeView.ItemContainerStyle>
+							<Style TargetType="TreeViewItem">
+								<Style.Resources>
+									<SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="#FF808080" />
+									<SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}" Color="White" />
+								</Style.Resources>
+							</Style>
+						</TreeView.ItemContainerStyle>
+					</TreeView>
 				</TabItem.Content>
 			</TabItem>
 			<TabItem x:Name="benchmarksTab" IsVisibleChanged="OutputTabIsVisibleChanged">
