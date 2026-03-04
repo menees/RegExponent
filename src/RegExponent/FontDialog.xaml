@@ -103,10 +103,10 @@
 		<!-- Preview -->
 		<GroupBox Grid.Column="1" Grid.ColumnSpan="9" Grid.Row="5" Header="Preview">
 			<TextBlock TextAlignment="Center" VerticalAlignment="Center"
-				FontStyle="{Binding ElementName=fontStyleListBox,Path=SelectedItem}"
-				FontWeight="{Binding ElementName=fontWeightListBox,Path=SelectedItem}"
-				FontSize="{Binding ElementName=fontSizeListBox,Path=SelectedItem}"
-				FontFamily="{Binding ElementName=fontFamilyListBox,Path=SelectedItem}">
+				FontStyle="{Binding ElementName=fontStyleListBox, Path=SelectedItem, TargetNullValue={x:Static FontStyles.Normal}}"
+				FontWeight="{Binding ElementName=fontWeightListBox, Path=SelectedItem, TargetNullValue={x:Static FontWeights.Normal}}"
+				FontSize="{Binding ElementName=fontSizeListBox, Path=SelectedItem, TargetNullValue=12}"
+				FontFamily="{Binding ElementName=fontFamilyListBox, Path=SelectedItem, TargetNullValue={x:Static SystemFonts.MessageFontFamily}}">
 				The quick brown fox jumps over the lazy dog.
 			</TextBlock>
 		</GroupBox>
