@@ -205,7 +205,7 @@ public sealed class RegexParser
 
 	private CharacterClassNode ParseCharacterClass()
 	{
-		return this.WithSpan(() =>
+		CharacterClassNode result = this.WithSpan(() =>
 		{
 			this.Advance(); // '['
 			bool neg = false;
@@ -258,6 +258,10 @@ public sealed class RegexParser
 			this.Expect(']');
 			return cc;
 		});
+
+		result.Contents.Start = result.Start + 1;
+		result.Contents.End = result.End - 1;
+		return result;
 	}
 
 	private Ast.CharacterClassItem? ParseClassEscape()
@@ -778,11 +782,11 @@ public sealed class RegexParser
 					(int min, int? max, bool isLazy) = this.ParseQuantifierDetails(c);
 
 					QuantifierNode quant = new(lastNode, min, max, isLazy)
-					{
-						// span: start at last char, end at current parser position
-						Start = lastNode.Start,
-						End = this.pos,
-					};
+						{
+							// span: start after last char (child node), end at current parser position
+							Start = lastNode.End,
+							End = this.pos,
+						};
 
 					if (prefixNode == null)
 					{
@@ -800,13 +804,13 @@ public sealed class RegexParser
 				}
 				else
 				{
-					// Non-literal atoms: span covers the target and the quantifier symbol
-					(int min, int? max, bool isLazy) = this.ParseQuantifierDetails(c);
-					result = new Ast.QuantifierNode(atom, min, max, isLazy)
-					{
-						Start = atom.Start,
-						End = this.pos,
-					};
+					// Non-literal atoms: span covers only the quantifier symbol, not the target (child node)
+						(int min, int? max, bool isLazy) = this.ParseQuantifierDetails(c);
+						result = new Ast.QuantifierNode(atom, min, max, isLazy)
+						{
+							Start = atom.End,
+							End = this.pos,
+						};
 				}
 			}
 		}

@@ -32,9 +32,9 @@ internal sealed class TreeViewExplanationVisitor : ExplanationVisitorBase
 
 	#region Protected Methods
 
-	protected override void AppendLine(int indent, string text, ExplainNodeKind nodeKind, RegexNode? node)
+	protected override void AppendNode(int indent, string text, ExplainNodeKind nodeKind, RegexNode node)
 	{
-		(int Start, int Length)? span = node?.Start != null && node?.End != null && node.End >= node.Start
+		(int Start, int Length)? span = node.Start != null && node.End != null && node.End >= node.Start
 			? (node.Start.Value, node.End.Value - node.Start.Value)
 			: null;
 
@@ -69,7 +69,7 @@ internal sealed class TreeViewExplanationVisitor : ExplanationVisitorBase
 
 	#region Private Methods
 
-	private static StackPanel CreateHeader(string text, ExplainNodeKind nodeKind, RegexNode? node)
+	private static StackPanel CreateHeader(string text, ExplainNodeKind nodeKind, RegexNode node)
 	{
 		Color color = GetNodeColor(nodeKind);
 		string icon = GetNodeIcon(nodeKind);
@@ -128,15 +128,12 @@ internal sealed class TreeViewExplanationVisitor : ExplanationVisitorBase
 		}
 
 		// Span indicator (closed-open interval).
-		if (node != null)
+		panel.Children.Add(new TextBlock
 		{
-			panel.Children.Add(new TextBlock
-			{
-				Text = $" {FormatSpan(node)}",
-				Style = CreateTextBlockStyle(Brushes.Gray),
-				VerticalAlignment = VerticalAlignment.Center,
-			});
-		}
+			Text = $" {FormatSpan(node)}",
+			Style = CreateTextBlockStyle(Brushes.Gray),
+			VerticalAlignment = VerticalAlignment.Center,
+		});
 
 		return panel;
 	}
@@ -193,7 +190,7 @@ internal sealed class TreeViewExplanationVisitor : ExplanationVisitorBase
 		ExplainNodeKind.Dot => ".",
 		ExplainNodeKind.Anchor => "^$",
 		ExplainNodeKind.Quantifier => "*+",
-		ExplainNodeKind.QuantifierDetail => "\u00D7",
+		ExplainNodeKind.QuantifierDetail => "\u00D7", // Multiplication Sign
 		ExplainNodeKind.CharacterClass => "[ ]",
 		ExplainNodeKind.CharacterClassDetail => "...",
 		ExplainNodeKind.Group => "( )",
@@ -203,9 +200,9 @@ internal sealed class TreeViewExplanationVisitor : ExplanationVisitorBase
 		ExplainNodeKind.NamedBackreference => "\\k",
 		ExplainNodeKind.Comment => "#",
 		ExplainNodeKind.Conditional => "?:",
-		ExplainNodeKind.ConditionalBranch => "\u2192",
+		ExplainNodeKind.ConditionalBranch => "\u2192", // Rightwards Arrow
 		ExplainNodeKind.InlineOptions => "(?)",
-		_ => "\u00B7",
+		_ => "\u00B7", // MIddle Dot
 	};
 
 	#endregion

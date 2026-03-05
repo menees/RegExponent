@@ -1241,12 +1241,22 @@ public partial class MainWindow
 
 	private void ExplainTreeSelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
 	{
-		if (e.NewValue is TreeViewItem { Tag: (int start, int length) }
-			&& start >= 0 && length >= 0
-			&& (start + length) <= this.pattern.Document.TextLength)
+		if (e.NewValue is TreeViewItem item)
 		{
-			this.pattern.Select(start, length);
-			this.pattern.TextArea.Caret.BringCaretToView();
+			// Walk up to the first ancestor with a span if the selected item has none.
+			TreeViewItem? current = item;
+			while (current != null && current.Tag is not (int, int))
+			{
+				current = current.Parent as TreeViewItem;
+			}
+
+			if (current?.Tag is (int start, int length)
+				&& start >= 0 && length >= 0
+				&& (start + length) <= this.pattern.Document.TextLength)
+			{
+				this.pattern.Select(start, length);
+				this.pattern.TextArea.Caret.BringCaretToView();
+			}
 		}
 	}
 

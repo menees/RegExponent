@@ -16,10 +16,9 @@ public sealed class ExplanationVisitor : ExplanationVisitorBase
 
 	#region Protected Methods
 
-	protected override void AppendLine(int indent, string text, ExplainNodeKind nodeKind, Ast.RegexNode? node)
+	protected override void AppendNode(int indent, string text, ExplainNodeKind nodeKind, Ast.RegexNode node)
 	{
-		string span = node != null ? $" {FormatSpan(node)}" : string.Empty;
-		this.Builder.AppendLine($"{new string(' ', indent * 2)}- {text}{span}");
+		this.Builder.AppendLine($"{new string(' ', indent * 2)}- {text} {FormatSpan(node)}");
 	}
 
 	#endregion

@@ -29,7 +29,7 @@
 		<_SkipUpgradeNetAnalyzersNuGetWarning>true</_SkipUpgradeNetAnalyzersNuGetWarning>
 
 		<!-- Make the assembly, file, and NuGet package versions the same. -->
-		<Version>1.4.1</Version>
+		<Version>1.4.2</Version>
 		<UseLocaMeneesLibraries>false</UseLocaMeneesLibraries>
 		<LocaMeneesLibrariesSrc/>
 		<BuildingInsideVisualStudio Condition="'$(BuildingInsideVisualStudio)' == ''">false</BuildingInsideVisualStudio>
