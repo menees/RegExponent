@@ -30,8 +30,8 @@
 
 		<!-- Make the assembly, file, and NuGet package versions the same. -->
 		<Version>1.4.2</Version>
-		<UseLocaMeneesLibraries>false</UseLocaMeneesLibraries>
-		<LocaMeneesLibrariesSrc/>
+		<UseLocalMeneesLibraries>false</UseLocalMeneesLibraries>
+		<LocalMeneesLibrariesSrc/>
 		<BuildingInsideVisualStudio Condition="'$(BuildingInsideVisualStudio)' == ''">false</BuildingInsideVisualStudio>
 		<EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
 		<ImplicitUsings>enable</ImplicitUsings>
@@ -47,9 +47,9 @@
 
 		<!-- Make debug builds inside VS use local Libraries if available (instead of NuGet packages) to make debugging easier. -->
 		<!-- https://docs.microsoft.com/en-us/visualstudio/msbuild/visual-studio-integration-msbuild#build-solutions -->
-		<LocaMeneesLibrariesSrc>$(RepoSrcFolder)..\..\Libraries\src\</LocaMeneesLibrariesSrc>
-		<UseLocaMeneesLibraries Condition="$(BuildingInsideVisualStudio) and exists($(LocaMeneesLibrariesSrc))">true</UseLocaMeneesLibraries>
-		<LocalMeneesLibrariesFrameworkCoreBase>net6.0</LocalMeneesLibrariesFrameworkCoreBase>
+		<LocalMeneesLibrariesSrc>$(RepoSrcFolder)..\..\Libraries\src\</LocalMeneesLibrariesSrc>
+		<UseLocalMeneesLibraries Condition="$(BuildingInsideVisualStudio) and exists($(LocalMeneesLibrariesSrc))">true</UseLocalMeneesLibraries>
+		<LocalMeneesLibrariesFrameworkCoreBase>net10.0</LocalMeneesLibrariesFrameworkCoreBase>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)'=='Release'">
@@ -65,15 +65,11 @@
 	</ItemGroup>
 
 	<ItemGroup Condition="$(UseCustomCodeAnalyzers)">
-		<PackageReference Include="codecracker.CSharp" Version="1.1.0">
+		<PackageReference Include="Menees.Analyzers" Version="4.0.0">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Menees.Analyzers" Version="3.3.5">
-			<PrivateAssets>all</PrivateAssets>
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		</PackageReference>
-		<PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="$(BaseNetVersion).103">
+		<PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="$(BaseNetVersion).201">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
