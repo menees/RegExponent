@@ -101,8 +101,8 @@ internal sealed class Evaluator
 			[
 				Run(() => benchmark.IsMatchCount = RunIterations(benchmark, () => expression.IsMatch(this.input))),
 
-				// Matches is lazily evaluated, so we'll pull the Count to force the collection to be fully populated.
-				Run(() => benchmark.MatchesCount = RunIterations(benchmark, () => expression.Matches(this.input).Count.GetHashCode())),
+				// Matches is lazily evaluated, so we'll use Count to force the matches to be processed.
+				Run(() => benchmark.MatchesCount = RunIterations(benchmark, () => expression.Count(this.input).GetHashCode())),
 			];
 
 			if (this.mode == Mode.Replace)
