@@ -146,6 +146,13 @@ public partial class MainWindow
 		Block,
 	}
 
+	private enum LoadStatus
+	{
+		Success,
+		FileNotFound,
+		CannotClear,
+	}
+
 	#endregion
 
 	#region Private Properties
@@ -318,11 +325,19 @@ public partial class MainWindow
 		}
 	}
 
-	private bool Load(string fileName, bool checkCanClear = true)
+	private LoadStatus Load(string fileName, bool checkCanClear = true)
 	{
-		bool result = false;
+		LoadStatus result;
 
-		if (File.Exists(fileName) && (!checkCanClear || this.CanClear()))
+		if (!File.Exists(fileName))
+		{
+			result = LoadStatus.FileNotFound;
+		}
+		else if (checkCanClear && !this.CanClear())
+		{
+			result = LoadStatus.CannotClear;
+		}
+		else
 		{
 			fileName = FileUtility.ExpandFileName(fileName);
 			using (this.BeginUpdate())
@@ -332,7 +347,7 @@ public partial class MainWindow
 			}
 
 			this.TryQueueUpdate();
-			result = true;
+			result = LoadStatus.Success;
 		}
 
 		return result;
@@ -816,7 +831,7 @@ public partial class MainWindow
 		{
 			this.Dispatcher.BeginInvoke(new Action(() =>
 			{
-				if (this.Load(loadFileName, checkCanClear: false) && IsTempFile(loadFileName))
+				if (this.Load(loadFileName, checkCanClear: false) == LoadStatus.Success && IsTempFile(loadFileName))
 				{
 					FileUtility.TryDeleteFile(loadFileName);
 
@@ -1095,7 +1110,7 @@ public partial class MainWindow
 
 	private void RecentFileClick(string recentFile)
 	{
-		if (!this.Load(recentFile) && !this.model.IsModified)
+		if (this.Load(recentFile) == LoadStatus.FileNotFound)
 		{
 			if (WindowsUtility.ShowQuestion(this, $"Could not load:\n\n\"{recentFile}\"\n\nDo you want to remove it from the recent items?"))
 			{
