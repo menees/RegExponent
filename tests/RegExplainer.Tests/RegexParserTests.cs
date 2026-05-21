@@ -314,6 +314,19 @@ public class RegexParserTests
 	}
 
 	[TestMethod]
+	public void NegatedCharacterClassOutputsNegatedDescription()
+	{
+		RegexParser p = new("[^a-z]");
+		Ast.RegexNode ast = p.Parse();
+
+		MockExplanationVisitor mockVisitor = new();
+		ast.Accept(mockVisitor, 0);
+
+		mockVisitor.NodesList.Count.ShouldBeGreaterThan(0);
+		mockVisitor.NodesList[0].Text.ShouldStartWith("Negated character class");
+	}
+
+	[TestMethod]
 	public void BackslashPWithoutBraceThrows()
 	{
 		RegexParser p = new("""\p""");
@@ -613,6 +626,36 @@ public class RegexParserTests
 		Ast.RegexNode ast = p.Parse();
 		Ast.GroupNode group = ast.ShouldBeOfType<GroupNode>();
 		group.IsCapturing.ShouldBeTrue();
+	}
+
+	#endregion
+
+	#region Private Types
+
+	private sealed class MockExplanationVisitor : Visitor.ExplanationVisitorBase
+	{
+		#region Constructors
+
+		public MockExplanationVisitor()
+		{
+		}
+
+		#endregion
+
+		#region Public Properties
+
+		public List<(int Indent, string Text, Ast.RegexNode Node)> NodesList { get; } = [];
+
+		#endregion
+
+		#region Protected Methods
+
+		protected override void AppendNode(int indent, string text, ExplainNodeKind nodeKind, Ast.RegexNode node)
+		{
+			this.NodesList.Add((indent, text, node));
+		}
+
+		#endregion
 	}
 
 	#endregion

@@ -66,7 +66,8 @@ public abstract class ExplanationVisitorBase : IRegexVisitor
 	public void VisitCharacterClass(CharacterClassNode node, int indent)
 	{
 		string negated = node.IsNegated ? "^" : string.Empty;
-		string text = $"Character class: [{negated}...] ({node.Items.Count} item(s))";
+		string negatedText = node.IsNegated ? "Negated c" : "C";
+		string text = $"{negatedText}haracter class: [{negated}...] ({node.Items.Count} item(s))";
 		this.AppendNode(indent, text, ExplainNodeKind.CharacterClass, node);
 		string[] parts = [.. node.Items.Select(FormatClassItem)];
 		this.AppendNode(indent + 1, $"Contents: {string.Join(", ", parts)}", ExplainNodeKind.CharacterClassDetail, node.Contents);
