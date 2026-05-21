@@ -1065,7 +1065,7 @@ public partial class MainWindow
 			case nameof(Model.InMatchMode):
 			case nameof(Model.InReplaceMode):
 			case nameof(Model.InSplitMode):
-				this.Dispatcher.BeginInvoke(new Action(() => this.SelectLastVisibleBottomTab()));
+				this.Dispatcher.BeginInvoke(new Action(this.SelectLastVisibleBottomTab));
 				goto default;
 
 			case nameof(Model.UseIgnorePatternWhitespace):
@@ -1229,7 +1229,7 @@ public partial class MainWindow
 		{
 			TreeViewExplanationVisitor visitor = new();
 			ast!.Accept(visitor, 0);
-			foreach (System.Windows.Controls.TreeViewItem item in visitor.RootItems)
+			foreach (TreeViewItem item in visitor.RootItems)
 			{
 				this.explainTree.Items.Add(item);
 			}
@@ -1237,9 +1237,9 @@ public partial class MainWindow
 		else
 		{
 			string errorText = error?.ToString() ?? "Unknown parse error.";
-			this.explainTree.Items.Add(new System.Windows.Controls.TreeViewItem
+			this.explainTree.Items.Add(new TreeViewItem
 			{
-				Header = new System.Windows.Controls.TextBlock
+				Header = new TextBlock
 				{
 					Text = errorText,
 					Foreground = System.Windows.Media.Brushes.Red,

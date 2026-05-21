@@ -179,22 +179,22 @@ public sealed class RegexParser
 				'.' => this.WithSpan(() =>
 					{
 						this.Advance();
-						return new Ast.DotNode();
+						return new DotNode();
 					}),
 				'^' => this.WithSpan(() =>
 					{
 						this.Advance();
-						return new Ast.AnchorNode(Ast.AnchorKind.Start);
+						return new AnchorNode(Ast.AnchorKind.Start);
 					}),
 				'$' => this.WithSpan(() =>
 					{
 						this.Advance();
-						return new Ast.AnchorNode(Ast.AnchorKind.End);
+						return new AnchorNode(Ast.AnchorKind.End);
 					}),
 				'{' or '}' => this.WithSpan(() =>
 					{
 						char ch = this.Advance();
-						return new Ast.LiteralNode(ch.ToString());
+						return new LiteralNode(ch.ToString());
 					}),
 				_ => this.ParseLiteralRun(),
 			};
@@ -222,7 +222,7 @@ public sealed class RegexParser
 			{
 				if (this.Peek() == '\\')
 				{
-					Ast.CharacterClassItem? esc = this.ParseClassEscape();
+					CharacterClassItem? esc = this.ParseClassEscape();
 					if (esc != null)
 					{
 						cc.Items.Add(esc);
@@ -238,7 +238,7 @@ public sealed class RegexParser
 					ReadOnlySpan<char> nameSpan = this.ParseUntilSpan(':');
 					this.Expect(':');
 					this.Expect(']');
-					cc.Items.Add(new Ast.CategoryItem($"[:{new string(nameSpan)}:]"));
+					cc.Items.Add(new CategoryItem($"[:{new string(nameSpan)}:]"));
 					continue;
 				}
 
@@ -247,12 +247,12 @@ public sealed class RegexParser
 					char from = this.Advance();
 					this.Advance();
 					char to = this.Advance();
-					cc.Items.Add(new Ast.RangeItem(from, to));
+					cc.Items.Add(new RangeItem(from, to));
 					continue;
 				}
 
 				char ch = this.Advance();
-				cc.Items.Add(new Ast.SingleCharItem(ch));
+				cc.Items.Add(new SingleCharItem(ch));
 			}
 
 			this.Expect(']');
@@ -264,7 +264,7 @@ public sealed class RegexParser
 		return result;
 	}
 
-	private Ast.CharacterClassItem? ParseClassEscape()
+	private CharacterClassItem? ParseClassEscape()
 	{
 		this.Expect('\\');
 		if (this.IsAtEnd())
@@ -272,7 +272,7 @@ public sealed class RegexParser
 			throw this.CreateError("Trailing backslash in character class");
 		}
 
-		Ast.CharacterClassItem? result;
+		CharacterClassItem? result;
 		if (this.Peek() == 'p' || this.Peek() == 'P')
 		{
 			char p = this.Advance();
@@ -284,32 +284,32 @@ public sealed class RegexParser
 			this.Advance();
 			ReadOnlySpan<char> nameSpan = this.ParseUntilSpan('}');
 			this.Expect('}');
-			result = new Ast.CategoryItem($"\\{p}{{{new string(nameSpan)}}}");
+			result = new CategoryItem($"\\{p}{{{new string(nameSpan)}}}");
 		}
 		else
 		{
 			char c = this.Advance();
 			result = c switch
 			{
-				'd' => new Ast.CategoryItem("\\d"),
-				'w' => new Ast.CategoryItem("\\w"),
-				's' => new Ast.CategoryItem("\\s"),
-				'D' => new Ast.CategoryItem("\\D"),
-				'W' => new Ast.CategoryItem("\\W"),
-				'S' => new Ast.CategoryItem("\\S"),
-				'0' => new Ast.SingleCharItem('\0'),
-				'n' => new Ast.SingleCharItem('\n'),
-				'r' => new Ast.SingleCharItem('\r'),
-				't' => new Ast.SingleCharItem('\t'),
-				'f' => new Ast.SingleCharItem('\f'),
-				'v' => new Ast.SingleCharItem('\v'),
-				'a' => new Ast.SingleCharItem('\a'),
-				'e' => new Ast.SingleCharItem('\e'),
-				'x' => new Ast.SingleCharItem(this.ParseHexEscape(DigitCount.Two)),
-				'u' => new Ast.SingleCharItem(this.ParseHexEscape(DigitCount.Four)),
-				'c' => new Ast.SingleCharItem(this.ParseControlChar()),
-				'\\' => new Ast.SingleCharItem('\\'),
-				_ when !char.IsLetterOrDigit(c) => new Ast.SingleCharItem(c),
+				'd' => new CategoryItem("\\d"),
+				'w' => new CategoryItem("\\w"),
+				's' => new CategoryItem("\\s"),
+				'D' => new CategoryItem("\\D"),
+				'W' => new CategoryItem("\\W"),
+				'S' => new CategoryItem("\\S"),
+				'0' => new SingleCharItem('\0'),
+				'n' => new SingleCharItem('\n'),
+				'r' => new SingleCharItem('\r'),
+				't' => new SingleCharItem('\t'),
+				'f' => new SingleCharItem('\f'),
+				'v' => new SingleCharItem('\v'),
+				'a' => new SingleCharItem('\a'),
+				'e' => new SingleCharItem('\e'),
+				'x' => new SingleCharItem(this.ParseHexEscape(DigitCount.Two)),
+				'u' => new SingleCharItem(this.ParseHexEscape(DigitCount.Four)),
+				'c' => new SingleCharItem(this.ParseControlChar()),
+				'\\' => new SingleCharItem('\\'),
+				_ when !char.IsLetterOrDigit(c) => new SingleCharItem(c),
 				_ => throw this.CreateError($"Unrecognized escape sequence in character class: \\{c}"),
 			};
 		}
@@ -368,12 +368,12 @@ public sealed class RegexParser
 				throw this.CreateError("Octal escape sequences (\\0nn) are not supported; use \\xHH instead");
 			}
 
-			result = new Ast.LiteralNode("\0");
+			result = new LiteralNode("\0");
 		}
 		else if (char.IsDigit(this.Peek()))
 		{
 			int num = this.ParseNumber();
-			result = new Ast.BackreferenceNode(num);
+			result = new BackreferenceNode(num);
 		}
 		else if (this.Peek() == 'k')
 		{
@@ -383,7 +383,7 @@ public sealed class RegexParser
 				this.Advance();
 				ReadOnlySpan<char> nameSpan = this.ParseUntilSpan('>');
 				this.Expect('>');
-				result = new Ast.NamedBackreferenceNode(new string(nameSpan));
+				result = new NamedBackreferenceNode(new string(nameSpan));
 			}
 			else
 			{
@@ -401,36 +401,36 @@ public sealed class RegexParser
 			this.Advance();
 			ReadOnlySpan<char> nameSpan = this.ParseUntilSpan('}');
 			this.Expect('}');
-			result = new Ast.EscapeNode($"\\{p}{{{new string(nameSpan)}}}");
+			result = new EscapeNode($"\\{p}{{{new string(nameSpan)}}}");
 		}
 		else
 		{
 			char c = this.Advance();
 			result = c switch
 			{
-				'd' => new Ast.EscapeNode("\\d"),
-				'w' => new Ast.EscapeNode("\\w"),
-				's' => new Ast.EscapeNode("\\s"),
-				'D' => new Ast.EscapeNode("\\D"),
-				'W' => new Ast.EscapeNode("\\W"),
-				'S' => new Ast.EscapeNode("\\S"),
-				'b' => new Ast.EscapeNode("\\b"),
-				'B' => new Ast.EscapeNode("\\B"),
-				'A' => new Ast.EscapeNode("\\A"),
-				'z' => new Ast.EscapeNode("\\z"),
-				'Z' => new Ast.EscapeNode("\\Z"),
-				'G' => new Ast.EscapeNode("\\G"),
-				'n' => new Ast.LiteralNode("\n"),
-				'r' => new Ast.LiteralNode("\r"),
-				't' => new Ast.LiteralNode("\t"),
-				'f' => new Ast.LiteralNode("\f"),
-				'v' => new Ast.LiteralNode("\v"),
-				'a' => new Ast.LiteralNode("\a"),
-				'e' => new Ast.LiteralNode("\e"),
-				'x' => new Ast.LiteralNode(this.ParseHexEscape(DigitCount.Two).ToString()),
-				'u' => new Ast.LiteralNode(this.ParseHexEscape(DigitCount.Four).ToString()),
-				'c' => new Ast.LiteralNode(this.ParseControlChar().ToString()),
-				_ when !char.IsLetterOrDigit(c) => new Ast.LiteralNode(c.ToString()),
+				'd' => new EscapeNode("\\d"),
+				'w' => new EscapeNode("\\w"),
+				's' => new EscapeNode("\\s"),
+				'D' => new EscapeNode("\\D"),
+				'W' => new EscapeNode("\\W"),
+				'S' => new EscapeNode("\\S"),
+				'b' => new EscapeNode("\\b"),
+				'B' => new EscapeNode("\\B"),
+				'A' => new EscapeNode("\\A"),
+				'z' => new EscapeNode("\\z"),
+				'Z' => new EscapeNode("\\Z"),
+				'G' => new EscapeNode("\\G"),
+				'n' => new LiteralNode("\n"),
+				'r' => new LiteralNode("\r"),
+				't' => new LiteralNode("\t"),
+				'f' => new LiteralNode("\f"),
+				'v' => new LiteralNode("\v"),
+				'a' => new LiteralNode("\a"),
+				'e' => new LiteralNode("\e"),
+				'x' => new LiteralNode(this.ParseHexEscape(DigitCount.Two).ToString()),
+				'u' => new LiteralNode(this.ParseHexEscape(DigitCount.Four).ToString()),
+				'c' => new LiteralNode(this.ParseControlChar().ToString()),
+				_ when !char.IsLetterOrDigit(c) => new LiteralNode(c.ToString()),
 				_ => throw this.CreateError($"Unrecognized escape sequence: \\{c}"),
 			};
 		}
@@ -582,7 +582,7 @@ public sealed class RegexParser
 			this.extendedMode = savedExtended;
 			this.explicitCapture = savedExplicit;
 			this.Expect(')');
-			result = new Ast.GroupNode(inner, isCapturing: false, name: null, inlineOptions: optsStr)
+			result = new GroupNode(inner, isCapturing: false, name: null, inlineOptions: optsStr)
 			{
 				Start = startPos,
 				End = this.pos,
@@ -594,7 +594,7 @@ public sealed class RegexParser
 			string optsStr = new(this.text.AsSpan(savePos, this.pos - savePos));
 			this.Advance(); // consume ')'
 			this.ApplyInlineOptions(optsStr);
-			result = new Ast.InlineOptionsNode(optsStr)
+			result = new InlineOptionsNode(optsStr)
 			{
 				Start = startPos,
 				End = this.pos,
@@ -665,7 +665,7 @@ public sealed class RegexParser
 				throw this.CreateError("Unexpected char");
 			}
 
-			return new Ast.LiteralNode(new string(this.text.AsSpan(start, len)));
+			return new LiteralNode(new string(this.text.AsSpan(start, len)));
 		});
 	}
 
@@ -673,7 +673,7 @@ public sealed class RegexParser
 	{
 		RegexNode inner = this.ParseAlternation();
 		this.Expect(')');
-		return new Ast.LookaroundNode(inner, kind)
+		return new LookaroundNode(inner, kind)
 		{
 			Start = startPos,
 			End = this.pos,
@@ -766,7 +766,7 @@ public sealed class RegexParser
 					LiteralNode? prefixNode = null;
 					if (prefix.Length > 0)
 					{
-						prefixNode = new Ast.LiteralNode(prefix)
+						prefixNode = new LiteralNode(prefix)
 						{
 							Start = litStart,
 							End = litStart + prefix.Length,
@@ -806,7 +806,7 @@ public sealed class RegexParser
 				{
 					// Non-literal atoms: span covers only the quantifier symbol, not the target (child node)
 						(int min, int? max, bool isLazy) = this.ParseQuantifierDetails(c);
-						result = new Ast.QuantifierNode(atom, min, max, isLazy)
+						result = new QuantifierNode(atom, min, max, isLazy)
 						{
 							Start = atom.End,
 							End = this.pos,
