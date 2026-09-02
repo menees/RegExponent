@@ -495,6 +495,18 @@ public sealed class RegexParser
 				End = this.pos,
 			};
 		}
+		else if (this.Peek() == '#')
+		{
+			// Inline comment: (?#...). This construct is valid regardless of whether x-mode is enabled.
+			this.Advance();
+			ReadOnlySpan<char> commentSpan = this.ParseUntilSpan(')');
+			this.Expect(')');
+			result = new CommentNode(new string(commentSpan), isInline: true)
+			{
+				Start = startPos,
+				End = this.pos,
+			};
+		}
 		else if (this.Peek() == '(')
 		{
 			// conditional (?(cond)yes|no)

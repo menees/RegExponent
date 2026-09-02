@@ -4,7 +4,13 @@ using RegExplainer.Visitor;
 
 public sealed class CommentNode : RegexNode
 {
-	public CommentNode(string text) => this.Text = text;
+	public CommentNode(string text, bool isInline = false)
+	{
+		this.Text = text;
+		this.IsInline = isInline;
+	}
+
+	public bool IsInline { get; }
 
 	public string Text { get; }
 

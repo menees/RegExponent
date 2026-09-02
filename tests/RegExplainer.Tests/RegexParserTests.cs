@@ -113,6 +113,34 @@ public class RegexParserTests
 	}
 
 	[TestMethod]
+	public void ParsesInlineCommentsSeparatelyFromInlineOptions()
+	{
+		const string pattern = "(?i)(?#Start case-insensitive)t(?-i)(?#Then be case-sensitive)est";
+		RegexParser p = new(pattern);
+		SequenceNode sequence = p.Parse().ShouldBeOfType<SequenceNode>();
+
+		sequence.Items.Count.ShouldBe(6);
+		sequence.Items[0].ShouldBeOfType<InlineOptionsNode>().Options.ShouldBe("i");
+		CommentNode firstComment = sequence.Items[1].ShouldBeOfType<CommentNode>();
+		firstComment.Text.ShouldBe("Start case-insensitive");
+		firstComment.IsInline.ShouldBeTrue();
+		firstComment.Start.ShouldBe(4);
+		firstComment.End.ShouldBe(30);
+		sequence.Items[2].ShouldBeOfType<LiteralNode>().Text.ShouldBe("t");
+		sequence.Items[3].ShouldBeOfType<InlineOptionsNode>().Options.ShouldBe("-i");
+		CommentNode secondComment = sequence.Items[4].ShouldBeOfType<CommentNode>();
+		secondComment.Text.ShouldBe("Then be case-sensitive");
+		secondComment.IsInline.ShouldBeTrue();
+		sequence.Items[5].ShouldBeOfType<LiteralNode>().Text.ShouldBe("est");
+
+		Visitor.ExplanationVisitor visitor = new();
+		sequence.Accept(visitor, 0);
+		string explanation = visitor.Builder.ToString();
+		explanation.ShouldContain("Inline comment: (?#Start case-insensitive) [4,30)");
+		explanation.ShouldNotContain("s: enables singleline mode");
+	}
+
+	[TestMethod]
 	public void ParsesPositiveAndNegativeLookahead()
 	{
 		RegexParser p = new("foo(?=bar)baz(?!qux)");
@@ -468,13 +496,30 @@ public class RegexParserTests
 	[TestMethod]
 	public void StandaloneInlineOptionsExplanationContainsOptions()
 	{
-		RegexParser p = new("(?n)abc");
+		RegexParser p = new("(?nx)abc");
 		RegexNode ast = p.Parse();
 		Visitor.ExplanationVisitor v = new();
 		ast.Accept(v, 0);
 		string explanation = v.Builder.ToString();
 		explanation.ShouldContain("Inline options");
-		explanation.ShouldContain("(?n)");
+		explanation.ShouldContain("(?nx)");
+		explanation.ShouldContain("  - n: enables explicit capture; unnamed groups do not capture [2,3)");
+		explanation.ShouldContain("  - x: ignores unescaped whitespace and enables # comments [3,4)");
+	}
+
+	[TestMethod]
+	public void StandaloneInlineOptionsExplanationDescribesNegatedOptions()
+	{
+		RegexParser p = new("(?i-msx)");
+		RegexNode ast = p.Parse();
+		Visitor.ExplanationVisitor v = new();
+		ast.Accept(v, 0);
+		string explanation = v.Builder.ToString();
+		explanation.ShouldContain("  - i: enables case-insensitive matching [2,3)");
+		explanation.ShouldContain("  - -: disables the options that follow [3,4)");
+		explanation.ShouldContain("  - m: disables multiline mode; ^ and $ match only input boundaries [4,5)");
+		explanation.ShouldContain("  - s: disables singleline mode; . does not match newlines [5,6)");
+		explanation.ShouldContain("  - x: treats unescaped whitespace and # as pattern characters [6,7)");
 	}
 
 	[TestMethod]

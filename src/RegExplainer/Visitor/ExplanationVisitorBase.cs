@@ -31,6 +31,7 @@ public abstract class ExplanationVisitorBase : IRegexVisitor
 		Conditional,
 		ConditionalBranch,
 		InlineOptions,
+		InlineOptionDetail,
 	}
 
 	#endregion
@@ -60,7 +61,10 @@ public abstract class ExplanationVisitorBase : IRegexVisitor
 
 	public void VisitComment(CommentNode node, int indent)
 	{
-		this.AppendNode(indent, $"Comment: # {node.Text}", ExplainNodeKind.Comment, node);
+		string text = node.IsInline
+			? $"Inline comment: (?#{node.Text})"
+			: $"Comment: # {node.Text}";
+		this.AppendNode(indent, text, ExplainNodeKind.Comment, node);
 	}
 
 	public void VisitCharacterClass(CharacterClassNode node, int indent)
@@ -116,6 +120,32 @@ public abstract class ExplanationVisitorBase : IRegexVisitor
 	public void VisitInlineOptions(InlineOptionsNode node, int indent)
 	{
 		this.AppendNode(indent, $"Inline options: (?{node.Options})", ExplainNodeKind.InlineOptions, node);
+
+		bool isNegated = false;
+		for (int optionIndex = 0; optionIndex < node.Options.Length; optionIndex++)
+		{
+			char option = node.Options[optionIndex];
+			if (option == '-')
+			{
+				isNegated = true;
+				this.AppendNode(
+					indent + 1,
+					"-: disables the options that follow",
+					ExplainNodeKind.InlineOptionDetail,
+					CreateInlineOptionNode(node, optionIndex, option));
+				continue;
+			}
+
+			string? description = DescribeInlineOption(option, isNegated);
+			if (description != null)
+			{
+				this.AppendNode(
+					indent + 1,
+					$"{option}: {description}",
+					ExplainNodeKind.InlineOptionDetail,
+					CreateInlineOptionNode(node, optionIndex, option));
+			}
+		}
 	}
 
 	public void VisitLiteral(LiteralNode node, int indent)
@@ -194,6 +224,31 @@ public abstract class ExplanationVisitorBase : IRegexVisitor
 		"\\G" => "contiguous match boundary",
 		_ => "escape sequence",
 	};
+
+	private static string? DescribeInlineOption(char option, bool isNegated) => (option, isNegated) switch
+	{
+		('i', false) => "enables case-insensitive matching",
+		('i', true) => "disables case-insensitive matching",
+		('m', false) => "enables multiline mode; ^ and $ match at line boundaries",
+		('m', true) => "disables multiline mode; ^ and $ match only input boundaries",
+		('n', false) => "enables explicit capture; unnamed groups do not capture",
+		('n', true) => "disables explicit capture; unnamed groups capture",
+		('s', false) => "enables singleline mode; . also matches newlines",
+		('s', true) => "disables singleline mode; . does not match newlines",
+		('x', false) => "ignores unescaped whitespace and enables # comments",
+		('x', true) => "treats unescaped whitespace and # as pattern characters",
+		_ => null,
+	};
+
+	private static InlineOptionsNode CreateInlineOptionNode(InlineOptionsNode parent, int optionIndex, char option)
+	{
+		int? optionStart = parent.Start + 2 + optionIndex; // Skip the opening "(?".
+		return new InlineOptionsNode(option.ToString())
+		{
+			Start = optionStart,
+			End = optionStart + 1,
+		};
+	}
 
 	private static string EscapeStringForDisplay(string s)
 	{

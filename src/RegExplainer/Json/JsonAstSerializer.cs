@@ -88,7 +88,7 @@ public static class JsonAstSerializer
 			},
 			EscapeNode e => new { type = "Escape", start = e.Start, end = e.End, text = e.EscapeText },
 			InlineOptionsNode io => new { type = "InlineOptions", start = io.Start, end = io.End, options = io.Options },
-			CommentNode cm => new { type = "Comment", start = cm.Start, end = cm.End, text = cm.Text },
+			CommentNode cm => new { type = "Comment", start = cm.Start, end = cm.End, text = cm.Text, isInline = cm.IsInline },
 			_ => new { type = node.GetType().Name },
 		};
 	}

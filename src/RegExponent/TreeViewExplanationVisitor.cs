@@ -178,6 +178,7 @@ internal sealed class TreeViewExplanationVisitor : ExplanationVisitorBase
 		ExplainNodeKind.Conditional => Colors.DarkOrchid,
 		ExplainNodeKind.ConditionalBranch => Colors.MediumOrchid,
 		ExplainNodeKind.InlineOptions => Colors.SlateGray,
+		ExplainNodeKind.InlineOptionDetail => Colors.Gray,
 		_ => Colors.DimGray,
 	};
 
@@ -202,6 +203,7 @@ internal sealed class TreeViewExplanationVisitor : ExplanationVisitorBase
 		ExplainNodeKind.Conditional => "?:",
 		ExplainNodeKind.ConditionalBranch => "\u2192", // Rightwards Arrow
 		ExplainNodeKind.InlineOptions => "(?)",
+		ExplainNodeKind.InlineOptionDetail => "+/−",
 		_ => "\u00B7", // MIddle Dot
 	};
 

@@ -29,7 +29,7 @@
 		<_SkipUpgradeNetAnalyzersNuGetWarning>true</_SkipUpgradeNetAnalyzersNuGetWarning>
 
 		<!-- Make the assembly, file, and NuGet package versions the same. -->
-		<Version>1.4.5</Version>
+		<Version>1.4.6</Version>
 		<UseLocalMeneesLibraries>false</UseLocalMeneesLibraries>
 		<LocalMeneesLibrariesSrc/>
 		<BuildingInsideVisualStudio Condition="'$(BuildingInsideVisualStudio)' == ''">false</BuildingInsideVisualStudio>
